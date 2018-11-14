@@ -44,6 +44,9 @@ def parse_args(args):
     parser.add_argument('--quiet', '-q', action='store_true', default=False,
                     help='Suppress all non-error messages to stdout.')
 
+    parser.add_argument('--suffix', '-x', default=None,
+                        help='String to append to the output filenames.'
+                             'If not provided, no suffix is added.')
     return parser.parse_args(args)
 
 def main():
