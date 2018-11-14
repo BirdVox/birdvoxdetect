@@ -46,7 +46,11 @@ def parse_args(args):
                              'if not given, the output will be '
                              'saved to the same directory as the input WAV '
                              'file(s).')
-                             
+
+    parser.add_argument('--suffix', '-x', default=None,
+                        help='String to append to the output filenames.'
+                             'If not provided, no suffix is added.')
+
     parser.add_argument('--hop-size', '-t', type=positive_float, default=0.05,
                     help=['Hop size in seconds for processing audio files. ',
                     'We recommend values of 0.075 or smaller'])
@@ -54,9 +58,6 @@ def parse_args(args):
     parser.add_argument('--quiet', '-q', action='store_true', default=False,
                     help='Suppress all non-error messages to stdout.')
 
-    parser.add_argument('--suffix', '-x', default=None,
-                        help='String to append to the output filenames.'
-                             'If not provided, no suffix is added.')
     return parser.parse_args(args)
 
 def main():
