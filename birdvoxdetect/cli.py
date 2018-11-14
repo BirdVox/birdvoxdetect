@@ -37,6 +37,12 @@ def parse_args(args):
     parser = ArgumentParser(sys.argv[0], description=main.__doc__,
                         formatter_class=RawDescriptionHelpFormatter)
 
+    parser.add_argument('--output-dir', '-o', default=None,
+                        help='Directory to save the ouptut file(s); '
+                             'if not given, the output will be '
+                             'saved to the same directory as the input WAV '
+                             'file(s).')
+                             
     parser.add_argument('--hop-size', '-t', type=positive_float, default=0.05,
                     help=['Hop size in seconds for processing audio files. ',
                     'We recommend values of 0.075 or smaller'])
