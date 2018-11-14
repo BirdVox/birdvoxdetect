@@ -34,6 +34,20 @@ def get_file_list(input_list):
     return file_list
 
 
+def run(inputs, output_dir=None, suffix=None, hop_size=0.05, verbose=False):
+    if isinstance(inputs, string_types):
+        file_list = [inputs]
+    elif isinstance(inputs, Iterable):
+        file_list = get_file_list(inputs)
+    else:
+        raise BirdVoxDetectError('Invalid input: {}'.format(str(inputs)))
+
+    if len(file_list) == 0:
+        print('birdvoxdetect: No WAV files found in {}. Aborting.'.format(str(inputs)))
+        sys.exit(-1)
+    raise NotImplementedError()
+
+
 def parse_args(args):
     parser = ArgumentParser(sys.argv[0], description=main.__doc__,
                         formatter_class=RawDescriptionHelpFormatter)
