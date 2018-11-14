@@ -37,6 +37,10 @@ def parse_args(args):
     parser = ArgumentParser(sys.argv[0], description=main.__doc__,
                         formatter_class=RawDescriptionHelpFormatter)
 
+    parser.add_argument('inputs', nargs='+',
+                        help='Path or paths to files to process, or path to '
+                             'a directory of files to process.')
+
     parser.add_argument('--output-dir', '-o', default=None,
                         help='Directory to save the ouptut file(s); '
                              'if not given, the output will be '
