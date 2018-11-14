@@ -2,6 +2,7 @@ from __future__ import print_function
 import os
 import sys
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
+import birdvoxdetect
 from argparse import ArgumentParser, RawDescriptionHelpFormatter, ArgumentTypeError
 
 
