@@ -81,4 +81,8 @@ def main():
     """
     args = parse_args(sys.argv[1:])
 
-    raise NotImplementedError()
+    run(args.inputs,
+        output_dir=args.output_dir,
+        suffix=args.suffix,
+        hop_size=args.hop_size,
+        verbose=not args.quiet)
