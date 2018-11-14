@@ -50,9 +50,8 @@ def run(inputs, output_dir=None, suffix=None, hop_size=0.05, verbose=False):
     if len(file_list) == 0:
         print('birdvoxdetect: No WAV files found in {}. Aborting.'.format(str(inputs)))
         sys.exit(-1)
-    raise NotImplementedError()
 
-        # Process all files in the arguments
+    # Process all files in the arguments
     for filepath in file_list:
         if verbose:
             print('birdvoxdetect: Processing: {}'.format(filepath))
