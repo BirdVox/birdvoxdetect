@@ -14,6 +14,25 @@ def positive_float(value):
     return fvalue
 
 
+def get_file_list(input_list):
+    """Parse list of input paths."""
+    if not isinstance(input_list, Iterable) or isinstance(input_list, string_types):
+        raise ArgumentTypeError('input_list must be a non-string iterable')
+    file_list = []
+    for item in input_list:
+        if os.path.isfile(item):
+            file_list.append(os.path.abspath(item))
+        elif os.path.isdir(item):
+            for fname in os.listdir(item):
+                path = os.path.join(item, fname)
+                if os.path.isfile(path):
+                    file_list.append(path)
+        else:
+            raise BirdVoxDetectError('Could not find input at path {}'.format(item))
+
+    return file_list
+
+
 def parse_args(args):
     parser = ArgumentParser(sys.argv[0], description=main.__doc__,
                         formatter_class=RawDescriptionHelpFormatter)
