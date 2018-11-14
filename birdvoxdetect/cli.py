@@ -3,7 +3,8 @@ import os
 import sys
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
 import birdvoxdetect
-from argparse import ArgumentParser, RawDescriptionHelpFormatter, ArgumentTypeError
+from argparse import ArgumentParser, RawDescriptionHelpFormatter,
+    ArgumentTypeError
 from collections import Iterable
 from six import string_types
 
@@ -22,7 +23,8 @@ def positive_float(value):
 
 def get_file_list(input_list):
     """Parse list of input paths."""
-    if not isinstance(input_list, Iterable) or isinstance(input_list, string_types):
+    if not isinstance(input_list, Iterable)
+            or isinstance(input_list, string_types):
         raise ArgumentTypeError('input_list must be a non-string iterable')
     file_list = []
     for item in input_list:
@@ -34,7 +36,8 @@ def get_file_list(input_list):
                 if os.path.isfile(path):
                     file_list.append(path)
         else:
-            raise BirdVoxDetectError('Could not find input at path {}'.format(item))
+            raise BirdVoxDetectError(
+                'Could not find input at path {}'.format(item))
 
     return file_list
 
@@ -48,7 +51,8 @@ def run(inputs, output_dir=None, suffix=None, hop_size=0.05, verbose=False):
         raise BirdVoxDetectError('Invalid input: {}'.format(str(inputs)))
 
     if len(file_list) == 0:
-        print('birdvoxdetect: No WAV files found in {}. Aborting.'.format(str(inputs)))
+        print('birdvoxdetect: No WAV files found in {}. Aborting.'.format(
+            str(inputs)))
         sys.exit(-1)
 
     # Process all files in the arguments
@@ -94,7 +98,8 @@ def parse_args(args):
 
 def main():
     """
-    Extracts nocturnal flight calls from audio by means of the BirdVoxDetect deep learning model (Lostanlen et al. 2019).
+    Extracts nocturnal flight calls from audio by means of the BirdVoxDetect
+    deep learning model (Lostanlen et al. 2019).
     """
     args = parse_args(sys.argv[1:])
 
