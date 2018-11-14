@@ -52,6 +52,18 @@ def run(inputs, output_dir=None, suffix=None, hop_size=0.05, verbose=False):
         sys.exit(-1)
     raise NotImplementedError()
 
+        # Process all files in the arguments
+    for filepath in file_list:
+        if verbose:
+            print('birdvoxdetect: Processing: {}'.format(filepath))
+        birdvoxdetect.process_file(filepath,
+                     output_dir=output_dir,
+                     suffix=suffix,
+                     hop_size=hop_size,
+                     verbose=verbose)
+    if verbose:
+        print('birdvoxdetect: Done.')
+
 
 def parse_args(args):
     parser = ArgumentParser(sys.argv[0], description=main.__doc__,
@@ -79,6 +91,7 @@ def parse_args(args):
                     help='Suppress all non-error messages to stdout.')
 
     return parser.parse_args(args)
+
 
 def main():
     """
