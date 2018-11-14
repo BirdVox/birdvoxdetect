@@ -5,6 +5,7 @@ from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
 import birdvoxdetect
 from argparse import ArgumentParser, RawDescriptionHelpFormatter, ArgumentTypeError
 from collections import Iterable
+from six import string_types
 
 
 def positive_float(value):
