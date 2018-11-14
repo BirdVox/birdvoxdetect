@@ -14,5 +14,14 @@ def positive_float(value):
     return fvalue
 
 
+def parse_args(args):
+    parser = ArgumentParser(sys.argv[0], description=main.__doc__,
+                        formatter_class=RawDescriptionHelpFormatter)
+
 def main():
+    """
+    Extracts nocturnal flight calls from audio by means of the BirdVoxDetect deep learning model (Lostanlen et al. 2019).
+    """
+    args = parse_args(sys.argv[1:])
+
     raise NotImplementedError()
