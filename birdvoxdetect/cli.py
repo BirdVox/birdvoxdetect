@@ -37,7 +37,11 @@ def parse_args(args):
     parser = ArgumentParser(sys.argv[0], description=main.__doc__,
                         formatter_class=RawDescriptionHelpFormatter)
 
+    parser.add_argument('--quiet', '-q', action='store_true', default=False,
+                    help='Suppress all non-error messages to stdout.')
+
     return parser.parse_args(args)
+
 def main():
     """
     Extracts nocturnal flight calls from audio by means of the BirdVoxDetect deep learning model (Lostanlen et al. 2019).
