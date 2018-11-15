@@ -40,7 +40,7 @@ else:
 
 
 version = imp.load_source(
-    'birdvoxdetect.version', os.path.join('openl3', 'version.py'))
+    'birdvoxdetect.version', os.path.join('birdvoxdetect', 'version.py'))
 
 with open('README.md') as file:
     long_description = file.read()
