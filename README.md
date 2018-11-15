@@ -6,6 +6,10 @@
 [![PyPI](https://img.shields.io/badge/python-2.7%2C%203.5%2C%203.6-blue.svg)]()
 
 
+BirdVoxDetect is a pre-trained deep learning system for detecting bird flight calls in continuous recordings.
+It relies on per-channel energy normalization (PCEN) and context-adaptive convolutional neural network (CA-CNN) for improved robustness to background noise.
+It is made available both as a Python library and as a command-line tool for Windows, OS X, and Linux.
+
 For details about the deep learning model in BirdVoxDetect and how it was trained, we refer the reader to:
 
 Robust audio detection in bioacoustic sensor networks.<br/>
