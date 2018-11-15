@@ -52,7 +52,7 @@ To install the latest version of BirdVoxDetect from source:
 
 1. Clone or pull the latest version:
 
-        git clone git@github.com:BirdVoxDetect/birdvoxdetect.git
+        git clone git@github.com:BirdVox/birdvoxdetect.git
 
 2. Install using pip to handle Python dependencies:
 
