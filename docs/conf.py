@@ -38,7 +38,7 @@ author = 'Vincent Lostanlen, Justin Salamon, Andrew Farnsworth, Steve Kelling, a
 # The short X.Y version
 import imp
 birdvoxdetect_version = imp.load_source(
-    'birdvoxdetect.version', '../openl3/birdvoxdetect.py')
+    'birdvoxdetect.version', '../birdvoxdetect/version.py')
 version = birdvoxdetect.short_version
 # The full version, including alpha/beta/rc tags
 release = birdvoxdetect.version
