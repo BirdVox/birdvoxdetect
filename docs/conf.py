@@ -30,10 +30,18 @@ project = 'BirdVoxDetect'
 copyright = '2018, Vincent Lostanlen, Justin Salamon, Andrew Farnsworth, Steve Kelling, and Juan Pablo Bello'
 author = 'Vincent Lostanlen, Justin Salamon, Andrew Farnsworth, Steve Kelling, and Juan Pablo Bello'
 
+
+# The version info for the project you're documenting, acts as replacement for
+# |version| and |release|, also used in various other places throughout the
+# built documents.
+#
 # The short X.Y version
-version = ''
+import imp
+birdvoxdetect_version = imp.load_source(
+    'birdvoxdetect.version', '../openl3/birdvoxdetect.py')
+version = birdvoxdetect.short_version
 # The full version, including alpha/beta/rc tags
-release = '1.0.0'
+release = birdvoxdetect.version
 
 
 # -- General configuration ---------------------------------------------------
