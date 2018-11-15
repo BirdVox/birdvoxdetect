@@ -14,8 +14,8 @@ def positive_float(value):
     try:
         fvalue = float(value)
     except (ValueError, TypeError) as e:
-        raise ArgumentTypeError('Expected a positive float, error message: '
-                                '{}'.format(e))
+        raise ArgumentTypeError('Expected a positive float, error message: ' +\
+            '{}'.format(e))
     if fvalue <= 0:
         raise ArgumentTypeError('Expected a positive float')
     return fvalue
@@ -23,7 +23,7 @@ def positive_float(value):
 
 def get_file_list(input_list):
     """Parse list of input paths."""
-    if not isinstance(input_list, Iterable)
+    if not isinstance(input_list, Iterable)\
             or isinstance(input_list, string_types):
         raise ArgumentTypeError('input_list must be a non-string iterable')
     file_list = []
@@ -70,28 +70,28 @@ def run(inputs, output_dir=None, suffix=None, hop_size=0.05, verbose=False):
 
 def parse_args(args):
     parser = ArgumentParser(sys.argv[0], description=main.__doc__,
-                        formatter_class=RawDescriptionHelpFormatter)
+        formatter_class=RawDescriptionHelpFormatter)
 
     parser.add_argument('inputs', nargs='+',
-                        help='Path or paths to files to process, or path to '
-                             'a directory of files to process.')
+        help='Path or paths to files to process, or path to '
+             'a directory of files to process.')
 
     parser.add_argument('--output-dir', '-o', default=None,
-                        help='Directory to save the ouptut file(s); '
-                             'if not given, the output will be '
-                             'saved to the same directory as the input WAV '
-                             'file(s).')
+        help='Directory to save the ouptut file(s); '
+             'if not given, the output will be '
+             'saved to the same directory as the input WAV '
+             'file(s).')
 
     parser.add_argument('--suffix', '-x', default=None,
-                        help='String to append to the output filenames.'
-                             'If not provided, no suffix is added.')
+        help='String to append to the output filenames.'
+         'If not provided, no suffix is added.')
 
     parser.add_argument('--hop-size', '-t', type=positive_float, default=0.05,
-                    help=['Hop size in seconds for processing audio files. ',
-                    'We recommend values of 0.075 or smaller'])
+        help='Hop size in seconds for processing audio files. '
+        'We recommend values of 0.075 or smaller'])
 
     parser.add_argument('--quiet', '-q', action='store_true', default=False,
-                    help='Suppress all non-error messages to stdout.')
+        help='Suppress all non-error messages to stdout.')
 
     return parser.parse_args(args)
 
