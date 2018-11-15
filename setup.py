@@ -94,3 +94,4 @@ setup(
         'birdvoxdetect': [os.path.join('models', fname)
                    for fname in weight_files]
     },
+)
