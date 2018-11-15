@@ -1,4 +1,4 @@
-# BirdVoxDetect: bioacoustic monitoring of nocturnal bird migration
+# BirdVoxDetect: robust sound event detection of bird flight calls
  [![Documentation Status](https://readthedocs.org/projects/birdvoxdetect/badge/?version=latest)](http://birdvoxdetect.readthedocs.io/en/latest/?badge=latest)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://choosealicense.com/licenses/mit/)
 [![Build Status](https://travis-ci.org/BirdVox/birdvoxdetect.svg?branch=master)](https://travis-ci.org/BirdVox/birdvoxdetect)
