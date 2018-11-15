@@ -88,7 +88,7 @@ def parse_args(args):
 
     parser.add_argument('--hop-size', '-t', type=positive_float, default=0.05,
         help='Hop size in seconds for processing audio files. '
-        'We recommend values of 0.075 or smaller'])
+        'We recommend values of 0.075 or smaller')
 
     parser.add_argument('--quiet', '-q', action='store_true', default=False,
         help='Suppress all non-error messages to stdout.')
