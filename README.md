@@ -2,8 +2,8 @@
  [![Documentation Status](https://readthedocs.org/projects/birdvoxdetect/badge/?version=latest)](http://birdvoxdetect.readthedocs.io/en/latest/?badge=latest)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://choosealicense.com/licenses/mit/)
 [![Build Status](https://travis-ci.org/BirdVox/birdvoxdetect.svg?branch=master)](https://travis-ci.org/BirdVox/birdvoxdetect)
-[![Coverage Status](https://coveralls.io/repos/github/BirdVox/birdvoxdetect/badge.svg?branch=master)](https://coveralls.io/repos/github/BirdVox/birdvoxdetect?branch=master)
-[![PyPI](https://img.shields.io/badge/python-2.7%2C%203.4%2C%203.5%2C%203.6-blue.svg)]()
+[![Coverage Status](https://coveralls.io/repos/github/BirdVox/birdvoxdetect/badge.svg)](https://coveralls.io/github/BirdVox/birdvoxdetect)
+[![PyPI](https://img.shields.io/badge/python-2.7%2C%203.5%2C%203.6-blue.svg)]()
 
 
 For details about the deep learning model in BirdVoxDetect and how it was trained, we refer the reader to:
