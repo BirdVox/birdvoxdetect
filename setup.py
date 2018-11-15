@@ -13,7 +13,7 @@ except ImportError:
 model_dir = os.path.join('birdvoxdetect', 'models')
 suffixes = ['adaptive-threshold-T1800']
 weight_files = ['birdvoxdetect_{}.h5'.format(suffix) for suffix in suffixes]
-base_url = 'https://github.com/BirdVoxDetect/raw/models/'
+base_url = 'https://github.com/BirdVox/birdvoxdetect/raw/models/'
 
 if len(sys.argv) > 1 and sys.argv[1] == 'sdist':
     # exclude the weight files in sdist
