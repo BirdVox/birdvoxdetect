@@ -1,6 +1,6 @@
 import pytest
 import os
-from birdvoxdetect.cli import positive_float
+from birdvoxdetect.cli import positive_float, get_file_list
 from argparse import ArgumentTypeError
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
 import tempfile
