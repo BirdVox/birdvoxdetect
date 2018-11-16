@@ -94,7 +94,7 @@ def test_parse_args():
             '-s', 'mysuffix',
             '-r', 25,
             '-d', 0.5,
-            '-q']
+            '--quiet']
     args = parse_args(args)
     assert args.output_dir == '/output/dir'
     assert args.export_clips == True
