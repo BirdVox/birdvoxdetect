@@ -19,8 +19,12 @@ TEST_AUDIO_DIR = os.path.join(TEST_DIR, 'data', 'audio')
 # Test audio file paths
 NOISY_1MIN_24K_PATH = os.path.join(TEST_AUDIO_DIR,
     'BirdVox-full-night_unit03_00-19-45_01min.wav')
-CLEAN_1MIN_PATH = os.path.join(TEST_AUDIO_DIR,
-    'CLO-43SD_synth-clean_01min.wav')
+BG_10SEC_PATH = os.path.join(TEST_AUDIO_DIR,
+    'BirdVox-scaper_example_background.wav')
+FG_10SEC_PATH = os.path.join(TEST_AUDIO_DIR,
+    'BirdVox-scaper_example_foreground.wav')
+MIX_10SEC_PATH = os.path.join(TEST_AUDIO_DIR,
+    'BirdVox-scaper_example_mix.wav')
 
 
 def test_positive_float():
@@ -50,9 +54,9 @@ def test_get_file_list():
 
     # test for valid list of file paths
     flist = get_file_list(
-        [CLEAN_1MIN_PATH, NOISY_1MIN_24K_PATH])
+        [BG_10SEC_PATH, NOISY_1MIN_24K_PATH])
     assert len(flist) == 2
-    assert flist[0] == CLEAN_1MIN_PATH
+    assert flist[0] == BG_10SEC_PATH
     assert flist[1] == NOISY_1MIN_24K_PATH
 
 
@@ -62,3 +66,23 @@ def test_run(capsys):
     invalid_inputs = [None, 5, 1.0]
     for i in invalid_inputs:
         pytest.raises(BirdVoxDetectError, run, i)
+
+    # test empty input folder
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        tempdir = tempfile.mkdtemp()
+        run([tempdir])
+
+    # make sure it exited
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == -1
+
+    # make sure it printed a message
+    captured = capsys.readouterr()
+    expected_message = 'openl3: No WAV files found in {}. Aborting.\n'.format(str([tempdir]))
+    assert captured.out == expected_message
+
+    # detele tempdir
+    os.rmdir(tempdir)
+
+    # nonexistent path
+    pytest.raises(BirdVoxDetectError, get_file_list, ['/fake/path/to/file'])
