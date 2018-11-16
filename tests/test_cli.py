@@ -89,12 +89,12 @@ def test_parse_args():
     # test custom values
     args = [MIX_10SEC_PATH,
             '-o', '/output/dir',
-            '-c', 1,
+            '-c',
             '-t', 60,
             '-s', 'mysuffix',
             '-r', 25,
             '-d', 0.5,
-            '-q', 1]
+            '-q']
     args = parse_args(args)
     assert args.output_dir == '/output/dir'
     assert args.export_clips == True
