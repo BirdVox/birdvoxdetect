@@ -54,3 +54,11 @@ def test_get_file_list():
     assert len(flist) == 2
     assert flist[0] == CLEAN_1MIN_PATH
     assert flist[1] == NOISY_1MIN_24K_PATH
+    
+    
+def test_run(capsys):
+
+    # test invalid input
+    invalid_inputs = [None, 5, 1.0]
+    for i in invalid_inputs:
+        pytest.raises(BirdVoxDetectError, run, i)
