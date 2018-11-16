@@ -77,21 +77,34 @@ def parse_args(args):
              'a directory of files to process.')
 
     parser.add_argument('--output-dir', '-o', default=None,
-        help='Directory to save the ouptut file(s); '
-             'if not given, the output will be '
-             'saved to the same directory as the input WAV '
+        help='Directory to save the output file(s); '
+             'The default value is the same directory as the input '
              'file(s).')
+    
+    parser.add_argument('--export-clips', '-c', default=False,
+        help='Export detected events as audio clips in WAV format.'
+             'The default value is false.')
+    
+    parser.add_argument('--threshold', '-t', default=50,
+        help='Detection threshold, between 10 and 90. The default value is 50.'
+        'Greater values lead to higher precision at the expense of a lower recall.')
 
-    parser.add_argument('--suffix', '-x', default=None,
+    parser.add_argument('--suffix', '-s', default=None,
         help='String to append to the output filenames.'
-         'If not provided, no suffix is added.')
+         'The default value is the empty string.')
 
-    parser.add_argument('--hop-size', '-t', type=positive_float, default=0.05,
-        help='Hop size in seconds for processing audio files. '
-        'We recommend values of 0.075 or smaller')
+    parser.add_argument('--frame-rate', '-r', type=positive_float, default=20,
+        help='Temporal resolution of the detection curve, expressed in frames per second (fps). '
+        'The default value is 20. We recommend values of 15 or above.')
+    
+    parser.add_argument('--clip-duration', '-d', type=positive_float, default=1.0,
+        help='Duration of the exported clips, expressed in seconds (fps). '
+        'The default value is 1.0, that is, one second.'
+        'We recommend values of 0.5 or above.')
 
     parser.add_argument('--quiet', '-q', action='store_true', default=False,
-        help='Suppress all non-error messages to stdout.')
+        help='Suppress all non-error messages to stdout.'
+             'The default value is false.')
 
     return parser.parse_args(args)
 
