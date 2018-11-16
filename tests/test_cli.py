@@ -90,11 +90,11 @@ def test_parse_args():
     args = [MIX_10SEC_PATH,
             '-o', '/output/dir',
             '-c',
-            '-t', 60,
+            '-t', '60',
             '-s', 'mysuffix',
-            '-r', 25,
-            '-d', 0.5,
-            '--quiet']
+            '-r', '25',
+            '-d', '0.5',
+            '-q']
     args = parse_args(args)
     assert args.output_dir == '/output/dir'
     assert args.export_clips == True
