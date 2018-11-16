@@ -78,7 +78,6 @@ def test_parse_args():
     # test default values
     args = [MIX_10SEC_PATH]
     args = parse_args(args)
-    
     assert args.output_dir is None
     assert args.export_clips == False
     assert args.threshold == 50.0
@@ -96,6 +95,7 @@ def test_parse_args():
             '-r', 25,
             '-d', 0.5,
             '-q', 1]
+    args = parse_args(args)
     assert args.output_dir == '/output/dir'
     assert args.export_clips == True
     assert args.threshold == 50.0
@@ -103,12 +103,12 @@ def test_parse_args():
     assert args.frame_rate == 20.0
     assert args.clip_duration == 1.0
     assert args.quiet == True
-    
-    
 
 
 
-    
+
+
+
 def test_run(capsys):
 
     # test invalid input

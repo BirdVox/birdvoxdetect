@@ -80,11 +80,11 @@ def parse_args(args):
         help='Directory to save the output file(s); '
              'The default value is the same directory as the input '
              'file(s).')
-    
+
     parser.add_argument('--export-clips', '-c', default=False,
         help='Export detected events as audio clips in WAV format.'
              'The default value is false.')
-    
+
     parser.add_argument('--threshold', '-t', type=positive_float, default=50,
         help='Detection threshold, between 10 and 90. The default value is 50.'
         'Greater values lead to higher precision at the expense of a lower recall.')
@@ -96,7 +96,7 @@ def parse_args(args):
     parser.add_argument('--frame-rate', '-r', type=positive_float, default=20,
         help='Temporal resolution of the detection curve, expressed in frames per second (fps). '
         'The default value is 20. We recommend values of 15 or above.')
-    
+
     parser.add_argument('--clip-duration', '-d', type=positive_float, default=1.0,
         help='Duration of the exported clips, expressed in seconds (fps). '
         'The default value is 1.0, that is, one second.'
