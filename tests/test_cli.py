@@ -62,12 +62,15 @@ def test_get_file_list():
     # test for valid folder
     flist = get_file_list([TEST_AUDIO_DIR])
     assert len(flist) == 4
-
     flist = sorted(flist)
     assert flist[0] == NOISY_1MIN_24K_PATH
     assert flist[1] == BG_10SEC_PATH
     assert flist[2] == FG_10SEC_PATH
     assert flist[3] == MIX_10SEC_PATH
+
+    # combine list of files and folders
+    flist = get_file_list([TEST_AUDIO_DIR, BG_10SEC_PATH])
+    assert len(flist) == 5
 
 
 def test_run(capsys):
