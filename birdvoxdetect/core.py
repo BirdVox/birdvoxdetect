@@ -1,3 +1,5 @@
+import os
+
 TARGET_SR = 22050
 
 def process_file(filepath,
@@ -14,7 +16,8 @@ def get_output_path(filepath, suffix, output_dir=None):
     suffix : str
         String to append to filename (including extension)
     output_dir : str or None
-        Path to directory where file will be saved. If None, will use directory of given filepath.
+        Path to directory where file will be saved.
+        If None, will use directory of given filepath.
     Returns
     -------
     output_path : str
