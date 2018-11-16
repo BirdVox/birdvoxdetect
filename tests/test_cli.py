@@ -16,6 +16,10 @@ except ImportError:
 TEST_DIR = os.path.dirname(__file__)
 TEST_AUDIO_DIR = os.path.join(TEST_DIR, 'data', 'audio')
 
+# Test audio file paths
+NOISY_1MIN_24K_PATH = os.path.join(TEST_AUDIO_DIR, 
+    'BirdVox-full-night_unit03_00-19-45_01min.wav')
+
 
 def test_positive_float():
 
