@@ -66,3 +66,6 @@ def test_run(capsys):
     invalid_inputs = [None, 5, 1.0]
     for i in invalid_inputs:
         pytest.raises(BirdVoxDetectError, run, i)
+        
+    # nonexistent path
+    pytest.raises(OpenL3Error, get_file_list, ['/fake/path/to/file'])
