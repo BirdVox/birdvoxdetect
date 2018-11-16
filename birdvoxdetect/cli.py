@@ -82,7 +82,6 @@ def parse_args(args):
             'file(s).')
 
     parser.add_argument('--export-clips', '-c', action='store_true',
-        default=False,
         help='Export detected events as audio clips in WAV format.')
 
     parser.add_argument('--threshold', '-t', type=positive_float, default=50,
@@ -104,7 +103,7 @@ def parse_args(args):
             'The default value is 1.0, that is, one second. '
             'We recommend values of 0.5 or above.')
 
-    parser.add_argument('--quiet', '-q', action='store_true', default=False,
+    parser.add_argument('--quiet', '-q', action='store_true',
         help='Suppress all non-error messages to stdout.')
 
     return parser.parse_args(args)
