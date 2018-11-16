@@ -45,7 +45,6 @@ def test_positive_float():
         pytest.raises(ArgumentTypeError, positive_float, i)
 
 
-
 def test_get_file_list():
 
     # test for invalid input (must be iterable, e.g. list)
@@ -73,6 +72,42 @@ def test_get_file_list():
     assert len(flist) == 5
 
 
+def test_parse_args():
+
+    # test default values
+    args = [MIX_10SEC_PATH]
+    args = parse_args(args)
+    
+    assert args.output_dir is None
+    assert args.export_clips == False
+    assert args.threshold == 50.0
+    assert args.suffix is None
+    assert args.frame_rate == 20.0
+    assert args.clip_duration == 1.0
+    assert args.quiet == False
+
+    # test custom values
+    args = [MIX_10SEC_PATH,
+            '-o', '/output/dir',
+            '-c', 1,
+            '-t', 60,
+            '-s', 'mysuffix',
+            '-r', 25,
+            '-d', 0.5,
+            '-q', 1]
+    assert args.output_dir == '/output/dir'
+    assert args.export_clips == True
+    assert args.threshold == 50.0
+    assert args.suffix == 'mysuffix'
+    assert args.frame_rate == 20.0
+    assert args.clip_duration == 1.0
+    assert args.quiet == True
+    
+    
+
+
+
+    
 def test_run(capsys):
 
     # test invalid input
