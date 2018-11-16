@@ -67,5 +67,22 @@ def test_run(capsys):
     for i in invalid_inputs:
         pytest.raises(BirdVoxDetectError, run, i)
         
+    # test empty input folder
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        tempdir = tempfile.mkdtemp()
+        run([tempdir])
+
+    # make sure it exited
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == -1
+
+    # make sure it printed a message
+    captured = capsys.readouterr()
+    expected_message = 'openl3: No WAV files found in {}. Aborting.\n'.format(str([tempdir]))
+    assert captured.out == expected_message
+
+    # detele tempdir
+    os.rmdir(tempdir)
+        
     # nonexistent path
     pytest.raises(BirdVoxDetectError, get_file_list, ['/fake/path/to/file'])
