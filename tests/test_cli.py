@@ -1,6 +1,6 @@
 import pytest
 import os
-from birdvoxdetect.cli import positive_float, get_file_list
+from birdvoxdetect.cli import positive_float, get_file_list, run
 from argparse import ArgumentTypeError
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
 import tempfile
@@ -17,9 +17,9 @@ TEST_DIR = os.path.dirname(__file__)
 TEST_AUDIO_DIR = os.path.join(TEST_DIR, 'data', 'audio')
 
 # Test audio file paths
-NOISY_1MIN_24K_PATH = os.path.join(TEST_AUDIO_DIR, 
+NOISY_1MIN_24K_PATH = os.path.join(TEST_AUDIO_DIR,
     'BirdVox-full-night_unit03_00-19-45_01min.wav')
-CLEAN_1MIN_PATH = os.path.join(TEST_AUDIO_DIR, 
+CLEAN_1MIN_PATH = os.path.join(TEST_AUDIO_DIR,
     'CLO-43SD_synth-clean_01min.wav')
 
 
@@ -39,9 +39,9 @@ def test_positive_float():
     invalid = [-5, -1.0, None, 'hello']
     for i in invalid:
         pytest.raises(ArgumentTypeError, positive_float, i)
-        
-        
-        
+
+
+
 def test_get_file_list():
 
     # test for invalid input (must be iterable, e.g. list)
@@ -54,8 +54,8 @@ def test_get_file_list():
     assert len(flist) == 2
     assert flist[0] == CLEAN_1MIN_PATH
     assert flist[1] == NOISY_1MIN_24K_PATH
-    
-    
+
+
 def test_run(capsys):
 
     # test invalid input
