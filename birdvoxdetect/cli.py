@@ -85,7 +85,7 @@ def parse_args(args):
         help='Export detected events as audio clips in WAV format.'
              'The default value is false.')
     
-    parser.add_argument('--threshold', '-t', default=50,
+    parser.add_argument('--threshold', '-t', type=positive_float, default=50,
         help='Detection threshold, between 10 and 90. The default value is 50.'
         'Greater values lead to higher precision at the expense of a lower recall.')
 
