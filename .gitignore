@@ -105,3 +105,4 @@ venv.bak/
 
 # BirdVoxDetect models in HDF5 format
 birdvoxdetect/models/*
+*.pkf
