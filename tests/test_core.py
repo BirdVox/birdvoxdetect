@@ -1,12 +1,12 @@
-import openl3
+import birdvoxdetect
 import pytest
 import tempfile
 import numpy as np
 import os
 import shutil
 import soundfile as sf
-from openl3.openl3_exceptions import OpenL3Error
-from openl3.openl3_warnings import OpenL3Warning
+from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
+from birdvoxdetect.birdvoxdetect_warnings import BirdVoxDetectWarning
 
 
 TEST_DIR = os.path.dirname(__file__)
