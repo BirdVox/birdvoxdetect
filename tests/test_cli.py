@@ -84,7 +84,7 @@ def test_parse_args():
     assert args.suffix is None
     assert args.frame_rate == 20.0
     assert args.clip_duration == 1.0
-    assert args.quiet == False
+    assert args.quiet is False
 
     # test custom values
     args = [MIX_10SEC_PATH,
@@ -102,7 +102,7 @@ def test_parse_args():
     assert args.suffix == 'mysuffix'
     assert args.frame_rate == 20.0
     assert args.clip_duration == 1.0
-    assert args.quiet == True
+    assert args.quiet is True
 
 
 
