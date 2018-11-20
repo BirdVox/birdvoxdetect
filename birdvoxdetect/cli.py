@@ -90,7 +90,7 @@ def parse_args(args):
             'Greater values lead to higher precision at the expense '
             'of a lower recall.')
 
-    parser.add_argument('--suffix', '-s', default=None,
+    parser.add_argument('--suffix', '-s', default="",
         help='String to append to the output filenames.'
             'The default value is the empty string.')
 
