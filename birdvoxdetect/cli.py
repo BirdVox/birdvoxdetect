@@ -106,6 +106,12 @@ def parse_args(args):
 
     parser.add_argument('--quiet', '-q', action='store_true', default=False,
         help='Suppress all non-error messages to stdout.')
+    
+    parser.add_argument('--verbose', '-v', action='store_true', default=False,
+        help='Print timestamps of detected events.')
+    
+    parser.add_argument('--version', '-V', action='store_true', default=False,
+        help='Print current version.')
 
     return parser.parse_args(args)
 
@@ -116,6 +122,10 @@ def main():
     deep learning model (Lostanlen et al. 2019).
     """
     args = parse_args(sys.argv[1:])
+    
+    if args.version:
+        print(birdvoxdetect.version.version)
+        
 
     run(args.inputs,
         output_dir=args.output_dir,
