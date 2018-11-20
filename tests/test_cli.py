@@ -81,7 +81,7 @@ def test_parse_args():
     assert args.output_dir is None
     assert args.export_clips == False
     assert args.threshold == 50.0
-    assert args.suffix is None
+    assert args.suffix == ""
     assert args.frame_rate == 20.0
     assert args.clip_duration == 1.0
     assert args.quiet is False
