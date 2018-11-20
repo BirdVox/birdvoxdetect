@@ -125,6 +125,7 @@ def main():
     
     if args.version:
         print(birdvoxdetect.version.version)
+        return
         
 
     run(args.inputs,
