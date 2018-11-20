@@ -1,9 +1,9 @@
 # BirdVoxDetect: robust sound event detection of bird flight calls
- [![Documentation Status](https://readthedocs.org/projects/birdvoxdetect/badge/?version=latest)](http://birdvoxdetect.readthedocs.io/en/latest/?badge=latest)
-[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://choosealicense.com/licenses/mit/)
-[![Build Status](https://travis-ci.org/BirdVox/birdvoxdetect.svg?branch=master)](https://travis-ci.org/BirdVox/birdvoxdetect)
-[![Coverage Status](https://coveralls.io/repos/github/BirdVox/birdvoxdetect/badge.svg)](https://coveralls.io/github/BirdVox/birdvoxdetect)
 [![PyPI](https://img.shields.io/badge/python-2.7%2C%203.5%2C%203.6-blue.svg)]()
+[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://choosealicense.com/licenses/mit/)
+[![Coverage Status](https://coveralls.io/repos/github/BirdVox/birdvoxdetect/badge.svg)](https://coveralls.io/github/BirdVox/birdvoxdetect)
+[![Build Status](https://travis-ci.org/BirdVox/birdvoxdetect.svg?branch=master)](https://travis-ci.org/BirdVox/birdvoxdetect)
+[![Documentation Status](https://readthedocs.org/projects/birdvoxdetect/badge/?version=latest)](http://birdvoxdetect.readthedocs.io/en/latest/?badge=latest)
 
 
 BirdVoxDetect is a pre-trained deep learning system for detecting bird flight calls in continuous recordings.
