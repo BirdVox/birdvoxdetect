@@ -25,7 +25,7 @@ def process_file(filepath,
         clip_duration=1.0,
         logger_level=20):
 
-    # Check for existence of the file.
+    # Check for existence of the input file.
     if not os.path.exists(filepath):
         raise BirdVoxDetectError(
             'File "{}" could not be found.'.format(filepath))
@@ -49,9 +49,17 @@ def process_file(filepath,
     th_peak_likelihoods = likelihood[th_peak_locs]
     th_peak_timestamps = th_peak_locs / frame_rate
 
+    # Create output_dir if necessary.
+    if output_dir is not None:
+        os.makedirs(output_dir, exist_ok=True)
+
+    # Append underscore to suffix if it is not empty.
+    if len(suffix) > 0 and not suffix[-1] == "_":
+        suffix = suffix + "_"
+
     # Export timestamps.
     timestamps_path = get_output_path(
-        filepath, suffix + "_timestamps.csv", output_dir=output_dir)
+        filepath, suffix + "timestamps.csv", output_dir=output_dir)
     df_matrix = np.stack(
         (th_peak_timestamps, th_peak_likelihoods), axis=1)
     df = pd.DataFrame(df_matrix, columns=["Time (s)", "Likelihood (%)"])
@@ -60,12 +68,13 @@ def process_file(filepath,
     # Export likelihood curve.
     if export_likelihood:
         likelihood_path = get_output_path(
-            filepath, suffix + "_likelihood.hdf5", output_dir=output_dir)
+            filepath, suffix + "likelihood.hdf5", output_dir=output_dir)
+
 
     # Export clips.
     if export_clips:
         clips_dir = get_output_path(
-            filepath, suffix + "_clips", output_dir=output_dir)
+            filepath, suffix + "clips", output_dir=output_dir)
         os.makedirs(clips_dir, exist_ok=True)
 
         for t in th_peak_timestamps:
