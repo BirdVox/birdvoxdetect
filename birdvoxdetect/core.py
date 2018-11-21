@@ -41,10 +41,16 @@ def process_file(filepath,
     likelihood = get_likelihood(audio, sr, frame_rate=frame_rate)
 
     # Find peaks.
+    peak_locs, _ = scipy.signal.find_peaks(likelihood)
+
+    # Threshold peaks
+    th_peak_locs = [p for p in peak_locs if likelihood[p] > (threshold/100)]
+    peak_timestamps = peak_locs / frame_rate
 
     # Export timestamps.
     timestamps_path = get_output_path(
         filepath, suffix + "_timestamps.csv", output_dir=output_dir)
+
 
     # Export likelihood curve.
     if export_likelihood:
@@ -112,7 +118,7 @@ def get_likelihood(audio, sr, frame_rate):
 
     # Compute likelihood curve.
     pcen_snr = np.max(pcen, axis=0) - np.min(pcen, axis=0)
-    pcen_likelihood = 50 * pcen_snr / (0.001 + pcen_snr)
+    pcen_likelihood = pcen_snr / (0.001 + pcen_snr)
     median_likelihood = scipy.signal.medfilt(pcen_likelihood,
         kernel_size=127)
     fractional_subsampling =\
