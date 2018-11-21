@@ -86,7 +86,6 @@ def test_parse_args():
     assert args.clip_duration == 1.0
     assert args.quiet is False
     assert args.verbose is False
-    assert args.version is False
 
     # test custom values
     args = [MIX_10SEC_PATH,
@@ -105,21 +104,6 @@ def test_parse_args():
     assert args.frame_rate == 25.0
     assert args.clip_duration == 0.5
     assert args.quiet is True
-    assert args.verbose is False
-    assert args.version is False
-    
-    # test clash between quiet and verbose
-    args = [MIX_10SEC_PATH,
-           '-v',
-           '-q']
-    pytest.raises(BirdVoxDetectError, parse_args, args)
-
-     # test version printing
-    args = ['-V']
-    args = parse_args(args)
-    assert args.version is True
-
-
 
 
 
@@ -145,7 +129,7 @@ def test_run(capsys):
         'birdvoxdetect: No WAV files found in {}. Aborting.\n'.format(str([tempdir]))
     assert captured.out == expected_message
 
-    # delete tempdir
+    # detele tempdir
     os.rmdir(tempdir)
 
     # nonexistent path
