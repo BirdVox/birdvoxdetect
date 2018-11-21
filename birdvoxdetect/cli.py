@@ -84,6 +84,10 @@ def parse_args(args):
     parser.add_argument('--export-clips', '-c', action='store_true',
         default=False,
         help='Export detected events as audio clips in WAV format.')
+    
+    parser.add_argument('--export-likelihood', '-l', action='store_true',
+        default=False,
+        help='Export the time series of event likelihood of events in HDF5 format.')
 
     parser.add_argument('--threshold', '-t', type=positive_float, default=50,
         help='Detection threshold, between 10 and 90. The default value is 50. '
