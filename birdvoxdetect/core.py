@@ -16,7 +16,7 @@ def process_file(filepath,
         suffix="",
         frame_rate=20.0,
         clip_duration=1.0,
-        verbose=True):
+        logger_level=20):
     
     # Check for existence of the file.
     if not os.path.exists(filepath):
