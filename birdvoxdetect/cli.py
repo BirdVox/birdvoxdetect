@@ -82,11 +82,9 @@ def parse_args(args):
             'file(s).')
 
     parser.add_argument('--export-clips', '-c', action='store_true',
-        default=False,
         help='Export detected events as audio clips in WAV format.')
     
     parser.add_argument('--export-likelihood', '-l', action='store_true',
-        default=False,
         help='Export the time series of event likelihood of events in HDF5 format.')
 
     parser.add_argument('--threshold', '-t', type=positive_float, default=50,
@@ -103,26 +101,30 @@ def parse_args(args):
             'expressed in frames per second (fps). '
             'The default value is 20. We recommend values of 15 or above.')
 
-    parser.add_argument('--clip-duration', '-d', type=positive_float, default=1.0,
+    parser.add_argument('--clip-duration', '-d', type=positive_float, default=None,
         help='Duration of the exported clips, expressed in seconds (fps). '
             'The default value is 1.0, that is, one second. '
             'We recommend values of 0.5 or above.')
 
-    parser.add_argument('--quiet', '-q', action='store_true', default=False,
+    parser.add_argument('--quiet', '-q', action='store_true',
         help='Suppress all non-error messages to stdout.')
     
-    parser.add_argument('--verbose', '-v', action='store_true', default=False,
+    parser.add_argument('--verbose', '-v', action='store_true',
         help='Print timestamps of detected events.')
-    
-    parser.add_argument('--version', '-V', action='store_true', default=False,
-        help='Print current version.')
 
     args = parser.parse_args(args)
     
     if args.quiet and args.verbose:
         raise BirdVoxDetectError(
-            'Command-line flags --quiet (-q) and --verbose (-v)'
+            'Command-line flags --quiet (-q) and --verbose (-v) '
             'are mutually exclusive.')
+        
+    if args.clip_duration is None:
+        args.clip_duration = 1.0
+    elif not args.export_clips:
+        raise BirdVoxDetectError(
+            'The --export-clips (-c) flag should be present '
+            'if the --clip-duration (-d) flag is present.')
     
     return args
 
@@ -134,7 +136,7 @@ def main():
     """
     args = parse_args(sys.argv[1:])
     
-    if args.version:
+    if args.inputs[0] == "-V":
         print(birdvoxdetect.version.version)
         return
         
