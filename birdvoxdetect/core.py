@@ -63,7 +63,7 @@ def get_likelihood(audio, sr, frame_rate):
 
     # Check audio array dimension
     if audio.ndim > 2:
-        raise OpenL3Error('Audio array can only be be 1D or 2D')
+        raise BirdVoxDetectError('Audio array can only be be 1D or 2D')
     elif audio.ndim == 2:
         # Downmix if multichannel
         audio = np.mean(audio, axis=1)
