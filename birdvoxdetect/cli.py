@@ -121,7 +121,7 @@ def parse_args(args):
     
     if args.quiet and args.verbose:
         raise BirdVoxDetectError(
-            'Command-line flags --quiet (-q) and --verbose (-v)'
+            'Command-line flags --quiet (-q) and --verbose (-v) '
             'are mutually exclusive.')
     
     return args
