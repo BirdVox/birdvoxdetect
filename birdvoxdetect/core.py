@@ -2,7 +2,6 @@ import librosa
 import os
 import soundfile as sf
 
-TARGET_SR = 22050
 
 def _center_audio(audio, frame_len):
     """Center audio so that first sample will occur in the middle of the first frame"""
@@ -58,8 +57,8 @@ def get_likelihood(audio, sr, frame_rate):
         audio = np.mean(audio, axis=1)
         
     # Resample to 22,050 kHz
-    if not sr == TARGET_SR:
-        audio = librosa.resample(audio, sr, TARGET_SR)
+    if not sr == pcen_settings["sr"]:
+        audio = librosa.resample(audio, sr, pcen_settings["sr"])
         
     # Load settings.
     pcen_settings = get_pcen_settings()
