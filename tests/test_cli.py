@@ -105,6 +105,17 @@ def test_parse_args():
     assert args.clip_duration == 0.5
     assert args.quiet is True
 
+    # test clash between quiet and verbose
+    args = [MIX_10SEC_PATH,
+           '-v',
+           '-q']
+    pytest.raises(BirdVoxDetectError, parse_args, args)
+
+    # test clash between absence of export_clips
+    # and presence of clip duration
+    args = [MIX_10SEC_PATH,
+            '-d', 0.5]
+    pytest.raises(BirdVoxDetectError, parse_args, args)
 
 
 def test_run(capsys):
