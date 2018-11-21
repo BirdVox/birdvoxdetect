@@ -112,14 +112,16 @@ def get_likelihood(audio, sr, frame_rate):
 
     # Compute likelihood curve.
     pcen_snr = np.max(pcen, axis=0) - np.min(pcen, axis=0)
-    pcen_likelihood = pcen_snr / (1.0 + pcen_snr)
+    pcen_likelihood = 50 * pcen_snr / (0.001 + pcen_snr)
     median_likelihood = scipy.signal.medfilt(pcen_likelihood,
-        kernel_size=128)
+        kernel_size=127)
     fractional_subsampling =\
         pcen_settings["sr"] / (pcen_settings["hop_length"]*frame_rate)
-    audio_duration = len(audio) / pcen_settings["sr"]
-    likelihood_x = np.arange(0.0, audio_duration, 1.0/frame_rate)
-    likelihood_y = median_likelihood[likelihood_x]
+    audio_duration = audio.shape[0]
+    likelihood_x = np.arange(
+        0.0,
+        audio_duration/pcen_settings["hop_length"],
+        sr/(pcen_settings["hop_length"]*frame_rate)).astype('int')
 
     # Return.
     return likelihood_y
@@ -157,7 +159,7 @@ def get_pcen_settings():
     pcen_settings = {
         "fmin": 2000.0,
         "fmax": 11025.0,
-        "hop_length": 32.0,
+        "hop_length": 32,
         "n_fft": 1024,
         "n_mels": 128,
         "pcen_delta": 10.0,
@@ -165,6 +167,6 @@ def get_pcen_settings():
         "pcen_norm_exponent": 0.8,
         "pcen_power": 0.25,
         "sr": 22050.0,
-        "win_length": 256.0,
+        "win_length": 256,
         "window": "hann"}
     return pcen_settings
