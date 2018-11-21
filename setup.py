@@ -82,6 +82,7 @@ setup(
         'PySoundFile>=0.9.0.post1',
         'resampy>=0.2.0,<0.3.0',
         'h5py>=2.7.0,<3.0.0',
+        'pandas>=0.23'
     ],
     extras_require={
         'docs': [
