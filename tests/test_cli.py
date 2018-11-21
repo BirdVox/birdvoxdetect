@@ -137,10 +137,11 @@ def test_run(capsys):
     # make sure it printed a message
     captured = capsys.readouterr()
     expected_message =\
-        'birdvoxdetect: No WAV files found in {}. Aborting.\n'.format(str([tempdir]))
+        'birdvoxdetect: No WAV files found in {}. Aborting.\n'.format(
+        str([tempdir]))
     assert captured.out == expected_message
 
-    # detele tempdir
+    # delete tempdir
     os.rmdir(tempdir)
 
     # nonexistent path
