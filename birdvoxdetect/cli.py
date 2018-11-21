@@ -43,7 +43,16 @@ def get_file_list(input_list):
     return file_list
 
 
-def run(inputs, output_dir=None, suffix=None, hop_size=0.05, verbose=False):
+def run(inputs,
+        output_dir=None,
+        export_clips=False,
+        export_likelihood=False,
+        threshold=50.0,
+        suffix="",
+        frame_rate=20.0,
+        clip_duration=1.0,
+        logger_level=20):
+    verbose = True
     if isinstance(inputs, string_types):
         file_list = [inputs]
     elif isinstance(inputs, Iterable):
@@ -61,10 +70,14 @@ def run(inputs, output_dir=None, suffix=None, hop_size=0.05, verbose=False):
         if verbose:
             print('birdvoxdetect: Processing: {}'.format(filepath))
         birdvoxdetect.process_file(filepath,
-                     output_dir=output_dir,
-                     suffix=suffix,
-                     hop_size=hop_size,
-                     verbose=verbose)
+            output_dir=output_dir,
+            export_clips=export_clips,
+            export_likelihood=export_likelihood,
+            threshold=threshold,
+            suffix=suffix,
+            frame_rate=frame_rate,
+            clip_duration=clip_duration,
+            logger_level=logger_level)
     if verbose:
         print('birdvoxdetect: Done.')
 
@@ -144,6 +157,10 @@ def main():
 
     run(args.inputs,
         output_dir=args.output_dir,
+        export_clips=args.export_clips,
+        export_likelihood=args.export_likelihood,
+        threshold=args.threshold,
         suffix=args.suffix,
-        hop_size=args.hop_size,
-        verbose=not args.quiet)
+        frame_rate=args.frame_rate,
+        clip_duration=args.clip_duration,
+        logger_level=20)
