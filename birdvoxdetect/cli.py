@@ -1,12 +1,13 @@
 from __future__ import print_function
-import os
-import sys
-from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
-import birdvoxdetect
 from argparse import ArgumentParser, RawDescriptionHelpFormatter,\
     ArgumentTypeError
 from collections import Iterable
+import os
 from six import string_types
+import sys
+
+import birdvoxdetect
+from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
 
 
 def positive_float(value):
@@ -83,7 +84,7 @@ def parse_args(args):
 
     parser.add_argument('--export-clips', '-c', action='store_true',
         help='Export detected events as audio clips in WAV format.')
-    
+
     parser.add_argument('--export-likelihood', '-l', action='store_true',
         help='Export the time series of event likelihood of events in HDF5 format.')
 
@@ -108,24 +109,24 @@ def parse_args(args):
 
     parser.add_argument('--quiet', '-q', action='store_true',
         help='Suppress all non-error messages to stdout.')
-    
+
     parser.add_argument('--verbose', '-v', action='store_true',
         help='Print timestamps of detected events.')
 
     args = parser.parse_args(args)
-    
+
     if args.quiet and args.verbose:
         raise BirdVoxDetectError(
             'Command-line flags --quiet (-q) and --verbose (-v) '
             'are mutually exclusive.')
-        
+
     if args.clip_duration is None:
         args.clip_duration = 1.0
     elif not args.export_clips:
         raise BirdVoxDetectError(
             'The --export-clips (-c) flag should be present '
             'if the --clip-duration (-d) flag is present.')
-    
+
     return args
 
 
@@ -135,11 +136,11 @@ def main():
     deep learning model (Lostanlen et al. 2019).
     """
     args = parse_args(sys.argv[1:])
-    
+
     if args.inputs[0] == "-V":
         print(birdvoxdetect.version.version)
         return
-        
+
 
     run(args.inputs,
         output_dir=args.output_dir,

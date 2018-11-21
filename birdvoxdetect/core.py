@@ -3,6 +3,9 @@ import numpy as np
 import os
 import scipy.signal
 import soundfile as sf
+import traceback
+
+from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
 
 
 def pad_audio(audio, padding_length):
@@ -20,31 +23,34 @@ def process_file(filepath,
         frame_rate=20.0,
         clip_duration=1.0,
         logger_level=20):
-    
+
     # Check for existence of the file.
     if not os.path.exists(filepath):
-        raise BirdVoxDetectError('File "{}" could not be found.'.format(filepath))
-        
+        raise BirdVoxDetectError(
+            'File "{}" could not be found.'.format(filepath))
+
     # Try loading the file as NumPy array.
     try:
         audio, sr = sf.read(filepath)
     except Exception:
-        raise OpenL3Error('Could not open file "{}":\n{}'.format(filepath, traceback.format_exc()))
-        
+        raise BirdVoxDetectError(
+            'Could not open file "{}":\n{}'.format(filepath,
+            traceback.format_exc()))
+
     # Compute likelihood curve.
     likelihood = get_likelihood(audio, sr, frame_rate=frame_rate)
-    
+
     # Find peaks.
-    
+
     # Export timestamps.
     timestamps_path = get_output_path(
         filepath, suffix + "_timestamps.csv", output_dir=output_dir)
-    
+
     # Export likelihood curve.
     if export_likelihood:
         likelihood_path = get_output_path(
             filepath, suffix + "_likelihood.hdf5", output_dir=output_dir)
-        
+
     # Export clips.
     if export_clips:
         clips_dir = get_output_path(
@@ -52,27 +58,27 @@ def process_file(filepath,
 
 
 def get_likelihood(audio, sr, frame_rate):
+    # Load settings.
+    pcen_settings = get_pcen_settings()
+
     # Check audio array dimension
     if audio.ndim > 2:
         raise OpenL3Error('Audio array can only be be 1D or 2D')
     elif audio.ndim == 2:
         # Downmix if multichannel
         audio = np.mean(audio, axis=1)
-        
+
     # Resample to 22,050 kHz
     if not sr == pcen_settings["sr"]:
         audio = librosa.resample(audio, sr, pcen_settings["sr"])
-        
+
     # Pad.
     padding_length = int(np.round(0.5 * sr / frame_rate))
     audio = pad_audio(audio, padding_length)
-        
-    # Load settings.
-    pcen_settings = get_pcen_settings()
-    
+
     # Compute Short-Term Fourier Transform (STFT).
     stft = librosa.stft(
-        chunk_waveform,
+        audio,
         n_fft=pcen_settings["n_fft"],
         win_length=pcen_settings["win_length"],
         hop_length=pcen_settings["hop_length"],
@@ -114,10 +120,10 @@ def get_likelihood(audio, sr, frame_rate):
     audio_duration = len(audio) / pcen_settings["sr"]
     likelihood_x = np.arange(0.0, audio_duration, 1.0/frame_rate)
     likelihood_y = median_likelihood[likelihood_x]
-    
+
     # Return.
     return likelihood_y
-    
+
 
 def get_output_path(filepath, suffix, output_dir=None):
     """
