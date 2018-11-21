@@ -52,12 +52,13 @@ def process_file(filepath,
     # Export timestamps.
     timestamps_path = get_output_path(
         filepath, suffix + "_timestamps.csv", output_dir=output_dir)
+    df_matrix = np.stack(
+        (th_peak_timestamps, th_peak_likelihoods), axis=1)
+    df = pd.DataFrame(df_matrix, columns=["Time (s)", "Likelihood (%)"])
+    df.to_csv(timestamps_path)
 
     # Export likelihood curve.
     if export_likelihood:
-        df_matrix = np.stack(
-            (th_peak_timestamps, th_peak_likelihoods), axis=1)
-        df = pd.DataFrame(df_matrix, columns=["Time (s)", "Likelihood (%)"])
         likelihood_path = get_output_path(
             filepath, suffix + "_likelihood.hdf5", output_dir=output_dir)
 
