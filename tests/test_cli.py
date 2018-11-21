@@ -114,7 +114,7 @@ def test_parse_args():
     # test clash between absence of export_clips
     # and presence of clip duration
     args = [MIX_10SEC_PATH,
-            '-d', 0.5]
+            '-d', '0.5']
     pytest.raises(BirdVoxDetectError, parse_args, args)
 
 
