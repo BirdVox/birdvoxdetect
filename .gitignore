@@ -108,3 +108,7 @@ birdvoxdetect/models/*
 
 # Adobe Audition peak files
 *.pkf
+
+# BirdVoxDetect demo and notebooks
+demo/
+notebooks/
