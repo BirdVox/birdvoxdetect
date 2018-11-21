@@ -103,7 +103,7 @@ def parse_args(args):
             'expressed in frames per second (fps). '
             'The default value is 20. We recommend values of 15 or above.')
 
-    parser.add_argument('--clip-duration', '-d', type=positive_float, default=1.0,
+    parser.add_argument('--clip-duration', '-d', type=positive_float, default=None,
         help='Duration of the exported clips, expressed in seconds (fps). '
             'The default value is 1.0, that is, one second. '
             'We recommend values of 0.5 or above.')
@@ -123,6 +123,13 @@ def parse_args(args):
         raise BirdVoxDetectError(
             'Command-line flags --quiet (-q) and --verbose (-v) '
             'are mutually exclusive.')
+        
+    if args.clip_duration is None:
+        args.clip_duration = 1.0
+    elif not args.export_clips:
+        raise BirdVoxDetectError(
+            'The --export-clips (-c) flag should be present '
+            'if the --clip-duration (-d) flag is present.')
     
     return args
 
