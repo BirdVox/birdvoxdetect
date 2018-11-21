@@ -1,6 +1,7 @@
 import librosa
 import numpy as np
 import os
+import pandas as pd
 import scipy.signal
 import soundfile as sf
 import traceback
@@ -43,17 +44,20 @@ def process_file(filepath,
     # Find peaks.
     peak_locs, _ = scipy.signal.find_peaks(likelihood)
 
-    # Threshold peaks
-    th_peak_locs = [p for p in peak_locs if likelihood[p] > (threshold/100)]
-    peak_timestamps = peak_locs / frame_rate
+    # Threshold peaks.
+    th_peak_locs = peak_locs[peak_locs>threshold/100]
+    th_peak_likelihoods = likelihood[th_peak_locs]
+    th_peak_timestamps = th_peak_locs / frame_rate
 
     # Export timestamps.
     timestamps_path = get_output_path(
         filepath, suffix + "_timestamps.csv", output_dir=output_dir)
 
-
     # Export likelihood curve.
     if export_likelihood:
+        df_matrix = np.stack(
+            (th_peak_timestamps, th_peak_likelihoods), axis=1)
+        df = pd.DataFrame(df_matrix, columns=["Time (s)", "Likelihood (%)"])
         likelihood_path = get_output_path(
             filepath, suffix + "_likelihood.hdf5", output_dir=output_dir)
 
