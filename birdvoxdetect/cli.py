@@ -117,7 +117,14 @@ def parse_args(args):
     parser.add_argument('--version', '-V', action='store_true', default=False,
         help='Print current version.')
 
-    return parser.parse_args(args)
+    args = parser.parse_args(args)
+    
+    if args.quiet and args.verbose:
+        raise BirdVoxDetectError(
+            'Command-line flags --quiet (-q) and --verbose (-v)'
+            'are mutually exclusive.')
+    
+    return args
 
 
 def main():
