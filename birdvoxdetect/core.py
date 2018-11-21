@@ -1,11 +1,14 @@
 import librosa
+import numpy as np
 import os
+import scipy.signal
 import soundfile as sf
 
 
-def _center_audio(audio, frame_len):
-    """Center audio so that first sample will occur in the middle of the first frame"""
-    return np.pad(audio, (int(frame_len / 2.0), 0), mode='constant', constant_values=0)
+def pad_audio(audio, padding_length):
+    """Pad audio so that first sample will occur in the middle of the first frame"""
+    return np.pad(audio, (int(padding_length), 0),
+                  mode='constant', constant_values=0)
 
 
 def process_file(filepath,
@@ -60,6 +63,10 @@ def get_likelihood(audio, sr, frame_rate):
     if not sr == pcen_settings["sr"]:
         audio = librosa.resample(audio, sr, pcen_settings["sr"])
         
+    # Pad.
+    padding_length = int(np.round(0.5 * sr / frame_rate))
+    audio = pad_audio(audio, padding_length)
+        
     # Load settings.
     pcen_settings = get_pcen_settings()
     
@@ -97,10 +104,20 @@ def get_likelihood(audio, sr, frame_rate):
     # Convert to single floating-point precision.
     pcen = pcen.astype('float32')
 
-    raise NotImplementedError()
-        
-        
-        
+    # Compute likelihood curve.
+    pcen_snr = np.max(pcen, axis=0) - np.min(pcen, axis=0)
+    pcen_likelihood = pcen_snr / (1.0 + pcen_snr)
+    median_likelihood = scipy.signal.medfilt(pcen_likelihood,
+        kernel_size=128)
+    fractional_subsampling =\
+        pcen_settings["sr"] / (pcen_settings["hop_length"]*frame_rate)
+    audio_duration = len(audio) / pcen_settings["sr"]
+    likelihood_x = np.arange(0.0, audio_duration, 1.0/frame_rate)
+    likelihood_y = median_likelihood[likelihood_x]
+    
+    # Return.
+    return likelihood_y
+    
 
 def get_output_path(filepath, suffix, output_dir=None):
     """
@@ -132,16 +149,16 @@ def get_output_path(filepath, suffix, output_dir=None):
 
 def get_pcen_settings():
     pcen_settings = {
-        "fmin": 2000,
-        "fmax": 11025,
-        "hop_length": 32,
+        "fmin": 2000.0,
+        "fmax": 11025.0,
+        "hop_length": 32.0,
         "n_fft": 1024,
         "n_mels": 128,
-        "pcen_delta": 10,
+        "pcen_delta": 10.0,
         "pcen_time_constant": 0.06,
         "pcen_norm_exponent": 0.8,
         "pcen_power": 0.25,
-        "sr": 22050,
-        "win_length": 256,
+        "sr": 22050.0,
+        "win_length": 256.0,
         "window": "hann"}
     return pcen_settings
