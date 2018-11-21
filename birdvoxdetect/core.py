@@ -122,6 +122,7 @@ def get_likelihood(audio, sr, frame_rate):
         0.0,
         audio_duration/pcen_settings["hop_length"],
         sr/(pcen_settings["hop_length"]*frame_rate)).astype('int')
+    likelihood_y = median_likelihood[likelihood_x]
 
     # Return.
     return likelihood_y
