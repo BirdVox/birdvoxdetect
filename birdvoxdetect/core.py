@@ -11,6 +11,7 @@ def _center_audio(audio, frame_len):
 def process_file(filepath,
         output_dir=None,
         export_clips=False,
+        export_likelihood=False,
         threshold=50.0,
         suffix="",
         frame_rate=20.0,
@@ -27,11 +28,39 @@ def process_file(filepath,
     except Exception:
         raise OpenL3Error('Could not open file "{}":\n{}'.format(filepath, traceback.format_exc()))
         
-    # Define output path.
-    output_path = get_output_path(filepath, suffix + ".csv", output_dir=output_dir)
+    # Compute likelihood curve.
+    likelihood = get_likelihood(audio, sr, frame_rate=frame_rate)
+    
+    # Find peaks.
+    
+    # Export timestamps.
+    timestamps_path = get_output_path(
+        filepath, suffix + "_timestamps.csv", output_dir=output_dir)
+    
+    # Export likelihood curve.
+    if export_likelihood:
+        likelihood_path = get_output_path(
+            filepath, suffix + "_likelihood.hdf5", output_dir=output_dir)
+        
+    # Export clips.
+    if export_clips:
+        clips_dir = get_output_path(
+            filepath, suffix + "_clips", output_dir=output_dir)
 
+
+def get_likelihood(audio, sr, frame_rate):
+    # Check audio array dimension
+    if audio.ndim > 2:
+        raise OpenL3Error('Audio array can only be be 1D or 2D')
+    elif audio.ndim == 2:
+        # Downmix if multichannel
+        audio = np.mean(audio, axis=1)
+        
+        
     raise NotImplementedError()
-
+        
+        
+        
 
 def get_output_path(filepath, suffix, output_dir=None):
     """
