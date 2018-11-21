@@ -1,3 +1,4 @@
+import librosa
 import os
 import soundfile as sf
 
@@ -56,7 +57,47 @@ def get_likelihood(audio, sr, frame_rate):
         # Downmix if multichannel
         audio = np.mean(audio, axis=1)
         
+    # Resample to 22,050 kHz
+    if not sr == TARGET_SR:
+        audio = librosa.resample(audio, sr, TARGET_SR)
         
+    # Load settings.
+    pcen_settings = get_pcen_settings()
+    
+    # Compute Short-Term Fourier Transform (STFT).
+    stft = librosa.stft(
+        chunk_waveform,
+        n_fft=pcen_settings["n_fft"],
+        win_length=pcen_settings["win_length"],
+        hop_length=pcen_settings["hop_length"],
+        window=pcen_settings["window"])
+
+    # Compute squared magnitude coefficients.
+    abs2_stft = (stft.real*stft.real) + (stft.imag*stft.imag)
+
+    # Gather frequency bins according to the Mel scale.
+    melspec = librosa.feature.melspectrogram(
+        y=None,
+        S=abs2_stft,
+        sr=pcen_settings["sr"],
+        n_fft=pcen_settings["n_fft"],
+        n_mels=pcen_settings["n_mels"],
+        htk=True,
+        fmin=pcen_settings["fmin"],
+        fmax=pcen_settings["fmax"])
+
+    # Compute PCEN.
+    pcen = librosa.pcen(melspec,
+        sr=pcen_settings["sr"],
+        hop_length=pcen_settings["hop_length"],
+        gain=pcen_settings["pcen_norm_exponent"],
+        bias=2,
+        power=pcen_settings["pcen_power"],
+        time_constant=pcen_settings["pcen_time_constant"])
+
+    # Convert to single floating-point precision.
+    pcen = pcen.astype('float32')
+
     raise NotImplementedError()
         
         
@@ -88,3 +129,20 @@ def get_output_path(filepath, suffix, output_dir=None):
         output_filename = base_filename + suffix
 
     return os.path.join(output_dir, output_filename)
+
+
+def get_pcen_settings():
+    pcen_settings = {
+        "fmin": 2000,
+        "fmax": 11025,
+        "hop_length": 32,
+        "n_fft": 1024,
+        "n_mels": 128,
+        "pcen_delta": 10,
+        "pcen_time_constant": 0.06,
+        "pcen_norm_exponent": 0.8,
+        "pcen_power": 0.25,
+        "sr": 22050,
+        "win_length": 256,
+        "window": "hann"}
+    return pcen_settings
