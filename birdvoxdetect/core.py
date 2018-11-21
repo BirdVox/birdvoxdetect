@@ -66,6 +66,17 @@ def process_file(filepath,
     if export_clips:
         clips_dir = get_output_path(
             filepath, suffix + "_clips", output_dir=output_dir)
+        os.makedirs(clips_dir, exist_ok=True)
+
+        for t in th_peak_timestamps:
+            start = int(sr*np.round(t-0.5*clip_duration))
+            stop = int(sr*np.round(t+0.5*clip_duration))
+            audio_clip = audio[start:stop]
+            clip_path = get_output_path(
+             filepath,
+             suffix + "{:02.2f}.wav".format(t),
+             output_dir = clips_dir)
+            librosa.output.write_wav(clip_path, audio, sr)
 
 
 def get_likelihood(audio, sr, frame_rate):
