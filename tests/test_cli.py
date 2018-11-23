@@ -146,3 +146,30 @@ def test_run(capsys):
 
     # nonexistent path
     pytest.raises(BirdVoxDetectError, get_file_list, ['/fake/path/to/file'])
+    
+    # test correct execution on a single file
+    tempdir = tempfile.mkdtemp()
+    run(FG_10SEC_PATH, output_dir=tempdir)
+
+    # check output file created
+    outfile = os.path.join(tempdir,
+        'BirdVox-scaper_example_foreground_timestamps.csv')
+    assert os.path.isfile(outfile)
+    
+    # delete output file and temp folder
+    shutil.rmtree(tempdir)
+    
+    # test correct execution on a multiple files
+    tempdir = tempfile.mkdtemp()
+    run([BG_10SEC_PATH, FG_10SEC_PATH], output_dir=tempdir)
+
+    # check output files created
+    bg_outfile = os.path.join(tempdir,
+        'BirdVox-scaper_example_background_timestamps.csv')
+    assert os.path.isfile(bg_outfile)
+    fg_outfile = os.path.join(tempdir,
+        'BirdVox-scaper_example_foreground_timestamps.csv')
+    assert os.path.isfile(bg_outfile)
+    
+    # delete output file and temp folder
+    shutil.rmtree(tempdir)
