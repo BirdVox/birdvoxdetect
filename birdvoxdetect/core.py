@@ -7,9 +7,9 @@ import soundfile as sf
 import sys
 import traceback
 
-if sys.version_info.major == 3
+if sys.version_info.major == 3:
   from pathlib import Path
-elif sys.version_info.minor == 2
+elif sys.version_info.minor == 2:
   from pathlib2 import Path
 
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
