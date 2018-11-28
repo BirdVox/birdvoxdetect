@@ -34,5 +34,10 @@ def test_get_output_path():
 
 
 def test_get_process_file():
+    # non-existing path
     invalid_filepath = 'path/to/a/nonexisting/file.wav'
     pytest.raises(BirdVoxDetectError, process_file, invalid_filepath)
+
+    # non-audio path
+    nonaudio_existing_filepath = 'test_core.py'
+    pytest.raises(BirdVoxDetectError, process_file, nonaudio_existing_filepath)
