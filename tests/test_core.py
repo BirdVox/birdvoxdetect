@@ -53,8 +53,6 @@ def test_process_file():
     csv_path = os.path.join(
         tempdir, 'BirdVox-scaper_example_foreground_timestamps.csv')
     assert os.path.exists(csv_path)
-
-    # check CSV output
     df = pd.read_csv(csv_path)
     assert len(df) == 3
     assert len(df.columns) == 3
@@ -62,9 +60,14 @@ def test_process_file():
     assert df.columns[2] == "Likelihood (%)"
     assert df["Time (s)"] == [1.2, 2.6, 3.45]
 
-    # check WAV output
+    # export clips
     tempdir = tempfile.mkdtemp()
     process_file(FG_10SEC_PATH, output_dir=tempdir, export_clips=True)
     clips_dir = os.path.join(
         tempdir, 'BirdVox-scaper_example_foreground_clips')
     assert os.path.exists(clips_dir)
+    clips_list = sorted(os.listdir(clips_dir))
+    assert len(clips_list) == 3
+    assert clips_list[0] == 'BirdVox-scaper_example_foreground_1.20.wav'
+    assert clips_list[1] == 'BirdVox-scaper_example_foreground_2.60.wav'
+    assert clips_list[2] == 'BirdVox-scaper_example_foreground_3.45.wav'
