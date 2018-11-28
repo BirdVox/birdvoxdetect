@@ -39,5 +39,5 @@ def test_get_process_file():
     pytest.raises(BirdVoxDetectError, process_file, invalid_filepath)
 
     # non-audio path
-    nonaudio_existing_filepath = 'test_core.py'
+    nonaudio_existing_filepath = 'README.md'
     pytest.raises(BirdVoxDetectError, process_file, nonaudio_existing_filepath)

@@ -87,9 +87,9 @@ def process_file(filepath,
             stop = int(sr*np.round(t+0.5*clip_duration))
             audio_clip = audio[start:stop]
             clip_path = get_output_path(
-             filepath,
-             suffix + "{:02.2f}.wav".format(t),
-             output_dir = clips_dir)
+                filepath,
+                suffix + "{:02.2f}.wav".format(t),
+                output_dir = clips_dir)
             librosa.output.write_wav(clip_path, audio, sr)
 
 
