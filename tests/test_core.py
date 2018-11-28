@@ -4,6 +4,7 @@ import pytest
 import tempfile
 import numpy as np
 import os
+import pandas as pd
 import shutil
 import soundfile as sf
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
@@ -12,6 +13,10 @@ from birdvoxdetect.birdvoxdetect_warnings import BirdVoxDetectWarning
 
 TEST_DIR = os.path.dirname(__file__)
 TEST_AUDIO_DIR = os.path.join(TEST_DIR, 'data', 'audio')
+
+# Test audio file paths
+FG_10SEC_PATH = os.path.join(TEST_AUDIO_DIR,
+    'BirdVox-scaper_example_foreground.wav')
 
 
 def test_get_output_path():
@@ -33,7 +38,7 @@ def test_get_output_path():
     assert output_path == exp_output_path
 
 
-def test_get_process_file():
+def test_process_file():
     # non-existing path
     invalid_filepath = 'path/to/a/nonexisting/file.wav'
     pytest.raises(BirdVoxDetectError, process_file, invalid_filepath)
@@ -41,3 +46,25 @@ def test_get_process_file():
     # non-audio path
     nonaudio_existing_filepath = 'README.md'
     pytest.raises(BirdVoxDetectError, process_file, nonaudio_existing_filepath)
+
+    # standard call
+    tempdir = tempfile.mkdtemp()
+    process_file(FG_10SEC_PATH, output_dir=tempdir)
+    csv_path = os.path.join(
+        tempdir, 'BirdVox-scaper_example_foreground_timestamps.csv')
+    assert os.path.exists(csv_path)
+
+    # check CSV output
+    df = pd.read_csv(csv_path)
+    assert len(df) == 3
+    assert len(df.columns) == 3
+    assert df.columns[1] == "Time (s)"
+    assert df.columns[2] == "Likelihood (%)"
+    assert df["Time (s)"] = [1.2, 2.6, 3.45]
+
+    # check WAV output
+    tempdir = tempfile.mkdtemp()
+    process_file(FG_10SEC_PATH, output_dir=tempdir, export_clips=True)
+    clips_dir = os.path.join(
+        tempdir, 'BirdVox-scaper_example_foreground_clips')
+    assert os.path.exists(clips_dir)
