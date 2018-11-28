@@ -1,17 +1,15 @@
-import pytest
+from argparse import ArgumentTypeError
+import numpy as np
 import os
+import pytest
+import shutil
+import tempfile
+
+
+import birdvoxdetect
+from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
 from birdvoxdetect.cli import positive_float, get_file_list, run
 from birdvoxdetect.cli import parse_args
-from argparse import ArgumentTypeError
-from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
-import tempfile
-import numpy as np
-import shutil
-try:
-    # python 3.4+ should use builtin unittest.mock not mock package
-    from unittest.mock import patch
-except ImportError:
-    from mock import patch
 
 
 TEST_DIR = os.path.dirname(__file__)
@@ -146,30 +144,17 @@ def test_run(capsys):
 
     # nonexistent path
     pytest.raises(BirdVoxDetectError, get_file_list, ['/fake/path/to/file'])
-    
-    # test correct execution on a single file
-    tempdir = tempfile.mkdtemp()
-    run(FG_10SEC_PATH, output_dir=tempdir)
 
-    # check output file created
-    outfile = os.path.join(tempdir,
-        'BirdVox-scaper_example_foreground_timestamps.csv')
+
+def test_script_main():
+    # Duplicate regression test from test_run just to hit coverage
+    tempdir = tempfile.mkdtemp()
+    with patch(
+            'sys.argv',
+            ['birdvoxdetect', FG_10SEC_PATH, '--output-dir', tempdir]):
+        import birdvoxdetect.__main__
+
+    # Check output file created
+    outfile = os.path.join(
+        tempdir, 'BirdVox-scaper_example_foreground_timestamps.csv')
     assert os.path.isfile(outfile)
-    
-    # delete output file and temp folder
-    shutil.rmtree(tempdir)
-    
-    # test correct execution on a multiple files
-    tempdir = tempfile.mkdtemp()
-    run([BG_10SEC_PATH, FG_10SEC_PATH], output_dir=tempdir)
-
-    # check output files created
-    bg_outfile = os.path.join(tempdir,
-        'BirdVox-scaper_example_background_timestamps.csv')
-    assert os.path.isfile(bg_outfile)
-    fg_outfile = os.path.join(tempdir,
-        'BirdVox-scaper_example_foreground_timestamps.csv')
-    assert os.path.isfile(bg_outfile)
-    
-    # delete output file and temp folder
-    shutil.rmtree(tempdir)
