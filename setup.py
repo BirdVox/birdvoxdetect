@@ -2,7 +2,6 @@ import os
 import sys
 import gzip
 import imp
-from itertools import product
 from setuptools import setup, find_packages
 
 try:

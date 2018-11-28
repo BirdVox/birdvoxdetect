@@ -1,14 +1,13 @@
-import birdvoxdetect
 from birdvoxdetect.core import get_output_path, process_file
 import pytest
 import tempfile
 import numpy as np
 import os
 import pandas as pd
-import shutil
 import soundfile as sf
+
+
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
-from birdvoxdetect.birdvoxdetect_warnings import BirdVoxDetectWarning
 
 
 TEST_DIR = os.path.dirname(__file__)

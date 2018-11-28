@@ -4,7 +4,6 @@ import os
 import pandas as pd
 import scipy.signal
 import soundfile as sf
-import sys
 import traceback
 
 
@@ -147,8 +146,6 @@ def get_likelihood(audio, sr, frame_rate):
     pcen_likelihood = pcen_snr / (0.001 + pcen_snr)
     median_likelihood = scipy.signal.medfilt(pcen_likelihood,
         kernel_size=127)
-    fractional_subsampling =\
-        pcen_settings["sr"] / (pcen_settings["hop_length"]*frame_rate)
     audio_duration = audio.shape[0]
     likelihood_x = np.arange(
         0.0,

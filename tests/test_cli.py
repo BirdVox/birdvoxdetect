@@ -1,8 +1,6 @@
 from argparse import ArgumentTypeError
-import numpy as np
 import os
 import pytest
-import shutil
 import tempfile
 
 
@@ -13,7 +11,6 @@ except ImportError:
     from mock import patch
 
 
-import birdvoxdetect
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
 from birdvoxdetect.cli import positive_float, get_file_list, run
 from birdvoxdetect.cli import parse_args
