@@ -7,10 +7,6 @@ import soundfile as sf
 import sys
 import traceback
 
-try:
-  from pathlib import Path
-except ImportError:
-  from pathlib2 import Path
 
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
 
@@ -57,7 +53,7 @@ def process_file(filepath,
 
     # Create output_dir if necessary.
     if output_dir is not None:
-        Path(output_dir).mkdir(exist_ok=True)
+        os.makedirs(output_dir, exist_ok=True)
 
     # Append underscore to suffix if it is not empty.
     if len(suffix) > 0 and not suffix[-1] == "_":
@@ -80,7 +76,7 @@ def process_file(filepath,
     if export_clips:
         clips_dir = get_output_path(
             filepath, suffix + "clips", output_dir=output_dir)
-        Path(clips_dir).mkdir(exist_ok=True)
+        os.makedirs(clips_dir, exist_ok=True)
 
         for t in th_peak_timestamps:
             start = int(sr*np.round(t-0.5*clip_duration))
