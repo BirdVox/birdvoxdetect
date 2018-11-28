@@ -6,6 +6,13 @@ import shutil
 import tempfile
 
 
+try:
+    # python 3.4+ should use builtin unittest.mock not mock package
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
+
+
 import birdvoxdetect
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
 from birdvoxdetect.cli import positive_float, get_file_list, run
