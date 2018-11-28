@@ -86,7 +86,7 @@ def process_file(filepath,
                 filepath,
                 suffix + "{:05.2f}".format(t).replace(".", "-") + ".wav",
                 output_dir = clips_dir)
-            librosa.output.write_wav(clip_path, audio, sr)
+            librosa.output.write_wav(clip_path, audio_clip, sr)
 
 
 def get_likelihood(audio, sr, frame_rate):
