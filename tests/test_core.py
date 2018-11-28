@@ -1,5 +1,5 @@
 import birdvoxdetect
-from birdvoxdetect.core import get_output_path
+from birdvoxdetect.core import get_output_path, process_file
 import pytest
 import tempfile
 import numpy as np
@@ -31,3 +31,8 @@ def test_get_output_path():
     exp_output_path = '/path/to/the/test/file/audio.csv'
     output_path = get_output_path(test_filepath, '.csv')
     assert output_path == exp_output_path
+
+
+def test_get_process_file():
+    invalid_filepath = 'path/to/a/nonexisting/file.wav'
+    pytest.raises(BirdVoxDetectError, process_file, invalid_filepath)
