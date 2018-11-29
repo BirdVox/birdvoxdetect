@@ -12,8 +12,8 @@ except ImportError:
 
 
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
-from birdvoxdetect.cli import positive_float, get_file_list, run
-from birdvoxdetect.cli import parse_args
+from birdvoxdetect.cli import get_file_list, main
+from birdvoxdetect.cli import parse_args, positive_float, run
 
 
 TEST_DIR = os.path.dirname(__file__)
@@ -150,7 +150,7 @@ def test_run(capsys):
     pytest.raises(BirdVoxDetectError, get_file_list, ['/fake/path/to/file'])
 
 
-def test_script_main():
+def test_script_main(capsys):
     # Duplicate regression test from test_run just to hit coverage
     tempdir = tempfile.mkdtemp()
     with patch(
@@ -162,3 +162,13 @@ def test_script_main():
     outfile = os.path.join(
         tempdir, 'BirdVox-scaper_example_foreground_timestamps.csv')
     assert os.path.isfile(outfile)
+
+    # Print version
+    with patch(
+            'sys.argv',
+            ['birdvoxdetect', '--V']):
+        import birdvoxdetect.__main__
+
+    # Check version printed
+    out, err = capsys.readouterr()
+    assert len(out) > 0

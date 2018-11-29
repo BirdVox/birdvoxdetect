@@ -150,9 +150,8 @@ def main():
     """
     args = parse_args(sys.argv[1:])
 
-    if args.inputs[0] == "-V":
+    if args.inputs[0] == "-V" or args.inputs[0] == "--version":
         print(birdvoxdetect.version.version)
-        return
 
 
     run(args.inputs,
