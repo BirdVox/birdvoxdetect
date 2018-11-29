@@ -52,7 +52,7 @@ def process_file(filepath,
 
     # Create output_dir if necessary.
     if output_dir is not None:
-        try
+        try:
             os.makedirs(output_dir)
         except OSError:
             pass
