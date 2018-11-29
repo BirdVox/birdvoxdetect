@@ -74,6 +74,9 @@ def process_file(filepath,
         likelihood_path = get_output_path(
             filepath, suffix + "likelihood.hdf5", output_dir=output_dir)
 
+        with h5py.File(likelihood_path, "w") as f:
+            f.create_dataset('likelihood', data=likelihood)
+
     # Export clips.
     if export_clips:
         clips_dir = get_output_path(

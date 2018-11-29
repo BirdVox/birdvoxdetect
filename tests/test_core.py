@@ -71,3 +71,12 @@ def test_process_file():
     assert clips_list[0] == 'BirdVox-scaper_example_foreground_01-20.wav'
     assert clips_list[1] == 'BirdVox-scaper_example_foreground_02-60.wav'
     assert clips_list[2] == 'BirdVox-scaper_example_foreground_03-45.wav'
+
+    # export likelihood
+    tempdir = tempfile.mkdtemp()
+    process_file(FG_10SEC_PATH, output_dir=tempdir, export_likelihood=True)
+    likelihood_path = os.path.join(
+        tempdir, 'BirdVox-scaper_example_foreground_likelihood.hdf5')
+    with h5py.File(likelihood_path, "r") as f:
+        likelihood = h5py["likelihood"].value
+    assert likelihood.shape == (201,)
