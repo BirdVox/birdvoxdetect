@@ -78,5 +78,5 @@ def test_process_file():
     likelihood_path = os.path.join(
         tempdir, 'BirdVox-scaper_example_foreground_likelihood.hdf5')
     with h5py.File(likelihood_path, "r") as f:
-        likelihood = h5py["likelihood"].value
+        likelihood = f["likelihood"].value
     assert likelihood.shape == (201,)
