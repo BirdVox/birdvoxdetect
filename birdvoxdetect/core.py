@@ -41,7 +41,8 @@ def process_file(filepath,
             traceback.format_exc()))
 
     # Compute likelihood curve.
-    likelihood = get_likelihood(audio, sr, frame_rate=frame_rate)
+    likelihood = get_likelihood(
+        audio, pcen_settings["sr"], frame_rate=frame_rate)
 
     # Find peaks.
     peak_locs, _ = scipy.signal.find_peaks(likelihood)
