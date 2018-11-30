@@ -41,8 +41,7 @@ def process_file(filepath,
             traceback.format_exc()))
 
     # Compute likelihood curve.
-    likelihood = get_likelihood(
-        audio, pcen_settings["sr"], frame_rate=frame_rate)
+    likelihood = get_likelihood(audio, sr, frame_rate=frame_rate)
 
     # Find peaks.
     peak_locs, _ = scipy.signal.find_peaks(likelihood)
@@ -113,6 +112,7 @@ def get_likelihood(audio, sr, frame_rate, detector="pcen_snr"):
     # Resample to 22,050 kHz
     if not sr == pcen_settings["sr"]:
         audio = librosa.resample(audio, sr, pcen_settings["sr"])
+        sr = pcen_settings["sr"]
 
     # Pad.
     padding_length = int(np.round(0.5 * sr / frame_rate))
