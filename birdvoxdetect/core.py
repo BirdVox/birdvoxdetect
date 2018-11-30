@@ -97,7 +97,7 @@ def process_file(filepath,
             librosa.output.write_wav(clip_path, audio_clip, sr)
 
 
-def get_likelihood(audio, sr, frame_rate):
+def get_likelihood(audio, sr, frame_rate, detector="pcen_snr"):
     # Load settings.
     pcen_settings = get_pcen_settings()
 
@@ -150,17 +150,23 @@ def get_likelihood(audio, sr, frame_rate):
     # Convert to single floating-point precision.
     pcen = pcen.astype('float32')
 
-    # Compute likelihood curve.
-    pcen_snr = np.max(pcen, axis=0) - np.min(pcen, axis=0)
-    pcen_likelihood = pcen_snr / (0.001 + pcen_snr)
-    median_likelihood = scipy.signal.medfilt(pcen_likelihood,
-        kernel_size=127)
-    audio_duration = audio.shape[0]
-    likelihood_x = np.arange(
-        0.0,
-        audio_duration/pcen_settings["hop_length"],
-        sr/(pcen_settings["hop_length"]*frame_rate)).astype('int')
-    likelihood_y = median_likelihood[likelihood_x]
+    # PCEN-SNR detector.
+    if detector == "pcen_snr":
+
+        pcen_snr = np.max(pcen, axis=0) - np.min(pcen, axis=0)
+        pcen_likelihood = pcen_snr / (0.001 + pcen_snr)
+        median_likelihood = scipy.signal.medfilt(pcen_likelihood,
+            kernel_size=127)
+        audio_duration = audio.shape[0]
+        likelihood_x = np.arange(
+            0.0,
+            audio_duration/pcen_settings["hop_length"],
+            sr/(pcen_settings["hop_length"]*frame_rate)).astype('int')
+        likelihood_y = median_likelihood[likelihood_x]
+
+    # Deep learning detector with PCEN input and context adaptation.
+    elif detector == "pcen_cnn_adaptive-threshold-T1800":
+        pass
 
     # Return.
     return likelihood_y
