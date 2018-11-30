@@ -9,4 +9,3 @@ with warnings.catch_warnings():
 
 def _construct_pcen_network():
     keras.models.load_model(network_path)
-    
