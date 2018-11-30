@@ -1,3 +1,4 @@
+import h5py
 import librosa
 import numpy as np
 import os
@@ -152,7 +153,6 @@ def get_likelihood(audio, sr, frame_rate, detector="pcen_snr"):
 
     # PCEN-SNR detector.
     if detector == "pcen_snr":
-
         pcen_snr = np.max(pcen, axis=0) - np.min(pcen, axis=0)
         pcen_likelihood = pcen_snr / (0.001 + pcen_snr)
         median_likelihood = scipy.signal.medfilt(pcen_likelihood,
