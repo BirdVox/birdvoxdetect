@@ -58,7 +58,7 @@ def test_process_file():
     assert df.columns[1] == "Time (s)"
     assert df.columns[2] == "Likelihood (%)"
     assert np.allclose(
-        np.array(df["Time (s)"]), np.array([1.2, 2.6, 3.45]), atol=0.01)
+        np.array(df["Time (s)"]), np.array([2.45, 5.2, 6.8]), atol=0.05)
 
     # export clips
     tempdir = tempfile.mkdtemp()
