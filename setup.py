@@ -10,7 +10,10 @@ except ImportError:
     from urllib import urlretrieve
 
 model_dir = os.path.join('birdvoxdetect', 'models')
-suffixes = ['pcen_cnn_adaptive-threshold-T1800']
+suffixes = [
+    'pcen_cnn',
+    'pcen_cnn_adaptive-threshold-T1800'
+]
 weight_files = ['birdvoxdetect_{}.h5'.format(suffix) for suffix in suffixes]
 base_url = 'https://github.com/BirdVox/birdvoxdetect/raw/models/'
 
