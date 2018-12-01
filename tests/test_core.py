@@ -80,3 +80,10 @@ def test_process_file():
     with h5py.File(likelihood_path, "r") as f:
         likelihood = f["likelihood"].value
     assert likelihood.shape == (201,)
+
+    # suffix
+    tempdir = tempfile.mkdtemp()
+    process_file(FG_10SEC_PATH, output_dir=tempdir, suffix="mysuffix")
+    csv_path = os.path.join(
+        tempdir, 'BirdVox-scaper_example_foreground_mysuffix_timestamps.csv')
+    assert os.path.exists(csv_path)
