@@ -79,7 +79,7 @@ def test_process_file():
         tempdir, 'BirdVox-scaper_example_foreground_likelihood.hdf5')
     with h5py.File(likelihood_path, "r") as f:
         likelihood = f["likelihood"].value
-    assert likelihood.shape == (201,)
+    assert likelihood.shape == (200,)
 
     # suffix
     tempdir = tempfile.mkdtemp()

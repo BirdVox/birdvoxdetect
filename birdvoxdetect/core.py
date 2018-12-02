@@ -1,3 +1,4 @@
+import collections
 import h5py
 import librosa
 import numpy as np
@@ -25,23 +26,110 @@ def process_file(filepath,
         suffix="",
         frame_rate=20.0,
         clip_duration=1.0,
-        logger_level=20):
+        logger_level=20,
+        detector="pcen-snr"):
+        #detector="birdvoxdetect_pcen_cnn_adaptive-threshold-T1800"):
 
     # Check for existence of the input file.
     if not os.path.exists(filepath):
         raise BirdVoxDetectError(
             'File "{}" could not be found.'.format(filepath))
 
-    # Try loading the file as NumPy array.
+    # Load the file.
     try:
-        audio, sr = sf.read(filepath)
+        sound_file = sf.SoundFile(filepath)
     except Exception:
         raise BirdVoxDetectError(
             'Could not open file "{}":\n{}'.format(filepath,
             traceback.format_exc()))
 
-    # Compute likelihood curve.
-    likelihood = get_likelihood(audio, sr, frame_rate=frame_rate)
+    # Load the detector.
+    if detector_name == "pcen-snr":
+        detector = "pcen-snr"
+    else:
+        model_path = os.path.join("models", detector + ".h5")
+        if not os.path.exists(model_path):
+            raise BirdVoxDetectError(
+                'Model "{}" could not be found.'.format(detector))
+        try:
+            with warnings.catch_warnings():
+                # Suppress TF and Keras warnings when importing
+                warnings.simplefilter("ignore")
+                import keras
+                detector = keras.models.load_model(model_path)
+        except Exception:
+            raise BirdVoxDetectError(
+                'Could not open model "{}":\n{}'.format(filepath,
+                traceback.format_exc()))
+
+    # Define chunk size.
+    has_context = len(detector_name)>6 and (detector_name[-6:-4] == "-T")
+    if has_context:
+        percentiles = [0.1, 1, 10, 25, 50, 75, 90, 99, 99.9]
+        queue_length = 4
+        chunk_duration = int(detector_name[-4:]) / queue_length
+    else:
+        chunk_duration = 450
+        queue_length = 1
+
+    # Define number of chunks.
+    sr = sound_file.samplerate
+    chunk_length = int(chunk_duration * sr)
+    full_length = len(sound_file)
+    n_chunks = min(1, int(np.ceil(max(full_length) / chunk_length)))
+
+    # Pre-load queue.
+    for chunk_id in range(min(n_chunks, queue_length)):
+        chunk_start = chunk_id * chunk_length
+        sound_file.seek(chunk_start)
+        chunk_audio = sound_file.read(chunk_length)
+        chunk_pcen = compute_pcen(chunk_audio, sr)
+        deque.append(chunk_pcen)
+
+    # Compute context.
+    if has_context:
+        concat_deque = np.concatenate(deque, axis=1)
+        deque_context = np.percentile(percentiles, axis=1)
+
+    # Compute likelihood on queue chunks.
+    chunk_likelihoods = []
+    for chunk_id in range(min(queue_length, n_chunks-1)):
+        chunk_pcen = deque[chunk_id]
+        if has_context:
+            chunk_likelihood = predict_with_context(
+                chunk_pcen, frame_rate, deque_context, detector)
+        else:
+            chunk_likelihood = predict(chunk_pcen, frame_rate, detector)
+        chunk_likelihoods.append(chunk_likelihood)
+
+    # Loop over chunks.
+    for chunk_id in range(queue_length, n_chunks-1):
+        chunk_start = chunk_id * chunk_length
+        sound_file.seek(chunk_start)
+        chunk_audio = sound_file.read(chunk_length)
+        deque.popleft()
+        chunk_pcen = compute_pcen(chunk_audio, sr)
+        deque.append(chunk_pcen)
+        concat_deque = np.concatenate(deque, axis=1, out=concat_deque)
+        deque_context = np.percentile(percentiles, axis=1, out=deque_context)
+        if has_context:
+            chunk_likelihood = predict_with_context(
+                chunk_pcen, frame_rate, deque_context, detector)
+        else:
+            chunk_likelihood = predict(chunk_pcen, frame_rate, detector)
+        chunk_likelihoods.append(chunk_likelihood)
+
+    # Last chunk.
+    chunk_start = chunk_id * chunk_length
+    sound_file.seek(chunk_start)
+    chunk_audio = sound_file.read(full_length - chunk_start)
+    chunk_pcen = compute_pcen(chunk_audio, sr)
+    chunk_likelihood = predict_with_context(
+        chunk_pcen, deque_context, frame_rate, detector)
+    chunk_likelihoods.append(chunk_likelihood)
+
+    # Concatenate predictions.
+    likelihood = np.concatenate(chunk_likelihoods)
 
     # Find peaks.
     peak_locs, _ = scipy.signal.find_peaks(likelihood)
@@ -98,25 +186,14 @@ def process_file(filepath,
             librosa.output.write_wav(clip_path, audio_clip, sr)
 
 
-def get_likelihood(audio, sr, frame_rate, detector="pcen_snr"):
+def compute_pcen(audio, sr):
     # Load settings.
     pcen_settings = get_pcen_settings()
-
-    # Check audio array dimension
-    if audio.ndim > 2:
-        raise BirdVoxDetectError('Audio array can only be be 1D or 2D')
-    elif audio.ndim == 2:
-        # Downmix if multichannel
-        audio = np.mean(audio, axis=1)
 
     # Resample to 22,050 kHz
     if not sr == pcen_settings["sr"]:
         audio = librosa.resample(audio, sr, pcen_settings["sr"])
         sr = pcen_settings["sr"]
-
-    # Pad.
-    padding_length = int(np.round(0.5 * sr / frame_rate))
-    audio = pad_audio(audio, padding_length)
 
     # Compute Short-Term Fourier Transform (STFT).
     stft = librosa.stft(
@@ -152,25 +229,49 @@ def get_likelihood(audio, sr, frame_rate, detector="pcen_snr"):
     # Convert to single floating-point precision.
     pcen = pcen.astype('float32')
 
-    # PCEN-SNR detector.
+    # Return.
+    return pcen
+
+
+def predict(pcen, frame_rate, detector):
+    pcen_settings = get_pcen_settings()
     if detector == "pcen_snr":
         pcen_snr = np.max(pcen, axis=0) - np.min(pcen, axis=0)
         pcen_likelihood = pcen_snr / (0.001 + pcen_snr)
-        median_likelihood = scipy.signal.medfilt(pcen_likelihood,
-            kernel_size=127)
+        median_likelihood = scipy.signal.medfilt(
+            pcen_likelihood, kernel_size=127)
         audio_duration = audio.shape[0]
         likelihood_x = np.arange(
             0.0,
             audio_duration/pcen_settings["hop_length"],
-            sr/(pcen_settings["hop_length"]*frame_rate)).astype('int')
+            sr/(pcen_settings["hop_length"]*frame_rate))[:-1].astype('int')
         likelihood_y = median_likelihood[likelihood_x]
 
-    # Deep learning detector with PCEN input and context adaptation.
-    elif detector == "pcen_cnn_adaptive-threshold-T1800":
-        pass
 
-    # Return.
-    return likelihood_y
+def predict_with_context(pcen, context, frame_rate, detector)
+    # Compute number of hops.
+    clip_length = 104
+    hop_length = 34
+    n_freqs, n_times = pcen.shape
+    n_hops = 1 + int((n_times - clip_length) / hop_length)
+    itemsize = pcen.itemsize
+
+    # Stride and tile.
+    X_shape = (n_hops, clip_length, n_freqs)
+    X_stride = (itemsize*n_freqs*hop_length, itemsize*n_freqs, itemsize)
+    X_pcen = np.lib.stride_tricks.as_strided(
+        np.ravel(np.copy(pcen).T),
+        shape=X_shape,
+        strides=X_stride,
+        writeable=False)
+    X_pcen = np.transpose(X_pcen, (0, 2, 1))[:, :, :, np.newaxis]
+    X_bg = np.tile(pcen_percentiles, (n_hops, 1, 1))
+
+    # Predict.
+    y = model.predict({"spec_input": X_pcen, "bg_input": X_bg})
+
+    # Return likelihood.
+    return (1 - y)
 
 
 def get_output_path(filepath, suffix, output_dir=None):
