@@ -249,7 +249,7 @@ def predict(pcen, frame_rate, detector):
         pcen_likelihood = pcen_snr / (0.001 + pcen_snr)
         median_likelihood = scipy.signal.medfilt(
             pcen_likelihood, kernel_size=127)
-        sr = pcen_settings["sample_rate"]
+        sr = pcen_settings["sr"]
         hop_length = pcen_settings["hop_length"]
         audio_duration = pcen.shape[0]*hop_length/sr
         likelihood_x = np.arange(
