@@ -251,11 +251,11 @@ def predict(pcen, frame_rate, detector):
             pcen_likelihood, kernel_size=127)
         sr = pcen_settings["sr"]
         hop_length = pcen_settings["hop_length"]
-        audio_duration = pcen.shape[0]*hop_length/sr
+        audio_duration = pcen.shape[1]*hop_length/sr
         likelihood_x = np.arange(
             0.0,
-            audio_duration/pcen_settings["hop_length"],
-            sr/(pcen_settings["hop_length"]*frame_rate))[:-1].astype('int')
+            audio_duration*sr/hop_length,
+            sr/(hop_length*frame_rate))[:-1].astype('int')
         y = median_likelihood[likelihood_x]
         return y
 
