@@ -27,8 +27,8 @@ def process_file(filepath,
         frame_rate=20.0,
         clip_duration=1.0,
         logger_level=20,
-        detector="pcen-snr"):
-        #detector="birdvoxdetect_pcen_cnn_adaptive-threshold-T1800"):
+        detector_name="pcen-snr"):
+        #detector_name="birdvoxdetect_pcen_cnn_adaptive-threshold-T1800"):
 
     # Check for existence of the input file.
     if not os.path.exists(filepath):
