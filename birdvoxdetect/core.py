@@ -248,7 +248,7 @@ def predict(pcen, frame_rate, detector):
         likelihood_y = median_likelihood[likelihood_x]
 
 
-def predict_with_context(pcen, context, frame_rate, detector)
+def predict_with_context(pcen, context, frame_rate, detector):
     # Compute number of hops.
     clip_length = 104
     hop_length = 34
