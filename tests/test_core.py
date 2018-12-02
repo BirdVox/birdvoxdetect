@@ -68,9 +68,10 @@ def test_process_file():
     assert os.path.exists(clips_dir)
     clips_list = sorted(os.listdir(clips_dir))
     assert len(clips_list) == 3
-    assert clips_list[0] == 'BirdVox-scaper_example_foreground_02-40.wav'
-    assert clips_list[1] == 'BirdVox-scaper_example_foreground_05-15.wav'
-    assert clips_list[2] == 'BirdVox-scaper_example_foreground_06-75.wav'
+    assert clips_list[0].startswith('BirdVox-scaper_example_foreground_02')
+    assert clips_list[1].startswith('BirdVox-scaper_example_foreground_05')
+    assert clips_list[2].startswith('BirdVox-scaper_example_foreground_06')
+    assert np.all([c.endswith(".wav") for c in clips_list])
 
     # export likelihood
     tempdir = tempfile.mkdtemp()
