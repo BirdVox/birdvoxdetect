@@ -76,7 +76,7 @@ def process_file(filepath,
     sr = sound_file.samplerate
     chunk_length = int(chunk_duration * sr)
     full_length = len(sound_file)
-    n_chunks = min(1, int(np.ceil(max(full_length) / chunk_length)))
+    n_chunks = min(1, int(np.ceil(full_length) / chunk_length))
 
     # Pre-load queue.
     for chunk_id in range(min(n_chunks, queue_length)):
