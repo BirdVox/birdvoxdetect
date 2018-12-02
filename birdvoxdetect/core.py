@@ -27,7 +27,7 @@ def process_file(filepath,
         frame_rate=20.0,
         clip_duration=1.0,
         logger_level=20,
-        detector_name="pcen-snr"):
+        detector_name="pcen_snr"):
         #detector_name="birdvoxdetect_pcen_cnn_adaptive-threshold-T1800"):
 
     # Check for existence of the input file.
@@ -44,13 +44,13 @@ def process_file(filepath,
             traceback.format_exc()))
 
     # Load the detector.
-    if detector_name == "pcen-snr":
-        detector = "pcen-snr"
+    if detector_name == "pcen_snr":
+        detector = "pcen_snr"
     else:
-        model_path = os.path.join("models", detector + ".h5")
+        model_path = os.path.join("models", detector_name + ".h5")
         if not os.path.exists(model_path):
             raise BirdVoxDetectError(
-                'Model "{}" could not be found.'.format(detector))
+                'Model "{}" could not be found.'.format(detector_name))
         try:
             with warnings.catch_warnings():
                 # Suppress TF and Keras warnings when importing
@@ -76,9 +76,10 @@ def process_file(filepath,
     sr = sound_file.samplerate
     chunk_length = int(chunk_duration * sr)
     full_length = len(sound_file)
-    n_chunks = min(1, int(np.ceil(full_length) / chunk_length))
+    n_chunks = max(1, int(np.ceil(full_length) / chunk_length))
 
-    # Pre-load queue.
+    # Pre-load double-ended queue.
+    deque = collections.deque()
     for chunk_id in range(min(n_chunks, queue_length)):
         chunk_start = chunk_id * chunk_length
         sound_file.seek(chunk_start)
@@ -124,8 +125,14 @@ def process_file(filepath,
     sound_file.seek(chunk_start)
     chunk_audio = sound_file.read(full_length - chunk_start)
     chunk_pcen = compute_pcen(chunk_audio, sr)
-    chunk_likelihood = predict_with_context(
-        chunk_pcen, deque_context, frame_rate, detector)
+    if has_context:
+        if n_chunks == 1:
+            deque_context = np.percentile(chunk_pcen, percentiles, axis=1)
+        chunk_likelihood = predict_with_context(
+            chunk_pcen, deque_context, frame_rate, detector)
+    else:
+        chunk_likelihood = predict(
+            chunk_pcen, frame_rate, detector)
     chunk_likelihoods.append(chunk_likelihood)
 
     # Concatenate predictions.
@@ -242,7 +249,9 @@ def predict(pcen, frame_rate, detector):
         pcen_likelihood = pcen_snr / (0.001 + pcen_snr)
         median_likelihood = scipy.signal.medfilt(
             pcen_likelihood, kernel_size=127)
-        audio_duration = audio.shape[0]
+        sr = pcen_settings["sample_rate"]
+        hop_length = pcen_settings["hop_length"]
+        audio_duration = pcen.shape[0]*hop_length/sr
         likelihood_x = np.arange(
             0.0,
             audio_duration/pcen_settings["hop_length"],
@@ -270,7 +279,7 @@ def predict(pcen, frame_rate, detector):
         X_pcen = np.transpose(X_pcen, (0, 2, 1))[:, :, :, np.newaxis]
 
         # Predict.
-        y = model.predict({"spec_input": X_pcen})
+        y = detector.predict({"spec_input": X_pcen})
 
         # Return likelihood.
         return (1 - y)
@@ -296,7 +305,7 @@ def predict_with_context(pcen, context, frame_rate, detector):
     X_bg = np.tile(pcen_percentiles, (n_hops, 1, 1))
 
     # Predict.
-    y = model.predict({"spec_input": X_pcen, "bg_input": X_bg})
+    y = detector.predict({"spec_input": X_pcen, "bg_input": X_bg})
 
     # Return likelihood.
     return (1 - y)
