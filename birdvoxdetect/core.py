@@ -136,13 +136,14 @@ def process_file(filepath,
     chunk_likelihoods.append(chunk_likelihood)
 
     # Concatenate predictions.
-    likelihood = np.concatenate(chunk_likelihoods)
+    likelihood = np.squeze(np.concatenate(chunk_likelihoods))
 
     # Find peaks.
     peak_locs, _ = scipy.signal.find_peaks(likelihood)
+    peak_vals = likelihood[peak_locs]
 
     # Threshold peaks.
-    th_peak_locs = peak_locs[peak_locs>threshold/100]
+    th_peak_locs = peak_locs[peak_vals>threshold/100]
     th_peak_likelihoods = likelihood[th_peak_locs]
     th_peak_timestamps = th_peak_locs / frame_rate
 
@@ -284,7 +285,7 @@ def predict(pcen, frame_rate, detector):
         y = detector.predict({"spec_input": X_pcen})
 
         # Return likelihood.
-        return (1 - y)
+        return np.maximum(0, 1 - 2*y)
 
 
 def predict_with_context(pcen, context, frame_rate, detector):
@@ -304,13 +305,13 @@ def predict_with_context(pcen, context, frame_rate, detector):
         strides=X_stride,
         writeable=False)
     X_pcen = np.transpose(X_pcen, (0, 2, 1))[:, :, :, np.newaxis]
-    X_bg = np.tile(pcen_percentiles, (n_hops, 1, 1))
+    X_bg = np.tile(context.T, (n_hops, 1, 1))
 
     # Predict.
     y = detector.predict({"spec_input": X_pcen, "bg_input": X_bg})
 
     # Return likelihood.
-    return (1 - y)
+    return np.maximum(0, 1 - 2*y)
 
 
 def get_output_path(filepath, suffix, output_dir=None):
