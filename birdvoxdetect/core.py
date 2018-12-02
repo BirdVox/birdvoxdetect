@@ -120,7 +120,7 @@ def process_file(filepath,
         chunk_likelihoods.append(chunk_likelihood)
 
     # Last chunk.
-    chunk_start = chunk_id * chunk_length
+    chunk_start = (n_chunks-1) * chunk_length
     sound_file.seek(chunk_start)
     chunk_audio = sound_file.read(full_length - chunk_start)
     chunk_pcen = compute_pcen(chunk_audio, sr)
