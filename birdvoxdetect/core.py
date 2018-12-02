@@ -235,6 +235,8 @@ def compute_pcen(audio, sr):
 
 def predict(pcen, frame_rate, detector):
     pcen_settings = get_pcen_settings()
+
+    # PCEN-SNR
     if detector == "pcen_snr":
         pcen_snr = np.max(pcen, axis=0) - np.min(pcen, axis=0)
         pcen_likelihood = pcen_snr / (0.001 + pcen_snr)
@@ -245,7 +247,33 @@ def predict(pcen, frame_rate, detector):
             0.0,
             audio_duration/pcen_settings["hop_length"],
             sr/(pcen_settings["hop_length"]*frame_rate))[:-1].astype('int')
-        likelihood_y = median_likelihood[likelihood_x]
+        y = median_likelihood[likelihood_x]
+        return y
+
+    # PCEN-CNN. (no context adaptation)
+    else:
+        # Compute number of hops.
+        clip_length = 104
+        hop_length = 34
+        n_freqs, n_times = pcen.shape
+        n_hops = 1 + int((n_times - clip_length) / hop_length)
+        itemsize = pcen.itemsize
+
+        # Stride and tile.
+        X_shape = (n_hops, clip_length, n_freqs)
+        X_stride = (itemsize*n_freqs*hop_length, itemsize*n_freqs, itemsize)
+        X_pcen = np.lib.stride_tricks.as_strided(
+            np.ravel(np.copy(pcen).T),
+            shape=X_shape,
+            strides=X_stride,
+            writeable=False)
+        X_pcen = np.transpose(X_pcen, (0, 2, 1))[:, :, :, np.newaxis]
+
+        # Predict.
+        y = model.predict({"spec_input": X_pcen})
+
+        # Return likelihood.
+        return (1 - y)
 
 
 def predict_with_context(pcen, context, frame_rate, detector):
