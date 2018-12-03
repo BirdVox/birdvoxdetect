@@ -88,3 +88,21 @@ def test_process_file():
     csv_path = os.path.join(
         tempdir, 'BirdVox-scaper_example_foreground_mysuffix_timestamps.csv')
     assert os.path.exists(csv_path)
+
+    # convolutional neural network
+    tempdir = tempfile.mkdtemp()
+    process_file(
+        FG_10SEC_PATH, output_dir=tempdir,
+        detector_name="birdvoxdetect_pcen_cnn")
+    csv_path = os.path.join(
+        tempdir, 'BirdVox-scaper_example_foreground_timestamps.csv')
+    assert os.path.exists(csv_path)
+
+    # context-adaptive convolutional neural network
+    tempdir = tempfile.mkdtemp()
+    process_file(
+        FG_10SEC_PATH, output_dir=tempdir,
+        detector_name="birdvoxdetect_pcen_cnn_adaptive-threshold-T1800")
+    csv_path = os.path.join(
+        tempdir, 'BirdVox-scaper_example_foreground_timestamps.csv')
+    assert os.path.exists(csv_path)

@@ -12,12 +12,6 @@ import traceback
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
 
 
-def pad_audio(audio, padding_length):
-    """Pad audio so that first sample will occur in the middle of the first frame"""
-    return np.pad(audio, (int(padding_length), 0),
-                  mode='constant', constant_values=0)
-
-
 def process_file(filepath,
         output_dir=None,
         export_clips=False,
