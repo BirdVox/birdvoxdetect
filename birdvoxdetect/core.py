@@ -41,7 +41,7 @@ def process_file(filepath,
     if detector_name == "pcen_snr":
         detector = "pcen_snr"
     else:
-        model_path = get_model_path(model_name)
+        model_path = get_model_path(detector_name)
         if not os.path.exists(model_path):
             raise BirdVoxDetectError(
                 'Model "{}" could not be found.'.format(detector_name))
