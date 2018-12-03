@@ -12,7 +12,8 @@ except ImportError:
 model_dir = os.path.join('birdvoxdetect', 'models')
 suffixes = [
     'pcen_cnn',
-    'pcen_cnn_adaptive-threshold-T1800'
+    'pcen_cnn_adaptive-threshold-T1800',
+    'empty' # for unit tests
 ]
 weight_files = ['birdvoxdetect_{}.h5'.format(suffix) for suffix in suffixes]
 base_url = 'https://github.com/BirdVox/birdvoxdetect/raw/models/'
