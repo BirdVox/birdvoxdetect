@@ -136,7 +136,7 @@ def process_file(filepath,
     chunk_likelihoods.append(chunk_likelihood)
 
     # Concatenate predictions.
-    likelihood = np.squeze(np.concatenate(chunk_likelihoods))
+    likelihood = np.squeeze(np.concatenate(chunk_likelihoods))
 
     # Find peaks.
     peak_locs, _ = scipy.signal.find_peaks(likelihood)
