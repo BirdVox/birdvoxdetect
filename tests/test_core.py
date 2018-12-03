@@ -48,9 +48,10 @@ def test_process_file():
 
     # standard call
     tempdir = tempfile.mkdtemp()
-    process_file(FG_10SEC_PATH, output_dir=tempdir)
+    process_file(FG_10SEC_PATH, output_dir=os.path.join(tempdir, "subfolder"))
     csv_path = os.path.join(
-        tempdir, 'BirdVox-scaper_example_foreground_timestamps.csv')
+        tempdir, "subfolder",
+        'BirdVox-scaper_example_foreground_timestamps.csv')
     assert os.path.exists(csv_path)
     df = pd.read_csv(csv_path)
     assert len(df) == 3
