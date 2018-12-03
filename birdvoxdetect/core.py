@@ -85,7 +85,7 @@ def process_file(filepath,
     # Compute context.
     if has_context:
         concat_deque = np.concatenate(deque, axis=1)
-        deque_context = np.percentile(percentiles, axis=1)
+        deque_context = np.percentile(concat_deque, percentiles, axis=1)
 
     # Compute likelihood on queue chunks.
     chunk_likelihoods = []
