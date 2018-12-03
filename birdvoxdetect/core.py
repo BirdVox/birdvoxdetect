@@ -143,10 +143,8 @@ def process_file(filepath,
 
     # Create output_dir if necessary.
     if output_dir is not None:
-        try:
+        if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-        except OSError:
-            pass
 
     # Append underscore to suffix if it is not empty.
     if len(suffix) > 0 and not suffix[-1] == "_":
@@ -172,10 +170,8 @@ def process_file(filepath,
     if export_clips:
         clips_dir = get_output_path(
             filepath, suffix + "clips", output_dir=output_dir)
-        try:
+        if not os.path.exists(clips_dir):
             os.makedirs(clips_dir)
-        except OSError:
-            pass
 
         for t in th_peak_timestamps:
             clip_start = max(0, int(sr*np.round(t-0.5*clip_duration)))
