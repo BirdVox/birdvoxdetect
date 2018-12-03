@@ -273,7 +273,7 @@ def predict(pcen, frame_rate, detector):
         X_pcen = np.transpose(X_pcen, (0, 2, 1))[:, :, :, np.newaxis]
 
         # Predict.
-        y = detector.predict({"spec_input": X_pcen})
+        y = detector.predict(X_pcen)
 
         # Return likelihood.
         return np.maximum(0, 1 - 2*y)
