@@ -41,7 +41,7 @@ def process_file(filepath,
     if detector_name == "pcen_snr":
         detector = "pcen_snr"
     else:
-        model_path = os.path.join("models", detector_name + ".h5")
+        model_path = get_model_path(model_name)
         if not os.path.exists(model_path):
             raise BirdVoxDetectError(
                 'Model "{}" could not be found.'.format(detector_name))
@@ -347,3 +347,8 @@ def get_pcen_settings():
         "win_length": 256,
         "window": "hann"}
     return pcen_settings
+
+
+def get_model_path(model_name):
+    return os.path.join(
+        os.path.dirname(__file__), "models", model_name + '.h5')
