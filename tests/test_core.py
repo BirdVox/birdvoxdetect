@@ -89,6 +89,16 @@ def test_process_file():
         tempdir, 'BirdVox-scaper_example_foreground_mysuffix_timestamps.csv')
     assert os.path.exists(csv_path)
 
+    # non-existing model
+    pytest.raises(
+        BirdVoxDetectError, process_file,
+        detector_name="a_birdvoxdetect_model_that_does_not_exist")
+
+    # invalid model
+    pytest.raises(
+        BirdVoxDetectError, process_file,
+        detector_name="birdvoxdetect_empty")
+
     # convolutional neural network
     tempdir = tempfile.mkdtemp()
     process_file(
