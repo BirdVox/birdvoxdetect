@@ -92,12 +92,12 @@ def test_process_file():
 
     # non-existing model
     pytest.raises(
-        BirdVoxDetectError, process_file,
+        BirdVoxDetectError, process_file, FG_10SEC_PATH,
         detector_name="a_birdvoxdetect_model_that_does_not_exist")
 
     # invalid model
     pytest.raises(
-        BirdVoxDetectError, process_file,
+        BirdVoxDetectError, process_file, FG_10SEC_PATH,
         detector_name="birdvoxdetect_empty")
 
     # convolutional neural network
