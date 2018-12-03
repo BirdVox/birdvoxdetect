@@ -7,6 +7,7 @@ import pandas as pd
 import scipy.signal
 import soundfile as sf
 import traceback
+import warnings
 
 
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
