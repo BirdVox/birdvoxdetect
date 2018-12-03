@@ -13,7 +13,7 @@ model_dir = os.path.join('birdvoxdetect', 'models')
 suffixes = [
     'pcen_cnn',
     'pcen_cnn_adaptive-threshold-T1800',
-    'empty' # for unit tests
+    'empty'  # for unit tests
 ]
 weight_files = ['birdvoxdetect_{}.h5'.format(suffix) for suffix in suffixes]
 base_url = 'https://github.com/BirdVox/birdvoxdetect/raw/models/'
@@ -55,7 +55,8 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/BirdVox/birdvoxdetect',
-    author='Vincent Lostanlen, Justin Salamon, Andrew Farnsworth, Steve Kelling, and Juan Pablo Bello',
+    author='Vincent Lostanlen, Justin Salamon, Andrew Farnsworth, ' +\
+        'Steve Kelling, and Juan Pablo Bello'
     author_email='vincent.lostanlen@nyu.edu',
     packages=find_packages(),
     entry_points={
@@ -97,7 +98,9 @@ setup(
         'tests': []
     },
     package_data={
-        'birdvoxdetect': [os.path.join('models', fname)
-                   for fname in weight_files]
+        'birdvoxdetect': [
+            os.path.join('models', fname)
+            for fname in weight_files
+            ]
     }
 )

@@ -13,7 +13,8 @@ import warnings
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
 
 
-def process_file(filepath,
+def process_file(
+        filepath,
         output_dir=None,
         export_clips=False,
         export_likelihood=False,
@@ -23,7 +24,7 @@ def process_file(filepath,
         clip_duration=1.0,
         logger_level=20,
         detector_name="pcen_snr"):
-        #detector_name="birdvoxdetect_pcen_cnn_adaptive-threshold-T1800"):
+    # detector_name="birdvoxdetect_pcen_cnn_adaptive-threshold-T1800"):
 
     # Check for existence of the input file.
     if not os.path.exists(filepath):
@@ -34,9 +35,9 @@ def process_file(filepath,
     try:
         sound_file = sf.SoundFile(filepath)
     except Exception:
-        raise BirdVoxDetectError(
-            'Could not open file "{}":\n{}'.format(filepath,
-            traceback.format_exc()))
+        exc_str = 'Could not open file "{}":\n{}'
+        exc_formatted_str = exc_str.format(filepath, traceback.format_exc())
+        raise BirdVoxDetectError(exc_formatted_str)
 
     # Load the detector.
     if detector_name == "pcen_snr":
@@ -53,12 +54,13 @@ def process_file(filepath,
                 import keras
                 detector = keras.models.load_model(model_path)
         except Exception:
-            raise BirdVoxDetectError(
-                'Could not open model "{}":\n{}'.format(filepath,
-                traceback.format_exc()))
+            exc_str = 'Could not open model "{}":\n{}'
+            formatted_trace = traceback.format_exc()
+            exc_formatted_str = exc_str.format(filepath, formatted_trace)
+            raise BirdVoxDetectError(exc_formatted_str)
 
     # Define chunk size.
-    has_context = len(detector_name)>6 and (detector_name[-6:-4] == "-T")
+    has_context = (len(detector_name) > 6) and (detector_name[-6:-4] == "-T")
     if has_context:
         percentiles = [0.1, 1, 10, 25, 50, 75, 90, 99, 99.9]
         queue_length = 4
@@ -138,7 +140,7 @@ def process_file(filepath,
     peak_vals = likelihood[peak_locs]
 
     # Threshold peaks.
-    th_peak_locs = peak_locs[peak_vals>threshold/100]
+    th_peak_locs = peak_locs[peak_vals > (threshold/100)]
     th_peak_likelihoods = likelihood[th_peak_locs]
     th_peak_timestamps = th_peak_locs / frame_rate
 
@@ -183,7 +185,7 @@ def process_file(filepath,
             clip_path = get_output_path(
                 filepath,
                 suffix + "{:05.2f}".format(t).replace(".", "-") + ".wav",
-                output_dir = clips_dir)
+                output_dir=clips_dir)
             librosa.output.write_wav(clip_path, audio_clip, sr)
 
 
@@ -219,7 +221,8 @@ def compute_pcen(audio, sr):
         fmax=pcen_settings["fmax"])
 
     # Compute PCEN.
-    pcen = librosa.pcen(melspec,
+    pcen = librosa.pcen(
+        melspec,
         sr=pcen_settings["sr"],
         hop_length=pcen_settings["hop_length"],
         gain=pcen_settings["pcen_norm_exponent"],
