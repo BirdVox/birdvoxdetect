@@ -13,8 +13,6 @@ import warnings
 
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
 
-logging.config.fileConfig('logging.ini')
-
 
 def process_file(
         filepath,
