@@ -30,7 +30,7 @@ def process_file(
     logging.getLogger().setLevel(logger_level)
 
     # Print new line and file name.
-    logging.info("-" * 70)
+    logging.info("-" * 80)
     logging.info("Loading file: {}".format(filepath))
 
     # Check for existence of the input file.
@@ -114,7 +114,7 @@ def process_file(
         chunk_pcen = deque[chunk_id]
         if has_context:
             chunk_likelihood = predict_with_context(
-                chunk_pcen, frame_rate, deque_context, detector,
+                chunk_pcen, deque_context, frame_rate, detector,
                 logger_level)
         else:
             chunk_likelihood = predict(
@@ -142,7 +142,7 @@ def process_file(
             concat_deque, percentiles, axis=1, out=deque_context)
         if has_context:
             chunk_likelihood = predict_with_context(
-                chunk_pcen, frame_rate, deque_context, detector)
+                chunk_pcen, deque_context, frame_rate, detector)
         else:
             chunk_likelihood = predict(chunk_pcen, frame_rate, detector)
         chunk_likelihoods.append(chunk_likelihood)
