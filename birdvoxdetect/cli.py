@@ -169,6 +169,13 @@ def main():
     if args.inputs[0] == "-V" or args.inputs[0] == "--version":
         print(birdvoxdetect.version.version)
 
+    if args.quiet:
+        logger_level = 30
+    elif args.verbose:
+        logger_level = 20
+    else:
+        logger_level = 25
+
     run(
         args.inputs,
         output_dir=args.output_dir,
@@ -178,4 +185,4 @@ def main():
         suffix=args.suffix,
         frame_rate=args.frame_rate,
         clip_duration=args.clip_duration,
-        logger_level=20)
+        logger_level=logger_level)

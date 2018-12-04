@@ -1,6 +1,7 @@
 import collections
 import h5py
 import librosa
+import logging
 import numpy as np
 import os
 import pandas as pd
@@ -12,6 +13,8 @@ import warnings
 
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
 
+logging.config.fileConfig('logging.ini')
+
 
 def process_file(
         filepath,
@@ -22,9 +25,15 @@ def process_file(
         suffix="",
         frame_rate=20.0,
         clip_duration=1.0,
-        logger_level=20,
+        logger_level=logging.INFO,
         detector_name="pcen_snr"):
     # detector_name="birdvoxdetect_pcen_cnn_adaptive-threshold-T1800"):
+    # Set logger level.
+    logging.getLogger().setLevel(logger_level)
+
+    # Print new line and file name.
+    logging.info("-" * 70)
+    logging.info("Loading file: {}".format(filepath))
 
     # Check for existence of the input file.
     if not os.path.exists(filepath):
@@ -38,6 +47,9 @@ def process_file(
         exc_str = 'Could not open file "{}":\n{}'
         exc_formatted_str = exc_str.format(filepath, traceback.format_exc())
         raise BirdVoxDetectError(exc_formatted_str)
+
+    # Print model.
+    logging.info("Loading model: {}".format(detector_name))
 
     # Load the detector.
     if detector_name == "pcen_snr":
@@ -75,12 +87,18 @@ def process_file(
     full_length = len(sound_file)
     n_chunks = max(1, int(np.ceil(full_length) / chunk_length))
 
+    # Print chunk duration.
+    logging.info("Chunk duration: {} seconds".format(chunk_duration))
+
     # Pre-load double-ended queue.
     deque = collections.deque()
-    for chunk_id in range(min(n_chunks, queue_length)):
+    for chunk_id in range(min(n_chunks-1, queue_length)):
+        # Read audio chunk.
         chunk_start = chunk_id * chunk_length
         sound_file.seek(chunk_start)
         chunk_audio = sound_file.read(chunk_length)
+
+        # Compute PCEN.
         chunk_pcen = compute_pcen(chunk_audio, sr)
         deque.append(chunk_pcen)
 
@@ -92,6 +110,9 @@ def process_file(
     # Compute likelihood on queue chunks.
     chunk_likelihoods = []
     for chunk_id in range(min(queue_length, n_chunks-1)):
+        # Print chunk ID and number of chunks.
+        logging.info("Chunk ID: {}/{}".format(chunk_id, n_chunks))
+
         chunk_pcen = deque[chunk_id]
         if has_context:
             chunk_likelihood = predict_with_context(
@@ -104,12 +125,20 @@ def process_file(
 
     # Loop over chunks.
     for chunk_id in range(queue_length, n_chunks-1):
+        # Print chunk ID and number of chunks.
+        logging.info("Chunk ID: {}/{}".format(chunk_id, n_chunks))
+
+        # Read chunk.
         chunk_start = chunk_id * chunk_length
         sound_file.seek(chunk_start)
         chunk_audio = sound_file.read(chunk_length)
+
+        # Compute PCEN.
         deque.popleft()
         chunk_pcen = compute_pcen(chunk_audio, sr)
         deque.append(chunk_pcen)
+
+        # Compute percentiles
         concat_deque = np.concatenate(deque, axis=1, out=concat_deque)
         deque_context = np.percentile(
             concat_deque, percentiles, axis=1, out=deque_context)
@@ -121,6 +150,8 @@ def process_file(
         chunk_likelihoods.append(chunk_likelihood)
 
     # Last chunk.
+    # Print chunk ID and number of chunks.
+    logging.info("Chunk ID: {}/{}".format(n_chunks, n_chunks))
     chunk_start = (n_chunks-1) * chunk_length
     sound_file.seek(chunk_start)
     chunk_audio = sound_file.read(full_length - chunk_start)
@@ -139,13 +170,16 @@ def process_file(
     likelihood = np.squeeze(np.concatenate(chunk_likelihoods))
 
     # Find peaks.
+    logging.info("Peak-picking")
     peak_locs, _ = scipy.signal.find_peaks(likelihood)
     peak_vals = likelihood[peak_locs]
 
     # Threshold peaks.
+    logging.info("Thresholding")
     th_peak_locs = peak_locs[peak_vals > (threshold/100)]
     th_peak_likelihoods = likelihood[th_peak_locs]
     th_peak_timestamps = th_peak_locs / frame_rate
+    logging.info("Number of timestamps: {}".format(len(th_peak_timestamps)))
 
     # Create output_dir if necessary.
     if output_dir is not None:
@@ -163,6 +197,7 @@ def process_file(
         (th_peak_timestamps, th_peak_likelihoods), axis=1)
     df = pd.DataFrame(df_matrix, columns=["Time (s)", "Likelihood (%)"])
     df.to_csv(timestamps_path)
+    logging.info("Timestamps are available at: {}".format(timestamps_path))
 
     # Export likelihood curve.
     if export_likelihood:
@@ -171,6 +206,9 @@ def process_file(
 
         with h5py.File(likelihood_path, "w") as f:
             f.create_dataset('likelihood', data=likelihood)
+
+        logging.info(
+            "Prediction curve is available at: {}".format(likelihood_path))
 
     # Export clips.
     if export_clips:
@@ -190,6 +228,12 @@ def process_file(
                 suffix + "{:05.2f}".format(t).replace(".", "-") + ".wav",
                 output_dir=clips_dir)
             librosa.output.write_wav(clip_path, audio_clip, sr)
+
+        logging.info(
+            "Clips are available at: {}.".format(clips_path))
+
+    # Print final message.
+    logging.info("Done with file: {}.".format(filepath))
 
 
 def compute_pcen(audio, sr):
@@ -279,7 +323,8 @@ def predict(pcen, frame_rate, detector, logger_level):
         X_pcen = np.transpose(X_pcen, (0, 2, 1))[:, :, :, np.newaxis]
 
         # Predict.
-        y = detector.predict(X_pcen)
+        verbose = True
+        y = detector.predict(X_pcen, verbose=verbose)
 
         # Return likelihood.
         return np.maximum(0, 1 - 2*y)
