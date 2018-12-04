@@ -126,10 +126,10 @@ def process_file(
         if n_chunks == 1:
             deque_context = np.percentile(chunk_pcen, percentiles, axis=1)
         chunk_likelihood = predict_with_context(
-            chunk_pcen, deque_context, frame_rate, detector)
+            chunk_pcen, deque_context, frame_rate, detector, logger_level)
     else:
         chunk_likelihood = predict(
-            chunk_pcen, frame_rate, detector)
+            chunk_pcen, frame_rate, detector, logger_level)
     chunk_likelihoods.append(chunk_likelihood)
 
     # Concatenate predictions.
@@ -237,7 +237,7 @@ def compute_pcen(audio, sr):
     return pcen
 
 
-def predict(pcen, frame_rate, detector):
+def predict(pcen, frame_rate, detector, logger_level):
     pcen_settings = get_pcen_settings()
 
     # PCEN-SNR
@@ -282,7 +282,7 @@ def predict(pcen, frame_rate, detector):
         return np.maximum(0, 1 - 2*y)
 
 
-def predict_with_context(pcen, context, frame_rate, detector):
+def predict_with_context(pcen, context, frame_rate, detector, logger_level):
     # Compute number of hops.
     clip_length = 104
     hop_length = 34
@@ -302,7 +302,10 @@ def predict_with_context(pcen, context, frame_rate, detector):
     X_bg = np.tile(context.T, (n_hops, 1, 1))
 
     # Predict.
-    y = detector.predict({"spec_input": X_pcen, "bg_input": X_bg})
+    verbose = True
+    y = detector.predict(
+        {"spec_input": X_pcen, "bg_input": X_bg},
+        verbose=verbose)
 
     # Return likelihood.
     return np.maximum(0, 1 - 2*y)
