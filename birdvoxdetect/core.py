@@ -109,7 +109,7 @@ def process_file(
     chunk_likelihoods = []
     for chunk_id in range(min(queue_length, n_chunks-1)):
         # Print chunk ID and number of chunks.
-        logging.info("Chunk ID: {}/{}".format(chunk_id, n_chunks))
+        logging.info("Chunk ID: {}/{}".format(1+chunk_id, n_chunks))
 
         chunk_pcen = deque[chunk_id]
         if has_context:
@@ -124,7 +124,7 @@ def process_file(
     # Loop over chunks.
     for chunk_id in range(queue_length, n_chunks-1):
         # Print chunk ID and number of chunks.
-        logging.info("Chunk ID: {}/{}".format(chunk_id, n_chunks))
+        logging.info("Chunk ID: {}/{}".format(1+chunk_id, n_chunks))
 
         # Read chunk.
         chunk_start = chunk_id * chunk_length
@@ -149,7 +149,7 @@ def process_file(
 
     # Last chunk.
     # Print chunk ID and number of chunks.
-    logging.info("Chunk ID: {}/{}".format(n_chunks, n_chunks))
+    logging.info("Chunk ID: {}/{}".format(1+n_chunks, n_chunks))
     chunk_start = (n_chunks-1) * chunk_length
     sound_file.seek(chunk_start)
     chunk_audio = sound_file.read(full_length - chunk_start)
