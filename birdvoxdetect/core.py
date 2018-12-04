@@ -95,9 +95,11 @@ def process_file(
         chunk_pcen = deque[chunk_id]
         if has_context:
             chunk_likelihood = predict_with_context(
-                chunk_pcen, frame_rate, deque_context, detector)
+                chunk_pcen, frame_rate, deque_context, detector,
+                logger_level)
         else:
-            chunk_likelihood = predict(chunk_pcen, frame_rate, detector)
+            chunk_likelihood = predict(
+                chunk_pcen, frame_rate, detector, logger_level)
         chunk_likelihoods.append(chunk_likelihood)
 
     # Loop over chunks.
