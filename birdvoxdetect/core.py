@@ -111,7 +111,8 @@ def process_file(
         chunk_pcen = compute_pcen(chunk_audio, sr)
         deque.append(chunk_pcen)
         concat_deque = np.concatenate(deque, axis=1, out=concat_deque)
-        deque_context = np.percentile(percentiles, axis=1, out=deque_context)
+        deque_context = np.percentile(
+            concat_deque, percentiles, axis=1, out=deque_context)
         if has_context:
             chunk_likelihood = predict_with_context(
                 chunk_pcen, frame_rate, deque_context, detector)
