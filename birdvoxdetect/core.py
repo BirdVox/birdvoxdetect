@@ -148,6 +148,7 @@ def process_file(
         else:
             chunk_likelihood = predict(
                 chunk_pcen, frame_rate, detector, logger_level)
+        chunk_likelihood = np.squeeze(chunk_likelihood)
 
         if threshold is None:
             continue
@@ -211,6 +212,7 @@ def process_file(
                 chunk_pcen, deque_context, frame_rate, detector)
         else:
             chunk_likelihood = predict(chunk_pcen, frame_rate, detector)
+        chunk_likelihood = np.squeeze(chunk_likelihood)
 
         if threshold is None:
             continue
@@ -267,6 +269,7 @@ def process_file(
         # Predict.
         chunk_likelihood = predict(
             chunk_pcen, frame_rate, detector, logger_level)
+    chunk_likelihood = np.squeeze(chunk_likelihood)
 
     # Threshold last chunk.
     if threshold is not None:
@@ -300,18 +303,18 @@ def process_file(
                 output_dir=clips_dir)
             librosa.output.write_wav(clip_path, audio_clip, sr)
 
-        # Export likelihood curve.
-        if export_likelihood:
+    # Export likelihood curve.
+    if export_likelihood:
 
-            # Define output path for likelihood.
-            likelihood_path = get_output_path(
-                filepath, suffix + "likelihood.hdf5", output_dir=output_dir)
+        # Define output path for likelihood.
+        likelihood_path = get_output_path(
+            filepath, suffix + "likelihood.hdf5", output_dir=output_dir)
 
-            # Concatenate likelihood curves across chunks.
-            chunk_likelihoods.append(chunk_likelihood)
-            likelihood = np.squeeze(np.concatenate(chunk_likelihoods))
-            with h5py.File(likelihood_path, "w") as f:
-                f.create_dataset('likelihood', data=likelihood)
+        # Concatenate likelihood curves across chunks.
+        chunk_likelihoods.append(chunk_likelihood)
+        likelihood = np.squeeze(np.concatenate(chunk_likelihoods))
+        with h5py.File(likelihood_path, "w") as f:
+            f.create_dataset('likelihood', data=likelihood)
 
     # Print final messages.
     logging.info("Done with file: {}.".format(filepath))
