@@ -11,7 +11,6 @@ import birdvoxdetect
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
 
 
-        raise ArgumentTypeError(
 def get_file_list(input_list):
     """Parse list of input paths."""
     if not isinstance(input_list, Iterable)\
@@ -80,7 +79,7 @@ def parse_args(args):
         formatter_class=RawDescriptionHelpFormatter)
 
     parser.add_argument(
-        'inputs', nargs='+',
+        'inputs', nargs='*',
         help='Path or paths to files to process, or path to '
              'a directory of files to process.')
 
@@ -131,6 +130,10 @@ def parse_args(args):
         '--verbose', '-v', action='store_true',
         help='Print timestamps of detected events.')
 
+    parser.add_argument(
+        '--version', '-V', action='store_true',
+        help='Print version number.')
+
     args = parser.parse_args(args)
 
     if args.quiet and args.verbose:
@@ -155,8 +158,10 @@ def main():
     """
     args = parse_args(sys.argv[1:])
 
-    if args.inputs[0] == "-V" or args.inputs[0] == "--version":
+    if args.version == "-V" or args.version == "--version":
         print(birdvoxdetect.version.version)
+    elif not args.input:
+        print("BirdVoxDetect")
 
     if args.quiet:
         logger_level = 30
