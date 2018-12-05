@@ -79,7 +79,7 @@ def test_process_file():
     process_file(FG_10SEC_PATH, output_dir=tempdir, export_confidence=True)
     confidence_path = os.path.join(
         tempdir, 'BirdVox-scaper_example_foreground_confidence.hdf5')
-    with h5py.File(confidence, "r") as f:
+    with h5py.File(confidence_path, "r") as f:
         confidence = f["confidence"].value
     assert confidence.shape == (200,)
 
