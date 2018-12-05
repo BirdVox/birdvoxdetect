@@ -52,7 +52,7 @@ def run(inputs,
         suffix="",
         frame_rate=20.0,
         clip_duration=1.0,
-        logger_level=20):
+        logger_level=logging.INFO):
     verbose = True
     if isinstance(inputs, string_types):
         file_list = [inputs]

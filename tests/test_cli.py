@@ -74,6 +74,9 @@ def test_get_file_list():
     flist = get_file_list([TEST_AUDIO_DIR, BG_10SEC_PATH])
     assert len(flist) == 5
 
+    # nonexistent path
+    pytest.raises(BirdVoxDetectError, get_file_list, ['/fake/path/to/file'])
+
 
 def test_parse_args():
 
@@ -124,7 +127,6 @@ def test_parse_args():
 
 
 def test_run(capsys):
-
     # test invalid input
     invalid_inputs = [None, 5, 1.0]
     for i in invalid_inputs:
@@ -134,6 +136,7 @@ def test_run(capsys):
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         tempdir = tempfile.mkdtemp()
         run([tempdir])
+    os.rmdir(tempdir)
 
     # make sure it exited
     assert pytest_wrapped_e.type == SystemExit
@@ -146,11 +149,15 @@ def test_run(capsys):
         str([tempdir]))
     assert captured.out == expected_message
 
-    # delete tempdir
+    # test string input
+    string_input = FG_10SEC_PATH
+    tempdir = tempfile.mkdtemp()
+    run(string_input, output_dir=tempdir)
     os.rmdir(tempdir)
+    csv_path = os.path.join(
+        tempdir, 'BirdVox-scaper_example_foreground_timestamps.csv')
+    assert os.path.exists(csv_path)
 
-    # nonexistent path
-    pytest.raises(BirdVoxDetectError, get_file_list, ['/fake/path/to/file'])
 
 
 def test_script_main(capsys):
