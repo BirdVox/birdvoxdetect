@@ -1,5 +1,5 @@
 import logging
-import loggin.config
+import logging.config
 
 from .cli import main
 
