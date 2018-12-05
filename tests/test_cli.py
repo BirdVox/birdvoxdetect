@@ -29,25 +29,6 @@ FG_10SEC_PATH = os.path.join(TEST_AUDIO_DIR,
 MIX_10SEC_PATH = os.path.join(TEST_AUDIO_DIR,
     'BirdVox-scaper_example_mix.wav')
 
-
-def test_positive_float():
-
-    # test that returned value is float
-    f = positive_float(5)
-    assert f == 5.0
-    assert type(f) is float
-
-    # test it works for valid strings
-    f = positive_float('1.3')
-    assert f == 1.3
-    assert type(f) is float
-
-    # make sure error raised for all invalid values:
-    invalid = [-5, -1.0, None, 'hello']
-    for i in invalid:
-        pytest.raises(ArgumentTypeError, positive_float, i)
-
-
 def test_get_file_list():
 
     # test for invalid input (must be iterable, e.g. list)
@@ -124,6 +105,42 @@ def test_parse_args():
     args = [MIX_10SEC_PATH,
             '-d', '0.5']
     pytest.raises(BirdVoxDetectError, parse_args, args)
+
+
+def test_positive_float():
+
+    # test that returned value is float
+    f = positive_float(5)
+    assert f == 5.0
+    assert type(f) is float
+
+    # test it works for valid strings
+    f = positive_float('1.3')
+    assert f == 1.3
+    assert type(f) is float
+
+    # make sure error raised for all invalid values:
+    invalid = [-5, -1.0, None, 'hello']
+    for i in invalid:
+        pytest.raises(ArgumentTypeError, positive_float, i)
+
+        
+def test_valid_threshold():
+
+    # test that returned value is float
+    f = valid_threshold(60)
+    assert f == 60.0
+    assert type(f) is float
+
+    # test it works for valid strings
+    f = valid_threshold('70.3')
+    assert f == 70.3
+    assert type(f) is float
+
+    # make sure error raised for all invalid values:
+    invalid = [-5, -1.0, -0.01, None, 100.01, 'hello']
+    for i in invalid:
+        pytest.raises(ArgumentTypeError, valid_threshold, i)
 
 
 def test_run(capsys):

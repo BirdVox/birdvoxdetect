@@ -11,18 +11,7 @@ import birdvoxdetect
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
 
 
-def positive_float(value):
-    """An argparse-like method for accepting only positive floats"""
-    try:
-        fvalue = float(value)
-    except (ValueError, TypeError) as e:
         raise ArgumentTypeError(
-            'Expected a positive float, error message: {}'.format(e))
-    if fvalue <= 0:
-        raise ArgumentTypeError('Expected a positive float')
-    return fvalue
-
-
 def get_file_list(input_list):
     """Parse list of input paths."""
     if not isinstance(input_list, Iterable)\
@@ -111,7 +100,7 @@ def parse_args(args):
              'in HDF5 format.')
 
     parser.add_argument(
-        '--threshold', '-t', type=positive_float, default=50,
+        '--threshold', '-t', type=valid_threshold, default=50,
         help='Detection threshold, between 10 and 90. '
              'The default value is 50. '
              'Greater values lead to higher precision at the expense '
@@ -186,3 +175,27 @@ def main():
         frame_rate=args.frame_rate,
         clip_duration=args.clip_duration,
         logger_level=logger_level)
+
+
+def positive_float(value):
+    """An argparse-like method for accepting only positive number"""
+    try:
+        fvalue = float(value)
+    except (ValueError, TypeError) as e:
+        raise ArgumentTypeError(
+            'Expected a positive float, error message: {}'.format(e))
+    if fvalue <= 0:
+        raise ArgumentTypeError('Expected a positive number')
+    return fvalue
+
+
+def valid_threshold(value):
+    """An argparse-like method for accepting only floats between 0 and 100"""
+    try:
+        fvalue = float(value)
+    except (ValueError, TypeError) as e:
+        raise ArgumentTypeError(
+            'Expected a positive float, error message: {}'.format(e))
+    if fvalue < 0 or fvalue > 100:
+        raise ArgumentTypeError('Expected a number between 0 and 100')
+    return fvalue
