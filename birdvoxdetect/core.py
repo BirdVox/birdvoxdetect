@@ -217,9 +217,11 @@ def process_file(
         # Predict.
         if has_context:
             chunk_likelihood = predict_with_context(
-                chunk_pcen, deque_context, frame_rate, detector)
+                chunk_pcen, deque_context, frame_rate, detector,
+                logger_level)
         else:
-            chunk_likelihood = predict(chunk_pcen, frame_rate, detector)
+            chunk_likelihood = predict(
+                chunk_pcen, frame_rate, detector, logger_level)
         chunk_likelihood = np.squeeze(chunk_likelihood)
 
         # If continuous likelihood is required, store it in memory.
