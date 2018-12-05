@@ -47,7 +47,7 @@ def get_file_list(input_list):
 def run(inputs,
         output_dir=None,
         export_clips=False,
-        export_likelihood=False,
+        export_confidence=False,
         threshold=50.0,
         suffix="",
         frame_rate=20.0,
@@ -74,7 +74,7 @@ def run(inputs,
             filepath,
             output_dir=output_dir,
             export_clips=export_clips,
-            export_likelihood=export_likelihood,
+            export_confidence=export_confidence,
             threshold=threshold,
             suffix=suffix,
             frame_rate=frame_rate,
@@ -106,8 +106,8 @@ def parse_args(args):
         help='Export detected events as audio clips in WAV format.')
 
     parser.add_argument(
-        '--export-likelihood', '-l', action='store_true',
-        help='Export the time series of event likelihood of events'
+        '--export-confidence', '-C', action='store_true',
+        help='Export the time series of model confidence values of events'
              'in HDF5 format.')
 
     parser.add_argument(
@@ -136,7 +136,7 @@ def parse_args(args):
 
     parser.add_argument(
         '--quiet', '-q', action='store_true',
-        help='Suppress all non-error messages to stdout.')
+        help='Print less messages on screen.')
 
     parser.add_argument(
         '--verbose', '-v', action='store_true',

@@ -74,14 +74,14 @@ def test_process_file():
     assert clips_list[2].startswith('BirdVox-scaper_example_foreground_06')
     assert np.all([c.endswith(".wav") for c in clips_list])
 
-    # export likelihood
+    # export confidence
     tempdir = tempfile.mkdtemp()
-    process_file(FG_10SEC_PATH, output_dir=tempdir, export_likelihood=True)
-    likelihood_path = os.path.join(
-        tempdir, 'BirdVox-scaper_example_foreground_likelihood.hdf5')
-    with h5py.File(likelihood_path, "r") as f:
-        likelihood = f["likelihood"].value
-    assert likelihood.shape == (200,)
+    process_file(FG_10SEC_PATH, output_dir=tempdir, export_confidence=True)
+    confidence_path = os.path.join(
+        tempdir, 'BirdVox-scaper_example_foreground_confidence.hdf5')
+    with h5py.File(confidence, "r") as f:
+        confidence = f["confidence"].value
+    assert confidence.shape == (200,)
 
     # suffix
     tempdir = tempfile.mkdtemp()

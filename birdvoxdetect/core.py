@@ -18,7 +18,7 @@ def process_file(
         filepath,
         output_dir=None,
         export_clips=False,
-        export_likelihood=False,
+        export_confidence=False,
         threshold=50.0,
         suffix="",
         frame_rate=20.0,
@@ -99,10 +99,10 @@ def process_file(
         timestamps_path = get_output_path(
             filepath, suffix + "timestamps.csv", output_dir=output_dir)
         event_times = []
-        event_likelihoods = []
+        event_confidences = []
         df = pd.DataFrame({
             "Time (s)": event_times,
-            "Likelihood (%)": event_likelihoods
+            "Confidence (%)": event_confidences
         })
         df.to_csv(timestamps_path, index=True)
 
@@ -113,9 +113,9 @@ def process_file(
         if not os.path.exists(clips_dir):
             os.makedirs(clips_dir)
 
-    # Append likelihood to list of per-chunk likelihood.
-    if export_likelihood:
-        chunk_likelihoods = []
+    # Append confidence to list of per-chunk confidences.
+    if export_confidence:
+        chunk_confidences = []
 
     # Print chunk duration.
     logging.info("Chunk duration: {} seconds".format(chunk_duration))
@@ -137,7 +137,7 @@ def process_file(
         concat_deque = np.concatenate(deque, axis=1)
         deque_context = np.percentile(concat_deque, percentiles, axis=1)
 
-    # Compute likelihood on queue chunks.
+    # Compute confidence on queue chunks.
     for chunk_id in range(min(queue_length, n_chunks-1)):
         # Print chunk ID and number of chunks.
         logging.info("Chunk ID: {}/{}".format(1+chunk_id, n_chunks))
@@ -145,29 +145,29 @@ def process_file(
         # Predict.
         chunk_pcen = deque[chunk_id]
         if has_context:
-            chunk_likelihood = predict_with_context(
+            chunk_confidence = predict_with_context(
                 chunk_pcen, deque_context, frame_rate, detector,
                 logger_level)
         else:
-            chunk_likelihood = predict(
+            chunk_confidence = predict(
                 chunk_pcen, frame_rate, detector, logger_level)
-        chunk_likelihood = np.squeeze(chunk_likelihood)
+        chunk_confidence = np.squeeze(chunk_confidence)
 
-        # If continuous likelihood is required, store it in memory.
-        if export_likelihood:
-            chunk_likelihoods.append(chunk_likelihood)
+        # If continuous confidence is required, store it in memory.
+        if export_confidence:
+            chunk_confidences.append(chunk_confidence)
 
         # If thresholding is not required, jump to next chunk.
         if threshold is None:
             continue
 
         # Find peaks.
-        peak_locs, _ = scipy.signal.find_peaks(chunk_likelihood)
-        peak_vals = chunk_likelihood[peak_locs]
+        peak_locs, _ = scipy.signal.find_peaks(chunk_confidence)
+        peak_vals = chunk_confidence[peak_locs]
 
         # Threshold peaks.
         th_peak_locs = peak_locs[peak_vals > (threshold/100)]
-        th_peak_likelihoods = chunk_likelihood[th_peak_locs]
+        th_peak_confidences = chunk_confidence[th_peak_locs]
         chunk_offset = chunk_duration * chunk_id
         th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
         n_peaks = len(th_peak_timestamps)
@@ -175,10 +175,10 @@ def process_file(
 
         # Export timestamps.
         event_times = event_times + list(th_peak_timestamps)
-        event_likelihoods = event_likelihoods + list(th_peak_likelihoods)
+        event_confidences = event_confidences + list(th_peak_confidences)
         df = pd.DataFrame({
             "Time (s)": event_times,
-            "Likelihood (%)": event_likelihoods
+            "Confidence (%)": event_confidences
         })
         df.to_csv(timestamps_path, index=True)
 
@@ -216,29 +216,29 @@ def process_file(
 
         # Predict.
         if has_context:
-            chunk_likelihood = predict_with_context(
+            chunk_confidence = predict_with_context(
                 chunk_pcen, deque_context, frame_rate, detector,
                 logger_level)
         else:
-            chunk_likelihood = predict(
+            chunk_confidence = predict(
                 chunk_pcen, frame_rate, detector, logger_level)
-        chunk_likelihood = np.squeeze(chunk_likelihood)
+        chunk_confidence = np.squeeze(chunk_confidence)
 
-        # If continuous likelihood is required, store it in memory.
-        if export_likelihood:
-            chunk_likelihoods.append(chunk_likelihood)
+        # If continuous confidence is required, store it in memory.
+        if export_confidence:
+            chunk_confidences.append(chunk_confidence)
 
         # If thresholding is not required, jump to next chunk.
         if threshold is None:
             continue
 
         # Find peaks.
-        peak_locs, _ = scipy.signal.find_peaks(chunk_likelihood)
-        peak_vals = chunk_likelihood[peak_locs]
+        peak_locs, _ = scipy.signal.find_peaks(chunk_confidence)
+        peak_vals = chunk_confidence[peak_locs]
 
         # Threshold peaks.
         th_peak_locs = peak_locs[peak_vals > (threshold/100)]
-        th_peak_likelihoods = chunk_likelihood[th_peak_locs]
+        th_peak_confidences = chunk_confidence[th_peak_locs]
         chunk_offset = chunk_duration * chunk_id
         th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
         n_peaks = len(th_peak_timestamps)
@@ -246,10 +246,10 @@ def process_file(
 
         # Export timestamps.
         event_times = event_times + list(th_peak_timestamps)
-        event_likelihoods = event_likelihoods + list(th_peak_likelihoods)
+        event_confidences = event_confidences + list(th_peak_confidences)
         df = pd.DataFrame({
             "Time (s)": event_times,
-            "Likelihood (%)": event_likelihoods
+            "Confidence (%)": event_confidences
         })
         df.to_csv(timestamps_path, index=True)
 
@@ -279,24 +279,24 @@ def process_file(
             deque_context = np.percentile(chunk_pcen, percentiles, axis=1)
 
         # Predict.
-        chunk_likelihood = predict_with_context(
+        chunk_confidence = predict_with_context(
             chunk_pcen, deque_context, frame_rate, detector, logger_level)
     else:
         # Predict.
-        chunk_likelihood = predict(
+        chunk_confidence = predict(
             chunk_pcen, frame_rate, detector, logger_level)
-    chunk_likelihood = np.squeeze(chunk_likelihood)
+    chunk_confidence = np.squeeze(chunk_confidence)
 
     # Threshold last chunk if required.
     if threshold is not None:
 
         # Find peaks.
-        peak_locs, _ = scipy.signal.find_peaks(chunk_likelihood)
-        peak_vals = chunk_likelihood[peak_locs]
+        peak_locs, _ = scipy.signal.find_peaks(chunk_confidence)
+        peak_vals = chunk_confidence[peak_locs]
 
         # Threshold peaks.
         th_peak_locs = peak_locs[peak_vals > (threshold/100)]
-        th_peak_likelihoods = chunk_likelihood[th_peak_locs]
+        th_peak_confidences = chunk_confidence[th_peak_locs]
         chunk_offset = chunk_duration * (n_chunks-1)
         th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
         n_peaks = len(th_peak_timestamps)
@@ -304,10 +304,10 @@ def process_file(
 
         # Export timestamps.
         event_times = event_times + list(th_peak_timestamps)
-        event_likelihoods = event_likelihoods + list(th_peak_likelihoods)
+        event_confidences = event_confidences + list(th_peak_confidences)
         df = pd.DataFrame({
             "Time (s)": event_times,
-            "Likelihood (%)": event_likelihoods
+            "Confidence (%)": event_confidences
         })
         df.to_csv(timestamps_path, index=True)
 
@@ -324,18 +324,18 @@ def process_file(
                     filepath, clip_name + ".wav", output_dir=clips_dir)
                 librosa.output.write_wav(clip_path, audio_clip, sr)
 
-    # Export likelihood curve.
-    if export_likelihood:
+    # Export confidence curve.
+    if export_confidence:
 
-        # Define output path for likelihood.
-        likelihood_path = get_output_path(
-            filepath, suffix + "likelihood.hdf5", output_dir=output_dir)
+        # Define output path for confidence.
+        confidence_path = get_output_path(
+            filepath, suffix + "confidence.hdf5", output_dir=output_dir)
 
-        # Concatenate likelihood curves across chunks.
-        chunk_likelihoods.append(chunk_likelihood)
-        likelihood = np.squeeze(np.concatenate(chunk_likelihoods))
-        with h5py.File(likelihood_path, "w") as f:
-            f.create_dataset('likelihood', data=likelihood)
+        # Concatenate confidence curves across chunks.
+        chunk_confidences.append(chunk_confidence)
+        confidence = np.squeeze(np.concatenate(chunk_confidences))
+        with h5py.File(confidence_path, "w") as f:
+            f.create_dataset('confidence', data=confidence)
 
     # Print final messages.
     logging.info("Done with file: {}.".format(filepath))
@@ -344,8 +344,9 @@ def process_file(
         logging.info(timestamp_str.format(timestamps_path))
     if export_clips:
         logging.info("Clips are available at: {}".format(clips_path))
-    if export_likelihood:
-        logging.info("Likelihood is available at: {}".format(clips_path))
+    if export_confidence:
+        event_str = "Event detection curve is available at: {}"
+        logging.info(event_str.format(clips_path))
 
 
 

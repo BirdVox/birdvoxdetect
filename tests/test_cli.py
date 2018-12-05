@@ -82,6 +82,7 @@ def test_parse_args():
     args = parse_args(args)
     assert args.output_dir is None
     assert args.export_clips == False
+    assert args.export_confidence == False
     assert args.threshold == 50.0
     assert args.suffix == ""
     assert args.frame_rate == 20.0
@@ -93,6 +94,7 @@ def test_parse_args():
     args = [MIX_10SEC_PATH,
             '-o', '/output/dir',
             '-c',
+            '-C',
             '-t', '60',
             '-s', 'mysuffix',
             '-r', '25',
@@ -101,6 +103,7 @@ def test_parse_args():
     args = parse_args(args)
     assert args.output_dir == '/output/dir'
     assert args.export_clips == True
+    assert args.export_confidence == True
     assert args.threshold == 60.0
     assert args.suffix == 'mysuffix'
     assert args.frame_rate == 25.0
