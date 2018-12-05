@@ -57,7 +57,7 @@ def test_process_file():
     assert len(df) == 3
     assert len(df.columns) == 3
     assert df.columns[1] == "Time (s)"
-    assert df.columns[2] == "Likelihood (%)"
+    assert df.columns[2] == "Confidence (%)"
     assert np.allclose(
         np.array(df["Time (s)"]), np.array([2.45, 5.2, 6.8]), atol=0.05)
 

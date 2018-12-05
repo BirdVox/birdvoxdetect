@@ -180,7 +180,7 @@ def main():
         args.inputs,
         output_dir=args.output_dir,
         export_clips=args.export_clips,
-        export_likelihood=args.export_likelihood,
+        export_confidence=args.export_confidence,
         threshold=args.threshold,
         suffix=args.suffix,
         frame_rate=args.frame_rate,

@@ -404,17 +404,17 @@ def predict(pcen, frame_rate, detector, logger_level):
     # PCEN-SNR
     if detector == "pcen_snr":
         pcen_snr = np.max(pcen, axis=0) - np.min(pcen, axis=0)
-        pcen_likelihood = pcen_snr / (0.001 + pcen_snr)
-        median_likelihood = scipy.signal.medfilt(
-            pcen_likelihood, kernel_size=127)
+        pcen_confidence = pcen_snr / (0.001 + pcen_snr)
+        median_confidence = scipy.signal.medfilt(
+            pcen_confidence, kernel_size=127)
         sr = pcen_settings["sr"]
         hop_length = pcen_settings["hop_length"]
         audio_duration = pcen.shape[1]*hop_length/sr
-        likelihood_x = np.arange(
+        confidence_x = np.arange(
             0.0,
             audio_duration*sr/hop_length,
             sr/(hop_length*frame_rate))[:-1].astype('int')
-        y = median_likelihood[likelihood_x]
+        y = median_confidence[confidence_x]
         return y
 
     # PCEN-CNN. (no context adaptation)
@@ -440,7 +440,7 @@ def predict(pcen, frame_rate, detector, logger_level):
         verbose = True
         y = detector.predict(X_pcen, verbose=verbose)
 
-        # Return likelihood.
+        # Return confidence.
         return np.maximum(0, 1 - 2*y)
 
 
@@ -469,7 +469,7 @@ def predict_with_context(pcen, context, frame_rate, detector, logger_level):
         {"spec_input": X_pcen, "bg_input": X_bg},
         verbose=verbose)
 
-    # Return likelihood.
+    # Return confidence.
     return np.maximum(0, 1 - 2*y)
 
 
