@@ -174,8 +174,8 @@ def process_file(
         logging.info("Number of timestamps: {}".format(n_peaks))
 
         # Export timestamps.
-        event_times = event_times + th_peak_timestamps
-        event_likelihoods = event_likelihoods + th_peak_likelihoods
+        event_times = event_times + list(th_peak_timestamps)
+        event_likelihoods = event_likelihoods + list(th_peak_likelihoods)
         df = pd.DataFrame({
             "Time (s)": event_times,
             "Likelihood (%)": event_likelihoods
@@ -243,8 +243,8 @@ def process_file(
         logging.info("Number of timestamps: {}".format(n_peaks))
 
         # Export timestamps.
-        event_times = event_times + th_peak_timestamps
-        event_likelihoods = event_likelihoods + th_peak_likelihoods
+        event_times = event_times + list(th_peak_timestamps)
+        event_likelihoods = event_likelihoods + list(th_peak_likelihoods)
         df = pd.DataFrame({
             "Time (s)": event_times,
             "Likelihood (%)": event_likelihoods
@@ -301,8 +301,8 @@ def process_file(
         logging.info("Number of timestamps: {}".format(n_peaks))
 
         # Export timestamps.
-        event_times = event_times + th_peak_timestamps
-        event_likelihoods = event_likelihoods + th_peak_likelihoods
+        event_times = event_times + list(th_peak_timestamps)
+        event_likelihoods = event_likelihoods + list(th_peak_likelihoods)
         df = pd.DataFrame({
             "Time (s)": event_times,
             "Likelihood (%)": event_likelihoods
