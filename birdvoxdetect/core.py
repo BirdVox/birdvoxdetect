@@ -159,7 +159,7 @@ def process_file(
 
         # Threshold peaks.
         th_peak_locs = peak_locs[peak_vals > (threshold/100)]
-        th_peak_likelihoods = likelihood[th_peak_locs]
+        th_peak_likelihoods = chunk_likelihood[th_peak_locs]
         chunk_offset = chunk_duration * chunk_id
         th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
         n_peaks = len(th_peak_timestamps)
@@ -223,7 +223,7 @@ def process_file(
 
         # Threshold peaks.
         th_peak_locs = peak_locs[peak_vals > (threshold/100)]
-        th_peak_likelihoods = likelihood[th_peak_locs]
+        th_peak_likelihoods = chunk_likelihood[th_peak_locs]
         chunk_offset = chunk_duration * chunk_id
         th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
         n_peaks = len(th_peak_timestamps)
@@ -280,8 +280,8 @@ def process_file(
 
         # Threshold peaks.
         th_peak_locs = peak_locs[peak_vals > (threshold/100)]
-        th_peak_likelihoods = likelihood[th_peak_locs]
-        chunk_offset = chunk_duration * chunk_id
+        th_peak_likelihoods = chunk_likelihood[th_peak_locs]
+        chunk_offset = chunk_duration * (n_chunks-1)
         th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
         n_peaks = len(th_peak_timestamps)
         logging.info("Number of timestamps: {}".format(n_peaks))
