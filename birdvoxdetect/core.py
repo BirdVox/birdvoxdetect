@@ -133,7 +133,7 @@ def process_file(
         deque.append(chunk_pcen)
 
     # Compute context.
-    if has_context:
+    if has_context and (n_chunks>1):
         concat_deque = np.concatenate(deque, axis=1)
         deque_context = np.percentile(concat_deque, percentiles, axis=1)
 
