@@ -96,7 +96,6 @@ setup(
                 'numpydoc',
             ],
         'tests': [
-                'shutil'
         ]
     },
     package_data={
