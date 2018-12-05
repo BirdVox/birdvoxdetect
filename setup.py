@@ -56,7 +56,7 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/BirdVox/birdvoxdetect',
     author='Vincent Lostanlen, Justin Salamon, Andrew Farnsworth, ' +\
-        'Steve Kelling, and Juan Pablo Bello'
+        'Steve Kelling, and Juan Pablo Bello',
     author_email='vincent.lostanlen@nyu.edu',
     packages=find_packages(),
     entry_points={
