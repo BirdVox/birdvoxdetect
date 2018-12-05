@@ -100,11 +100,12 @@ def process_file(
             filepath, suffix + "timestamps.csv", output_dir=output_dir)
         event_times = []
         event_confidences = []
+        df_columns = ["Time (s)", "Confidence (%)"]
         df = pd.DataFrame({
             "Time (s)": event_times,
             "Confidence (%)": event_confidences
         })
-        df.to_csv(timestamps_path, index=True)
+        df.to_csv(timestamps_path, columns=df_columns, index=True)
 
     # Create directory of output clips.
     if export_clips:
@@ -180,7 +181,7 @@ def process_file(
             "Time (s)": event_times,
             "Confidence (%)": event_confidences
         })
-        df.to_csv(timestamps_path, index=True)
+        df.to_csv(timestamps_path, columns=df_columns, index=True)
 
         if export_clips:
             for t in th_peak_timestamps:
@@ -251,7 +252,7 @@ def process_file(
             "Time (s)": event_times,
             "Confidence (%)": event_confidences
         })
-        df.to_csv(timestamps_path, index=True)
+        df.to_csv(timestamps_path, columns=df_columns, index=True)
 
         # Export clips.
         if export_clips:
@@ -309,7 +310,7 @@ def process_file(
             "Time (s)": event_times,
             "Confidence (%)": event_confidences
         })
-        df.to_csv(timestamps_path, index=True)
+        df.to_csv(timestamps_path, columns=df_columns, index=True)
 
         # Export clips.
         if export_clips:
