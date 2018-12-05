@@ -105,7 +105,9 @@ def process_file(
             "Time (s)": event_times,
             "Confidence (%)": event_confidences
         })
-        df.to_csv(timestamps_path, columns=df_columns, index=True)
+        df.to_csv(
+            timestamps_path,
+            columns=df_columns, float_format='%8.2f', index=True)
 
     # Create directory of output clips.
     if export_clips:
@@ -181,7 +183,9 @@ def process_file(
             "Time (s)": event_times,
             "Confidence (%)": event_confidences
         })
-        df.to_csv(timestamps_path, columns=df_columns, index=True)
+        df.to_csv(
+            timestamps_path,
+            columns=df_columns, float_format='%8.2f', index=True)
 
         if export_clips:
             for t in th_peak_timestamps:
@@ -252,7 +256,9 @@ def process_file(
             "Time (s)": event_times,
             "Confidence (%)": event_confidences
         })
-        df.to_csv(timestamps_path, columns=df_columns, index=True)
+        df.to_csv(
+            timestamps_path,
+            columns=df_columns, float_format='%8.2f', index=True)
 
         # Export clips.
         if export_clips:
@@ -296,7 +302,7 @@ def process_file(
         peak_vals = chunk_confidence[peak_locs]
 
         # Threshold peaks.
-        th_peak_locs = peak_locs[peak_vals > (threshold/100)]
+        th_peak_locs = peak_locs[peak_vals > threshold]
         th_peak_confidences = chunk_confidence[th_peak_locs]
         chunk_offset = chunk_duration * (n_chunks-1)
         th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
@@ -310,7 +316,9 @@ def process_file(
             "Time (s)": event_times,
             "Confidence (%)": event_confidences
         })
-        df.to_csv(timestamps_path, columns=df_columns, index=True)
+        df.to_csv(
+            timestamps_path,
+            columns=df_columns, float_format='%8.2f', index=True)
 
         # Export clips.
         if export_clips:
@@ -415,7 +423,7 @@ def predict(pcen, frame_rate, detector, logger_level):
             0.0,
             audio_duration*sr/hop_length,
             sr/(hop_length*frame_rate))[:-1].astype('int')
-        y = median_confidence[confidence_x]
+        y = 100 * np.clip(median_confidence[confidence_x], 0.0, 1.0)
         return y
 
     # PCEN-CNN. (no context adaptation)
@@ -442,7 +450,7 @@ def predict(pcen, frame_rate, detector, logger_level):
         y = detector.predict(X_pcen, verbose=verbose)
 
         # Return confidence.
-        return np.maximum(0, 1 - 2*y)
+        return 100 * np.maximum(0, 1 - 2*y)
 
 
 def predict_with_context(pcen, context, frame_rate, detector, logger_level):
@@ -471,7 +479,7 @@ def predict_with_context(pcen, context, frame_rate, detector, logger_level):
         verbose=verbose)
 
     # Return confidence.
-    return np.maximum(0, 1 - 2*y)
+    return 100 * np.maximum(0, 1 - 2*y)
 
 
 def get_output_path(filepath, suffix, output_dir=None):
