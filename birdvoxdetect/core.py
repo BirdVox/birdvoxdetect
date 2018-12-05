@@ -343,10 +343,10 @@ def process_file(
         timestamp_str = "Timestamps are available at: {}"
         logging.info(timestamp_str.format(timestamps_path))
     if export_clips:
-        logging.info("Clips are available at: {}".format(clips_path))
+        logging.info("Clips are available at: {}".format(clips_dir))
     if export_confidence:
         event_str = "Event detection curve is available at: {}"
-        logging.info(event_str.format(clips_path))
+        logging.info(event_str.format(confidence_path))
 
 
 
