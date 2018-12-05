@@ -30,7 +30,7 @@ def process_file(
     logging.getLogger().setLevel(logger_level)
 
     # Print new line and file name.
-    logging.info("-" * 80)
+    logging.info("-" * 75)
     logging.info("Loading file: {}".format(filepath))
 
     # Check for existence of the input file.
@@ -85,6 +85,35 @@ def process_file(
     full_length = len(sound_file)
     n_chunks = max(1, int(np.ceil(full_length) / chunk_length))
 
+    # Append underscore to suffix if it is not empty.
+    if len(suffix) > 0 and not suffix[-1] == "_":
+        suffix = suffix + "_"
+
+    # Create output_dir if necessary.
+    if output_dir is not None:
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+    # Initialize file of timestamps.
+    if threshold is not None:
+        timestamps_path = get_output_path(
+            filepath, suffix + "timestamps.csv", output_dir=output_dir)
+        timestamps = []
+        df_columns = ["Time (s)", "Likelihood (%)"]
+        df = pd.DataFrame(timestamps, columns=df_columns)
+        df.to_csv(timestamps_path, index=False)
+
+    # Create directory of output clips.
+    if export_clips:
+        clips_dir = get_output_path(
+            filepath, suffix + "clips", output_dir=output_dir)
+        if not os.path.exists(clips_dir):
+            os.makedirs(clips_dir)
+
+    # Append likelihood to list of per-chunk likelihood.
+    if export_likelihood:
+        chunk_likelihoods = []
+
     # Print chunk duration.
     logging.info("Chunk duration: {} seconds".format(chunk_duration))
 
@@ -106,11 +135,11 @@ def process_file(
         deque_context = np.percentile(concat_deque, percentiles, axis=1)
 
     # Compute likelihood on queue chunks.
-    chunk_likelihoods = []
     for chunk_id in range(min(queue_length, n_chunks-1)):
         # Print chunk ID and number of chunks.
         logging.info("Chunk ID: {}/{}".format(1+chunk_id, n_chunks))
 
+        # Predict.
         chunk_pcen = deque[chunk_id]
         if has_context:
             chunk_likelihood = predict_with_context(
@@ -119,7 +148,42 @@ def process_file(
         else:
             chunk_likelihood = predict(
                 chunk_pcen, frame_rate, detector, logger_level)
-        chunk_likelihoods.append(chunk_likelihood)
+
+        if threshold is None:
+            continue
+
+        # Find peaks.
+        peak_locs, _ = scipy.signal.find_peaks(chunk_likelihood)
+        peak_vals = likelihood[peak_locs]
+
+        # Threshold peaks.
+        th_peak_locs = peak_locs[peak_vals > (threshold/100)]
+        th_peak_likelihoods = likelihood[th_peak_locs]
+        chunk_offset = chunk_duration * chunk_id
+        th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
+        n_peaks = len(th_peak_timestamps)
+        logging.info("Number of timestamps: {}".format(n_peaks))
+
+        # Export timestamps.
+        timestamps.append(th_peak_timestamps)
+        df = pd.DataFrame(timestamps, columns=df_columns)
+        df.to_csv(timestamps_path, index=False)
+
+        for t in th_peak_timestamps:
+            clip_start = max(0, int(sr*np.round(t-0.5*clip_duration)))
+            clip_stop = min(
+                len(sound_file), int(sr*np.round(t+0.5*clip_duration)))
+            sound_file.seek(clip_start)
+            audio_clip = sound_file.read(clip_stop-clip_start)
+            clip_path = get_output_path(
+                filepath,
+                suffix + "{:05.2f}".format(t).replace(".", "-") + ".wav",
+                output_dir=clips_dir)
+            librosa.output.write_wav(clip_path, audio_clip, sr)
+
+        # Append likelihood to list of per-chunk likelihood.
+        if export_likelihood:
+            chunk_likelihoods.append(chunk_likelihood)
 
     # Loop over chunks.
     for chunk_id in range(queue_length, n_chunks-1):
@@ -140,80 +204,33 @@ def process_file(
         concat_deque = np.concatenate(deque, axis=1, out=concat_deque)
         deque_context = np.percentile(
             concat_deque, percentiles, axis=1, out=deque_context)
+
+        # Predict.
         if has_context:
             chunk_likelihood = predict_with_context(
                 chunk_pcen, deque_context, frame_rate, detector)
         else:
             chunk_likelihood = predict(chunk_pcen, frame_rate, detector)
-        chunk_likelihoods.append(chunk_likelihood)
 
-    # Last chunk.
-    # Print chunk ID and number of chunks.
-    logging.info("Chunk ID: {}/{}".format(1+n_chunks, n_chunks))
-    chunk_start = (n_chunks-1) * chunk_length
-    sound_file.seek(chunk_start)
-    chunk_audio = sound_file.read(full_length - chunk_start)
-    chunk_pcen = compute_pcen(chunk_audio, sr)
-    if has_context:
-        if n_chunks == 1:
-            deque_context = np.percentile(chunk_pcen, percentiles, axis=1)
-        chunk_likelihood = predict_with_context(
-            chunk_pcen, deque_context, frame_rate, detector, logger_level)
-    else:
-        chunk_likelihood = predict(
-            chunk_pcen, frame_rate, detector, logger_level)
-    chunk_likelihoods.append(chunk_likelihood)
+        if threshold is None:
+            continue
 
-    # Concatenate predictions.
-    likelihood = np.squeeze(np.concatenate(chunk_likelihoods))
+        # Find peaks.
+        peak_locs, _ = scipy.signal.find_peaks(chunk_likelihood)
+        peak_vals = likelihood[peak_locs]
 
-    # Find peaks.
-    logging.info("Peak-picking")
-    peak_locs, _ = scipy.signal.find_peaks(likelihood)
-    peak_vals = likelihood[peak_locs]
+        # Threshold peaks.
+        th_peak_locs = peak_locs[peak_vals > (threshold/100)]
+        th_peak_likelihoods = likelihood[th_peak_locs]
+        chunk_offset = chunk_duration * chunk_id
+        th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
+        n_peaks = len(th_peak_timestamps)
+        logging.info("Number of timestamps: {}".format(n_peaks))
 
-    # Threshold peaks.
-    logging.info("Thresholding")
-    th_peak_locs = peak_locs[peak_vals > (threshold/100)]
-    th_peak_likelihoods = likelihood[th_peak_locs]
-    th_peak_timestamps = th_peak_locs / frame_rate
-    logging.info("Number of timestamps: {}".format(len(th_peak_timestamps)))
-
-    # Create output_dir if necessary.
-    if output_dir is not None:
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-
-    # Append underscore to suffix if it is not empty.
-    if len(suffix) > 0 and not suffix[-1] == "_":
-        suffix = suffix + "_"
-
-    # Export timestamps.
-    timestamps_path = get_output_path(
-        filepath, suffix + "timestamps.csv", output_dir=output_dir)
-    df_matrix = np.stack(
-        (th_peak_timestamps, th_peak_likelihoods), axis=1)
-    df = pd.DataFrame(df_matrix, columns=["Time (s)", "Likelihood (%)"])
-    df.to_csv(timestamps_path)
-    logging.info("Timestamps are available at: {}".format(timestamps_path))
-
-    # Export likelihood curve.
-    if export_likelihood:
-        likelihood_path = get_output_path(
-            filepath, suffix + "likelihood.hdf5", output_dir=output_dir)
-
-        with h5py.File(likelihood_path, "w") as f:
-            f.create_dataset('likelihood', data=likelihood)
-
-        logging.info(
-            "Prediction curve is available at: {}".format(likelihood_path))
-
-    # Export clips.
-    if export_clips:
-        clips_dir = get_output_path(
-            filepath, suffix + "clips", output_dir=output_dir)
-        if not os.path.exists(clips_dir):
-            os.makedirs(clips_dir)
+        # Export timestamps.
+        timestamps.append(th_peak_timestamps)
+        df = pd.DataFrame(timestamps, columns=df_columns)
+        df.to_csv(timestamps_path, index=False)
 
         for t in th_peak_timestamps:
             clip_start = max(0, int(sr*np.round(t-0.5*clip_duration)))
@@ -227,11 +244,85 @@ def process_file(
                 output_dir=clips_dir)
             librosa.output.write_wav(clip_path, audio_clip, sr)
 
-        logging.info(
-            "Clips are available at: {}.".format(clips_path))
+        # Append likelihood to list of per-chunk likelihood.
+        if export_likelihood:
+            chunk_likelihoods.append(chunk_likelihood)
 
-    # Print final message.
+    # Last chunk.
+    # Print chunk ID and number of chunks.
+    logging.info("Chunk ID: {}/{}".format(1+n_chunks, n_chunks))
+    chunk_start = (n_chunks-1) * chunk_length
+    sound_file.seek(chunk_start)
+    chunk_audio = sound_file.read(full_length - chunk_start)
+    chunk_pcen = compute_pcen(chunk_audio, sr)
+    if has_context:
+        # If the queue is empty, compute percentiles on the fly.
+        if n_chunks == 1:
+            deque_context = np.percentile(chunk_pcen, percentiles, axis=1)
+
+        # Predict.
+        chunk_likelihood = predict_with_context(
+            chunk_pcen, deque_context, frame_rate, detector, logger_level)
+    else:
+        # Predict.
+        chunk_likelihood = predict(
+            chunk_pcen, frame_rate, detector, logger_level)
+
+        if threshold is None:
+            continue
+
+    # Find peaks.
+    peak_locs, _ = scipy.signal.find_peaks(chunk_likelihood)
+    peak_vals = likelihood[peak_locs]
+
+    # Threshold peaks.
+    th_peak_locs = peak_locs[peak_vals > (threshold/100)]
+    th_peak_likelihoods = likelihood[th_peak_locs]
+    chunk_offset = chunk_duration * chunk_id
+    th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
+    n_peaks = len(th_peak_timestamps)
+    logging.info("Number of timestamps: {}".format(n_peaks))
+
+    # Export timestamps.
+    timestamps.append(th_peak_timestamps)
+    df = pd.DataFrame(timestamps, columns=df_columns)
+    df.to_csv(timestamps_path, index=False)
+
+    for t in th_peak_timestamps:
+        clip_start = max(0, int(sr*np.round(t-0.5*clip_duration)))
+        clip_stop = min(
+            len(sound_file), int(sr*np.round(t+0.5*clip_duration)))
+        sound_file.seek(clip_start)
+        audio_clip = sound_file.read(clip_stop-clip_start)
+        clip_path = get_output_path(
+            filepath,
+            suffix + "{:05.2f}".format(t).replace(".", "-") + ".wav",
+            output_dir=clips_dir)
+        librosa.output.write_wav(clip_path, audio_clip, sr)
+
+    # Export likelihood curve.
+    if export_likelihood:
+
+        # Define output path for likelihood.
+        likelihood_path = get_output_path(
+            filepath, suffix + "likelihood.hdf5", output_dir=output_dir)
+
+        # Concatenate likelihood curves across chunks.
+        chunk_likelihoods.append(chunk_likelihood)
+        likelihood = np.squeeze(np.concatenate(chunk_likelihoods))
+        with h5py.File(likelihood_path, "w") as f:
+            f.create_dataset('likelihood', data=likelihood)
+
+    # Print final messages.
     logging.info("Done with file: {}.".format(filepath))
+    if threshold is not None:
+        timestamp_str = "Timestamps are available at: {}"
+        logging.info(timestamp_str.format(timestamps_path))
+    if export_clips:
+        logging.info("Clips are available at: {}".format(clips_path))
+    if export_likelihood:
+        logging.info("Likelihood is available at: {}".format(clips_path))
+
 
 
 def compute_pcen(audio, sr):
