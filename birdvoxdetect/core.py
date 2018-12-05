@@ -268,7 +268,7 @@ def process_file(
 
     # Last chunk.
     # Print chunk ID and number of chunks.
-    logging.info("Chunk ID: {}/{}".format(1+n_chunks, n_chunks))
+    logging.info("Chunk ID: {}/{}".format(n_chunks, n_chunks))
     chunk_start = (n_chunks-1) * chunk_length
     sound_file.seek(chunk_start)
     chunk_audio = sound_file.read(full_length - chunk_start)
