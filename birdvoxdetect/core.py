@@ -182,17 +182,17 @@ def process_file(
         })
         df.to_csv(timestamps_path, index=False)
 
-        for t in th_peak_timestamps:
-            clip_start = max(0, int(sr*np.round(t-0.5*clip_duration)))
-            clip_stop = min(
-                len(sound_file), int(sr*np.round(t+0.5*clip_duration)))
-            sound_file.seek(clip_start)
-            audio_clip = sound_file.read(clip_stop-clip_start)
-            clip_path = get_output_path(
-                filepath,
-                suffix + "{:05.2f}".format(t).replace(".", "-") + ".wav",
-                output_dir=clips_dir)
-            librosa.output.write_wav(clip_path, audio_clip, sr)
+        if export_clips:
+            for t in th_peak_timestamps:
+                clip_start = max(0, int(sr*np.round(t-0.5*clip_duration)))
+                clip_stop = min(
+                    len(sound_file), int(sr*np.round(t+0.5*clip_duration)))
+                sound_file.seek(clip_start)
+                audio_clip = sound_file.read(clip_stop-clip_start)
+                clip_name = suffix + "{:05.2f}".format(t).replace(".", "-")
+                clip_path = get_output_path(
+                    filepath, clip_name + ".wav", output_dir=clips_dir)
+                librosa.output.write_wav(clip_path, audio_clip, sr)
 
     # Loop over chunks.
     for chunk_id in range(queue_length, n_chunks-1):
@@ -252,17 +252,17 @@ def process_file(
         df.to_csv(timestamps_path, index=False)
 
         # Export clips.
-        for t in th_peak_timestamps:
-            clip_start = max(0, int(sr*np.round(t-0.5*clip_duration)))
-            clip_stop = min(
-                len(sound_file), int(sr*np.round(t+0.5*clip_duration)))
-            sound_file.seek(clip_start)
-            audio_clip = sound_file.read(clip_stop-clip_start)
-            clip_path = get_output_path(
-                filepath,
-                suffix + "{:05.2f}".format(t).replace(".", "-") + ".wav",
-                output_dir=clips_dir)
-            librosa.output.write_wav(clip_path, audio_clip, sr)
+        if export_clips:
+            for t in th_peak_timestamps:
+                clip_start = max(0, int(sr*np.round(t-0.5*clip_duration)))
+                clip_stop = min(
+                    len(sound_file), int(sr*np.round(t+0.5*clip_duration)))
+                sound_file.seek(clip_start)
+                audio_clip = sound_file.read(clip_stop-clip_start)
+                clip_name = suffix + "{:05.2f}".format(t).replace(".", "-")
+                clip_path = get_output_path(
+                    filepath, clip_name + ".wav", output_dir=clips_dir)
+                librosa.output.write_wav(clip_path, audio_clip, sr)
 
     # Last chunk.
     # Print chunk ID and number of chunks.
@@ -316,10 +316,9 @@ def process_file(
                 len(sound_file), int(sr*np.round(t+0.5*clip_duration)))
             sound_file.seek(clip_start)
             audio_clip = sound_file.read(clip_stop-clip_start)
+            clip_name = suffix + "{:05.2f}".format(t).replace(".", "-")
             clip_path = get_output_path(
-                filepath,
-                suffix + "{:05.2f}".format(t).replace(".", "-") + ".wav",
-                output_dir=clips_dir)
+                filepath, clip_name + ".wav", output_dir=clips_dir)
             librosa.output.write_wav(clip_path, audio_clip, sr)
 
     # Export likelihood curve.
