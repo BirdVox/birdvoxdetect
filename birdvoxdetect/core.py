@@ -98,9 +98,12 @@ def process_file(
     if threshold is not None:
         timestamps_path = get_output_path(
             filepath, suffix + "timestamps.csv", output_dir=output_dir)
-        timestamps = []
-        df_columns = ["Time (s)", "Likelihood (%)"]
-        df = pd.DataFrame(timestamps, columns=df_columns)
+        event_times = []
+        event_likelihoods = []
+        df = pd.DataFrame({
+            "Time (s)": event_times,
+            "Likelihood (%)": event_likelihoods
+        })
         df.to_csv(timestamps_path, index=False)
 
     # Create directory of output clips.
@@ -150,6 +153,11 @@ def process_file(
                 chunk_pcen, frame_rate, detector, logger_level)
         chunk_likelihood = np.squeeze(chunk_likelihood)
 
+        # If continuous likelihood is required, store it in memory.
+        if export_likelihood:
+            chunk_likelihoods.append(chunk_likelihood)
+
+        # If thresholding is not required, jump to next chunk.
         if threshold is None:
             continue
 
@@ -166,8 +174,12 @@ def process_file(
         logging.info("Number of timestamps: {}".format(n_peaks))
 
         # Export timestamps.
-        timestamps.append(th_peak_timestamps)
-        df = pd.DataFrame(timestamps, columns=df_columns)
+        event_times = event_times + th_peak_timestamps
+        event_likelihoods = event_likelihoods + th_peak_likelihoods
+        df = pd.DataFrame({
+            "Time (s)": event_times,
+            "Likelihood (%)": event_likelihoods
+        })
         df.to_csv(timestamps_path, index=False)
 
         for t in th_peak_timestamps:
@@ -181,10 +193,6 @@ def process_file(
                 suffix + "{:05.2f}".format(t).replace(".", "-") + ".wav",
                 output_dir=clips_dir)
             librosa.output.write_wav(clip_path, audio_clip, sr)
-
-        # Append likelihood to list of per-chunk likelihood.
-        if export_likelihood:
-            chunk_likelihoods.append(chunk_likelihood)
 
     # Loop over chunks.
     for chunk_id in range(queue_length, n_chunks-1):
@@ -214,6 +222,11 @@ def process_file(
             chunk_likelihood = predict(chunk_pcen, frame_rate, detector)
         chunk_likelihood = np.squeeze(chunk_likelihood)
 
+        # If continuous likelihood is required, store it in memory.
+        if export_likelihood:
+            chunk_likelihoods.append(chunk_likelihood)
+
+        # If thresholding is not required, jump to next chunk.
         if threshold is None:
             continue
 
@@ -230,10 +243,15 @@ def process_file(
         logging.info("Number of timestamps: {}".format(n_peaks))
 
         # Export timestamps.
-        timestamps.append(th_peak_timestamps)
-        df = pd.DataFrame(timestamps, columns=df_columns)
+        event_times = event_times + th_peak_timestamps
+        event_likelihoods = event_likelihoods + th_peak_likelihoods
+        df = pd.DataFrame({
+            "Time (s)": event_times,
+            "Likelihood (%)": event_likelihoods
+        })
         df.to_csv(timestamps_path, index=False)
 
+        # Export clips.
         for t in th_peak_timestamps:
             clip_start = max(0, int(sr*np.round(t-0.5*clip_duration)))
             clip_stop = min(
@@ -245,10 +263,6 @@ def process_file(
                 suffix + "{:05.2f}".format(t).replace(".", "-") + ".wav",
                 output_dir=clips_dir)
             librosa.output.write_wav(clip_path, audio_clip, sr)
-
-        # Append likelihood to list of per-chunk likelihood.
-        if export_likelihood:
-            chunk_likelihoods.append(chunk_likelihood)
 
     # Last chunk.
     # Print chunk ID and number of chunks.
@@ -271,7 +285,7 @@ def process_file(
             chunk_pcen, frame_rate, detector, logger_level)
     chunk_likelihood = np.squeeze(chunk_likelihood)
 
-    # Threshold last chunk.
+    # Threshold last chunk if required.
     if threshold is not None:
 
         # Find peaks.
@@ -287,10 +301,15 @@ def process_file(
         logging.info("Number of timestamps: {}".format(n_peaks))
 
         # Export timestamps.
-        timestamps.append(th_peak_timestamps)
-        df = pd.DataFrame(timestamps, columns=df_columns)
+        event_times = event_times + th_peak_timestamps
+        event_likelihoods = event_likelihoods + th_peak_likelihoods
+        df = pd.DataFrame({
+            "Time (s)": event_times,
+            "Likelihood (%)": event_likelihoods
+        })
         df.to_csv(timestamps_path, index=False)
 
+        # Export clips.
         for t in th_peak_timestamps:
             clip_start = max(0, int(sr*np.round(t-0.5*clip_duration)))
             clip_stop = min(
