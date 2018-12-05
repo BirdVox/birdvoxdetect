@@ -155,7 +155,7 @@ def process_file(
 
         # Find peaks.
         peak_locs, _ = scipy.signal.find_peaks(chunk_likelihood)
-        peak_vals = likelihood[peak_locs]
+        peak_vals = chunk_likelihood[peak_locs]
 
         # Threshold peaks.
         th_peak_locs = peak_locs[peak_vals > (threshold/100)]
@@ -219,7 +219,7 @@ def process_file(
 
         # Find peaks.
         peak_locs, _ = scipy.signal.find_peaks(chunk_likelihood)
-        peak_vals = likelihood[peak_locs]
+        peak_vals = chunk_likelihood[peak_locs]
 
         # Threshold peaks.
         th_peak_locs = peak_locs[peak_vals > (threshold/100)]
@@ -276,7 +276,7 @@ def process_file(
 
         # Find peaks.
         peak_locs, _ = scipy.signal.find_peaks(chunk_likelihood)
-        peak_vals = likelihood[peak_locs]
+        peak_vals = chunk_likelihood[peak_locs]
 
         # Threshold peaks.
         th_peak_locs = peak_locs[peak_vals > (threshold/100)]
