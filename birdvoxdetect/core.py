@@ -104,7 +104,7 @@ def process_file(
             "Time (s)": event_times,
             "Likelihood (%)": event_likelihoods
         })
-        df.to_csv(timestamps_path, index=False)
+        df.to_csv(timestamps_path, index=True)
 
     # Create directory of output clips.
     if export_clips:
@@ -180,7 +180,7 @@ def process_file(
             "Time (s)": event_times,
             "Likelihood (%)": event_likelihoods
         })
-        df.to_csv(timestamps_path, index=False)
+        df.to_csv(timestamps_path, index=True)
 
         if export_clips:
             for t in th_peak_timestamps:
@@ -251,7 +251,7 @@ def process_file(
             "Time (s)": event_times,
             "Likelihood (%)": event_likelihoods
         })
-        df.to_csv(timestamps_path, index=False)
+        df.to_csv(timestamps_path, index=True)
 
         # Export clips.
         if export_clips:
@@ -309,7 +309,7 @@ def process_file(
             "Time (s)": event_times,
             "Likelihood (%)": event_likelihoods
         })
-        df.to_csv(timestamps_path, index=False)
+        df.to_csv(timestamps_path, index=True)
 
         # Export clips.
         if export_clips:
