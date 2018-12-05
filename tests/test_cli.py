@@ -1,6 +1,7 @@
 from argparse import ArgumentTypeError
 import os
 import pytest
+import shutil
 import tempfile
 
 
@@ -13,7 +14,7 @@ except ImportError:
 
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
 from birdvoxdetect.cli import get_file_list, main
-from birdvoxdetect.cli import parse_args, positive_float, run
+from birdvoxdetect.cli import parse_args, positive_float, run, valid_threshold
 
 
 TEST_DIR = os.path.dirname(__file__)
@@ -124,7 +125,7 @@ def test_positive_float():
     for i in invalid:
         pytest.raises(ArgumentTypeError, positive_float, i)
 
-        
+
 def test_valid_threshold():
 
     # test that returned value is float
@@ -153,7 +154,7 @@ def test_run(capsys):
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         tempdir = tempfile.mkdtemp()
         run([tempdir])
-    os.rmdir(tempdir)
+    shutil.rmtree(tempdir)
 
     # make sure it exited
     assert pytest_wrapped_e.type == SystemExit
@@ -170,7 +171,7 @@ def test_run(capsys):
     string_input = FG_10SEC_PATH
     tempdir = tempfile.mkdtemp()
     run(string_input, output_dir=tempdir)
-    os.rmdir(tempdir)
+    shutil.rmtree(tempdir)
     csv_path = os.path.join(
         tempdir, 'BirdVox-scaper_example_foreground_timestamps.csv')
     assert os.path.exists(csv_path)
@@ -189,6 +190,7 @@ def test_script_main(capsys):
     outfile = os.path.join(
         tempdir, 'BirdVox-scaper_example_foreground_timestamps.csv')
     assert os.path.isfile(outfile)
+    shutil.rmtree(tempdir)
 
     # Print version
     with patch(

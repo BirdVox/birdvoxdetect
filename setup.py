@@ -95,7 +95,9 @@ setup(
                 'sphinx_rtd_theme',
                 'numpydoc',
             ],
-        'tests': []
+        'tests': [
+                'shutil'
+        ]
     },
     package_data={
         'birdvoxdetect': [

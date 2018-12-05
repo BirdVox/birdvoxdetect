@@ -3,6 +3,7 @@ import numpy as np
 import os
 import pandas as pd
 import pytest
+import shutil
 import soundfile as sf
 import tempfile
 
@@ -60,6 +61,7 @@ def test_process_file():
     assert df.columns[2] == "Confidence (%)"
     assert np.allclose(
         np.array(df["Time (s)"]), np.array([2.45, 5.2, 6.8]), atol=0.05)
+    shutil.rmtree(tempdir)
 
     # export clips
     tempdir = tempfile.mkdtemp()
@@ -73,6 +75,7 @@ def test_process_file():
     assert clips_list[1].startswith('BirdVox-scaper_example_foreground_05')
     assert clips_list[2].startswith('BirdVox-scaper_example_foreground_06')
     assert np.all([c.endswith(".wav") for c in clips_list])
+    shutil.rmtree(tempdir)
 
     # export confidence
     tempdir = tempfile.mkdtemp()
@@ -82,6 +85,7 @@ def test_process_file():
     with h5py.File(confidence_path, "r") as f:
         confidence = f["confidence"].value
     assert confidence.shape == (200,)
+    shutil.rmtree(tempdir)
 
     # suffix
     tempdir = tempfile.mkdtemp()
@@ -89,6 +93,7 @@ def test_process_file():
     csv_path = os.path.join(
         tempdir, 'BirdVox-scaper_example_foreground_mysuffix_timestamps.csv')
     assert os.path.exists(csv_path)
+    shutil.rmtree(tempdir)
 
     # non-existing model
     pytest.raises(
@@ -108,6 +113,7 @@ def test_process_file():
     csv_path = os.path.join(
         tempdir, 'BirdVox-scaper_example_foreground_timestamps.csv')
     assert os.path.exists(csv_path)
+    shutil.rmtree(tempdir)
 
     # context-adaptive convolutional neural network
     tempdir = tempfile.mkdtemp()
@@ -117,3 +123,4 @@ def test_process_file():
     csv_path = os.path.join(
         tempdir, 'BirdVox-scaper_example_foreground_timestamps.csv')
     assert os.path.exists(csv_path)
+    shutil.rmtree(tempdir)
