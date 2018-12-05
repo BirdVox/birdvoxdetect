@@ -268,50 +268,50 @@ def process_file(
         chunk_likelihood = predict(
             chunk_pcen, frame_rate, detector, logger_level)
 
-        if threshold is None:
-            continue
+    # Threshold last chunk.
+    if threshold is not None:
 
-    # Find peaks.
-    peak_locs, _ = scipy.signal.find_peaks(chunk_likelihood)
-    peak_vals = likelihood[peak_locs]
+        # Find peaks.
+        peak_locs, _ = scipy.signal.find_peaks(chunk_likelihood)
+        peak_vals = likelihood[peak_locs]
 
-    # Threshold peaks.
-    th_peak_locs = peak_locs[peak_vals > (threshold/100)]
-    th_peak_likelihoods = likelihood[th_peak_locs]
-    chunk_offset = chunk_duration * chunk_id
-    th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
-    n_peaks = len(th_peak_timestamps)
-    logging.info("Number of timestamps: {}".format(n_peaks))
+        # Threshold peaks.
+        th_peak_locs = peak_locs[peak_vals > (threshold/100)]
+        th_peak_likelihoods = likelihood[th_peak_locs]
+        chunk_offset = chunk_duration * chunk_id
+        th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
+        n_peaks = len(th_peak_timestamps)
+        logging.info("Number of timestamps: {}".format(n_peaks))
 
-    # Export timestamps.
-    timestamps.append(th_peak_timestamps)
-    df = pd.DataFrame(timestamps, columns=df_columns)
-    df.to_csv(timestamps_path, index=False)
+        # Export timestamps.
+        timestamps.append(th_peak_timestamps)
+        df = pd.DataFrame(timestamps, columns=df_columns)
+        df.to_csv(timestamps_path, index=False)
 
-    for t in th_peak_timestamps:
-        clip_start = max(0, int(sr*np.round(t-0.5*clip_duration)))
-        clip_stop = min(
-            len(sound_file), int(sr*np.round(t+0.5*clip_duration)))
-        sound_file.seek(clip_start)
-        audio_clip = sound_file.read(clip_stop-clip_start)
-        clip_path = get_output_path(
-            filepath,
-            suffix + "{:05.2f}".format(t).replace(".", "-") + ".wav",
-            output_dir=clips_dir)
-        librosa.output.write_wav(clip_path, audio_clip, sr)
+        for t in th_peak_timestamps:
+            clip_start = max(0, int(sr*np.round(t-0.5*clip_duration)))
+            clip_stop = min(
+                len(sound_file), int(sr*np.round(t+0.5*clip_duration)))
+            sound_file.seek(clip_start)
+            audio_clip = sound_file.read(clip_stop-clip_start)
+            clip_path = get_output_path(
+                filepath,
+                suffix + "{:05.2f}".format(t).replace(".", "-") + ".wav",
+                output_dir=clips_dir)
+            librosa.output.write_wav(clip_path, audio_clip, sr)
 
-    # Export likelihood curve.
-    if export_likelihood:
+        # Export likelihood curve.
+        if export_likelihood:
 
-        # Define output path for likelihood.
-        likelihood_path = get_output_path(
-            filepath, suffix + "likelihood.hdf5", output_dir=output_dir)
+            # Define output path for likelihood.
+            likelihood_path = get_output_path(
+                filepath, suffix + "likelihood.hdf5", output_dir=output_dir)
 
-        # Concatenate likelihood curves across chunks.
-        chunk_likelihoods.append(chunk_likelihood)
-        likelihood = np.squeeze(np.concatenate(chunk_likelihoods))
-        with h5py.File(likelihood_path, "w") as f:
-            f.create_dataset('likelihood', data=likelihood)
+            # Concatenate likelihood curves across chunks.
+            chunk_likelihoods.append(chunk_likelihood)
+            likelihood = np.squeeze(np.concatenate(chunk_likelihoods))
+            with h5py.File(likelihood_path, "w") as f:
+                f.create_dataset('likelihood', data=likelihood)
 
     # Print final messages.
     logging.info("Done with file: {}.".format(filepath))
