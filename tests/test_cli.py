@@ -171,10 +171,10 @@ def test_run(capsys):
     string_input = FG_10SEC_PATH
     tempdir = tempfile.mkdtemp()
     run(string_input, output_dir=tempdir)
-    shutil.rmtree(tempdir)
     csv_path = os.path.join(
         tempdir, 'BirdVox-scaper_example_foreground_timestamps.csv')
     assert os.path.exists(csv_path)
+    shutil.rmtree(tempdir)
 
 
 
