@@ -60,6 +60,13 @@ def test_get_file_list():
     pytest.raises(BirdVoxDetectError, get_file_list, ['/fake/path/to/file'])
 
 
+def test_main(capsys):
+    # Print version
+    birdvoxdetect.main("-V")
+    captured = capsys.readouterr()
+    assert len(captured.out) > 0
+
+
 def test_parse_args():
 
     # test default values
@@ -191,13 +198,3 @@ def test_script_main(capsys):
         tempdir, 'BirdVox-scaper_example_foreground_timestamps.csv')
     assert os.path.isfile(outfile)
     shutil.rmtree(tempdir)
-
-    # Print version
-    with patch(
-            'sys.argv',
-            ['birdvoxdetect', '--V']):
-        import birdvoxdetect.__main__
-
-    # Check version printed
-    out, err = capsys.readouterr()
-    assert len(out) > 0
