@@ -160,7 +160,7 @@ def main():
 
     if args.version == "-V" or args.version == "--version":
         print(birdvoxdetect.version.version)
-    elif not args.input:
+    elif not args.inputs:
         print("BirdVoxDetect")
 
     if args.quiet:
