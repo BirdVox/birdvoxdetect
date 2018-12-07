@@ -62,7 +62,7 @@ def test_get_file_list():
 
 def test_main(capsys):
     # Print version
-    birdvoxdetect.main("-V")
+    main("-V")
     captured = capsys.readouterr()
     assert len(captured.out) > 0
 
