@@ -143,7 +143,8 @@ def process_file(
     # Compute confidence on queue chunks.
     for chunk_id in range(min(queue_length, n_chunks-1)):
         # Print chunk ID and number of chunks.
-        logging.info("Chunk ID: {}/{}".format(1+chunk_id, n_chunks))
+        logging.info("Chunk ID: {}/{}".format(
+            str(1+chunk_id).zfill(len(str(n_chunks))), n_chunks))
 
         # Predict.
         chunk_pcen = deque[chunk_id]
@@ -202,7 +203,8 @@ def process_file(
     # Loop over chunks.
     for chunk_id in range(queue_length, n_chunks-1):
         # Print chunk ID and number of chunks.
-        logging.info("Chunk ID: {}/{}".format(1+chunk_id, n_chunks))
+        logging.info("Chunk ID: {}/{}".format(
+            str(1+chunk_id).zfill(len(str(n_chunks))), n_chunks))
 
         # Read chunk.
         chunk_start = chunk_id * chunk_length
