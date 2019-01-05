@@ -494,6 +494,7 @@ def predict_with_context(pcen, context, frame_rate, detector, logger_level):
         verbose=verbose)
 
     # Return confidence.
+    # TODO change this once the precision-recall curve is available.
     return y
 
 
