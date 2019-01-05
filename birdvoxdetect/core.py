@@ -494,7 +494,7 @@ def predict_with_context(pcen, context, frame_rate, detector, logger_level):
         verbose=verbose)
 
     # Return confidence.
-    return 100 * np.maximum(0, 1 - 2*y)
+    return y
 
 
 def get_output_path(filepath, suffix, output_dir=None):
