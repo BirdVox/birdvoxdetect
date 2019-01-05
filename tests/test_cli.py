@@ -60,13 +60,6 @@ def test_get_file_list():
     pytest.raises(BirdVoxDetectError, get_file_list, ['/fake/path/to/file'])
 
 
-def test_main(capsys):
-    # Print version
-    main("-V")
-    captured = capsys.readouterr()
-    assert len(captured.out) > 0
-
-
 def test_parse_args():
 
     # test default values
