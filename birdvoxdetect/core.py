@@ -350,7 +350,7 @@ def process_file(
         # for a context duration of 30 minutes, whatever be the duration
         # of the input.
         chunk_confidences.append(chunk_confidence)
-        total_length = sum(map(len(chunk_confidences)))
+        total_length = sum(map(len, chunk_confidences))
         f.create_dataset('confidence', (total_length,), dtype="float32")
         chunk_pointer = 0
 
