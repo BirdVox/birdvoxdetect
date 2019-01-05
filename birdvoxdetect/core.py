@@ -450,7 +450,9 @@ def predict(pcen, frame_rate, detector, logger_level):
         y = detector.predict(X_pcen, verbose=verbose)
 
         # Return confidence.
-        return 100 * np.maximum(0, 1 - 2*y)
+        # TODO change this once the precision-recall curve is available.
+        return y
+        #return 100 * np.maximum(0, 1 - 2*y)
 
 
 def predict_with_context(pcen, context, frame_rate, detector, logger_level):
