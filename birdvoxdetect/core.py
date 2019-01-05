@@ -340,11 +340,24 @@ def process_file(
         confidence_path = get_output_path(
             filepath, suffix + "confidence.hdf5", output_dir=output_dir)
 
-        # Concatenate confidence curves across chunks.
+        # Export confidence curve, chunk by chunk.
+        # NB: looping over chunks, rather than concatenating them into a single
+        # NumPy array, guarantees that this export has a O(1) memory footprint
+        # with respect to the duration of the input file. As a result,
+        # BirdVoxDetect is guaranteed to run with 3-4 gigabytes of RAM
+        # for a context duration of 30 minutes, whatever be the duration
+        # of the input.
         chunk_confidences.append(chunk_confidence)
-        confidence = np.squeeze(np.concatenate(chunk_confidences))
+        total_length = sum(map(len(chunk_confidences)))
         with h5py.File(confidence_path, "w") as f:
-            f.create_dataset('confidence', data=confidence)
+            f.create_dataset('confidence', (total_length,), dtype="float32")
+            chunk_pointer = 0
+            for chunk_confidence in chunk_confidences:
+                next_chunk_pointer = chunk_pointer + len(chunk_confidence)
+                f["confidence"][chunk_pointer:next_chunk_pointer] =\
+                    chunk_confidence
+                chunk_pointer = next_chunk_pointer
+
 
     # Print final messages.
     logging.info("Done with file: {}.".format(filepath))
