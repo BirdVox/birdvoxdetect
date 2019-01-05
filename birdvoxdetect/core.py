@@ -488,7 +488,7 @@ def predict_with_context(pcen, context, frame_rate, detector, logger_level):
     X_bg = np.tile(context.T, (n_hops, 1, 1))
 
     # Predict.
-    verbose = True
+    verbose = False
     y = detector.predict(
         {"spec_input": X_pcen, "bg_input": X_bg},
         verbose=verbose)
