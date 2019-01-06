@@ -351,7 +351,8 @@ def process_file(
         # of the input.
         chunk_confidences.append(chunk_confidence)
         total_length = sum(map(len, chunk_confidences))
-        f.create_dataset('confidence', (total_length,), dtype="float32")
+        with h5py.File(confidence_path, "w") as f:
+            f.create_dataset('confidence', (total_length,), dtype="float32")
         chunk_pointer = 0
 
         # Loop over chunks.
