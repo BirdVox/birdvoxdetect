@@ -357,11 +357,15 @@ def process_file(
 
         # Loop over chunks.
         for chunk_confidence in chunk_confidences:
+
+            # Export chunk as HDF5
             with h5py.File(confidence_path, "a") as f:
                 next_chunk_pointer = chunk_pointer + len(chunk_confidence)
                 f["confidence"][chunk_pointer:next_chunk_pointer] =\
                     chunk_confidence
                 chunk_pointer = next_chunk_pointer
+
+            f["frame_rate"] = frame_rate
 
 
     # Print final messages.
