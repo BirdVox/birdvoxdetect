@@ -503,7 +503,7 @@ def predict_with_context(pcen, context, frame_rate, detector, logger_level):
     X_pcen = np.transpose(X_pcen, (0, 2, 1))[:, :, :, np.newaxis]
     X_bg = np.broadcast_to(
         context.T[np.newaxis, :, :],
-        (n_hops, context.shape[1], context.shape[0])).shape
+        (n_hops, context.shape[1], context.shape[0]))
 
     # Predict.
     verbose = False
