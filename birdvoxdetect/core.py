@@ -138,7 +138,8 @@ def process_file(
     # Compute context.
     if has_context and (n_chunks>1):
         concat_deque = np.concatenate(deque, axis=1)
-        deque_context = np.percentile(concat_deque, percentiles, axis=1)
+        deque_context = np.percentile(
+            concat_deque, percentiles, axis=1, overwrite_input=True)
 
     # Compute confidence on queue chunks.
     for chunk_id in range(min(queue_length, n_chunks-1)):
@@ -219,7 +220,8 @@ def process_file(
         # Compute percentiles
         concat_deque = np.concatenate(deque, axis=1, out=concat_deque)
         deque_context = np.percentile(
-            concat_deque, percentiles, axis=1, out=deque_context)
+            concat_deque, percentiles,
+            axis=1, out=deque_context, overwrite_input=True)
 
         # Predict.
         if has_context:
@@ -285,7 +287,8 @@ def process_file(
     if has_context:
         # If the queue is empty, compute percentiles on the fly.
         if n_chunks == 1:
-            deque_context = np.percentile(chunk_pcen, percentiles, axis=1)
+            deque_context = np.percentile(
+                chunk_pcen, percentiles, axis=1, overwrite_input=True)
 
         # Predict.
         chunk_confidence = predict_with_context(
@@ -425,6 +428,10 @@ def compute_pcen(audio, sr):
     # Convert to single floating-point precision.
     pcen = pcen.astype('float32')
 
+    # Multiply by 0.5. As it happens, BirdVoxDetect was trained with
+    # this factor 0.5 too.
+    pcen = 0.5*pcen
+
     # Return.
     return pcen
 
@@ -494,7 +501,9 @@ def predict_with_context(pcen, context, frame_rate, detector, logger_level):
         strides=X_stride,
         writeable=False)
     X_pcen = np.transpose(X_pcen, (0, 2, 1))[:, :, :, np.newaxis]
-    X_bg = np.tile(context.T, (n_hops, 1, 1))
+    X_bg = np.broadcast_to(
+        context.T[np.newaxis, :, :],
+        (n_hops, context.shape[1], context.shape[0])).shape
 
     # Predict.
     verbose = False
