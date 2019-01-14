@@ -428,10 +428,6 @@ def compute_pcen(audio, sr):
     # Convert to single floating-point precision.
     pcen = pcen.astype('float32')
 
-    # Multiply by 0.5. As it happens, BirdVoxDetect was trained with
-    # this factor 0.5 too.
-    pcen = 0.5*pcen
-
     # Return.
     return pcen
 
