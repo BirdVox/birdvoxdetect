@@ -368,7 +368,7 @@ def process_file(
                     chunk_confidence
                 chunk_pointer = next_chunk_pointer
 
-            f["frame_rate"] = frame_rate
+                f["frame_rate"] = frame_rate
 
 
     # Print final messages.
