@@ -356,6 +356,7 @@ def process_file(
         total_length = sum(map(len, chunk_confidences))
         with h5py.File(confidence_path, "w") as f:
             f.create_dataset('confidence', (total_length,), dtype="float32")
+            f["frame_rate"] = frame_rate
         chunk_pointer = 0
 
         # Loop over chunks.
@@ -367,9 +368,6 @@ def process_file(
                 f["confidence"][chunk_pointer:next_chunk_pointer] =\
                     chunk_confidence
                 chunk_pointer = next_chunk_pointer
-
-                f["frame_rate"] = frame_rate
-
 
     # Print final messages.
     logging.info("Done with file: {}.".format(filepath))
