@@ -129,7 +129,7 @@ def process_file(
         # Read audio chunk.
         chunk_start = chunk_id * chunk_length
         sound_file.seek(chunk_start)
-        chunk_audio = sound_file.read(chunk_length)
+        chunk_audio = sound_file.read(chunk_length) * (2**32)
 
         # Compute PCEN.
         chunk_pcen = compute_pcen(chunk_audio, sr)
@@ -210,7 +210,7 @@ def process_file(
         # Read chunk.
         chunk_start = chunk_id * chunk_length
         sound_file.seek(chunk_start)
-        chunk_audio = sound_file.read(chunk_length)
+        chunk_audio = sound_file.read(chunk_length) * (2**32)
 
         # Compute PCEN.
         deque.popleft()
@@ -282,7 +282,7 @@ def process_file(
     logging.info("Chunk ID: {}/{}".format(n_chunks, n_chunks))
     chunk_start = (n_chunks-1) * chunk_length
     sound_file.seek(chunk_start)
-    chunk_audio = sound_file.read(full_length - chunk_start)
+    chunk_audio = sound_file.read(full_length - chunk_start) * (2**32)
     chunk_pcen = compute_pcen(chunk_audio, sr)
     if has_context:
         # If the queue is empty, compute percentiles on the fly.
