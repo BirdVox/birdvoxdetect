@@ -381,7 +381,6 @@ def process_file(
         logging.info(event_str.format(confidence_path))
 
 
-
 def compute_pcen(audio, sr):
     # Load settings.
     pcen_settings = get_pcen_settings()
@@ -419,7 +418,7 @@ def compute_pcen(audio, sr):
         sr=pcen_settings["sr"],
         hop_length=pcen_settings["hop_length"],
         gain=pcen_settings["pcen_norm_exponent"],
-        bias=2,
+        bias=pcen_settings["pcen_delta"],
         power=pcen_settings["pcen_power"],
         time_constant=pcen_settings["pcen_time_constant"])
 
