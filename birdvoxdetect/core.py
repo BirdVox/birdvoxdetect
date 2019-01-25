@@ -558,6 +558,7 @@ def get_pcen_settings():
         "sr": 22050.0,
         "win_length": 256,
         "window": "hann"}
+        "window": "flattop"}
     return pcen_settings
 
 
