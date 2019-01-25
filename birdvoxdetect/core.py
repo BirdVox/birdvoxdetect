@@ -390,7 +390,7 @@ def compute_pcen(audio, sr):
     pcen_settings = get_pcen_settings()
 
     # Map to the range [-2**31, 2**31[
-    audio = audio * (2**31)
+    audio = audio.astype('float64') * (2**31)
 
     # Resample to 22,050 kHz
     if not sr == pcen_settings["sr"]:
