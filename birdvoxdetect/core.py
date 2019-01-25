@@ -133,7 +133,7 @@ def process_file(
         # Read audio chunk.
         chunk_start = chunk_id * chunk_length
         sound_file.seek(chunk_start)
-        chunk_audio = sound_file.read(chunk_length) * (2**32)
+        chunk_audio = sound_file.read(chunk_length)
 
         # Compute PCEN.
         chunk_pcen = compute_pcen(chunk_audio, sr)
@@ -214,7 +214,7 @@ def process_file(
         # Read chunk.
         chunk_start = chunk_id * chunk_length
         sound_file.seek(chunk_start)
-        chunk_audio = sound_file.read(chunk_length) * (2**32)
+        chunk_audio = sound_file.read(chunk_length)
 
         # Compute PCEN.
         deque.popleft()
@@ -286,7 +286,7 @@ def process_file(
     logging.info("Chunk ID: {}/{}".format(n_chunks, n_chunks))
     chunk_start = (n_chunks-1) * chunk_length
     sound_file.seek(chunk_start)
-    chunk_audio = sound_file.read(full_length - chunk_start) * (2**32)
+    chunk_audio = sound_file.read(full_length - chunk_start)
     chunk_pcen = compute_pcen(chunk_audio, sr)
     if has_context:
         # If the queue is empty, compute percentiles on the fly.
@@ -390,7 +390,7 @@ def compute_pcen(audio, sr):
     pcen_settings = get_pcen_settings()
 
     # Map to the range [-2**31, 2**31[
-    audio = audio.astype('float64') * (2**31)
+    audio = (audio * (2**31)).astype('float32')
 
     # Resample to 22,050 kHz
     if not sr == pcen_settings["sr"]:
@@ -409,6 +409,10 @@ def compute_pcen(audio, sr):
     abs2_stft = (stft.real*stft.real) + (stft.imag*stft.imag)
 
     # Gather frequency bins according to the Mel scale.
+    # NB: as of librosa v0.6.2, melspectrogram is type-instable and thus
+    # returns 64-bit output even with a 32-bit input. Therefore, we need
+    # to convert PCEN to single precision eventually. This might not be
+    # necessary in the future, if the whole PCEN pipeline is kept type-stable.
     melspec = librosa.feature.melspectrogram(
         y=None,
         S=abs2_stft,
