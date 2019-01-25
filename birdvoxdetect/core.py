@@ -432,6 +432,9 @@ def compute_pcen(audio, sr):
     # Convert to single floating-point precision.
     pcen = pcen.astype('float32')
 
+    # Truncate spectrum to range 2-10 kHz.
+    pcen = pcen[:pcen_settings["top_freq_id"], :]
+
     # Return.
     return pcen
 
@@ -556,8 +559,8 @@ def get_pcen_settings():
         "pcen_norm_exponent": 0.8,
         "pcen_power": 0.25,
         "sr": 22050.0,
+        "top_freq_id": 120,
         "win_length": 256,
-        "window": "hann"}
         "window": "flattop"}
     return pcen_settings
 
