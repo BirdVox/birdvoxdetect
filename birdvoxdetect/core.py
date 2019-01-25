@@ -11,6 +11,7 @@ import traceback
 import warnings
 
 
+
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
 
 
@@ -24,7 +25,9 @@ def process_file(
         frame_rate=20.0,
         clip_duration=1.0,
         logger_level=logging.INFO,
-        detector_name="pcen_snr"):
+        detector_name="pcen_snr",
+        custom_objects=None):
+
     # detector_name="birdvoxdetect_pcen_cnn_adaptive-threshold-T1800"):
     # Set logger level.
     logging.getLogger().setLevel(logger_level)
@@ -62,7 +65,8 @@ def process_file(
                 # Suppress TF and Keras warnings when importing
                 warnings.simplefilter("ignore")
                 import keras
-                detector = keras.models.load_model(model_path)
+                detector = keras.models.load_model(
+                    model_path, custom_objects=custom_objects)
         except Exception:
             exc_str = 'Could not open model "{}":\n{}'
             formatted_trace = traceback.format_exc()
