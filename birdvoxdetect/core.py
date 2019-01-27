@@ -153,7 +153,7 @@ def process_file(
     # Define frame rate.
     frame_rate =\
         pcen_settings["sr"] /\
-        pcen_settings["hop_length"] * pcen_settings["stride_length"]
+        (pcen_settings["hop_length"] * pcen_settings["stride_length"])
 
     # Compute confidence on queue chunks.
     for chunk_id in range(min(queue_length, n_chunks-1)):
@@ -386,10 +386,11 @@ def process_file(
             # Define offset.
             chunk_length = len(chunk_confidence)
             next_chunk_pointer = chunk_pointer + chunk_length
-            chunk_start = chunk_duration * (n_chunks-1)
+            chunk_start = chunk_duration * chunk_id
             chunk_stop = chunk_start + chunk_length/frame_rate
             chunk_time = np.linspace(
-                chunk_start, chunk_stop, endpoint=False, dtype=np.float32)
+                chunk_start, chunk_stop,
+                num=chunk_length, endpoint=False, dtype=np.float32)
 
             # Export chunk as HDF5
             with h5py.File(confidence_path, "a") as f:
