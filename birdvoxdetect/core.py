@@ -147,8 +147,8 @@ def process_file(
     # Define frame rate.
     pcen_settings = get_pcen_settings()
     frame_rate =\
-        pcen_settings["hop_length"] * pcen_settings["stride_length"] /\
-        pcen_settings["sr"]
+        pcen_settings["sr"] /\
+        pcen_settings["hop_length"] * pcen_settings["stride_length"]
 
     # Compute confidence on queue chunks.
     for chunk_id in range(min(queue_length, n_chunks-1)):
