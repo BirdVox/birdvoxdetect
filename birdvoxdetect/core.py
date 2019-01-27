@@ -484,9 +484,9 @@ def predict(pcen, detector, logger_level):
         y = detector.predict(X_pcen, verbose=verbose)
 
         # Return confidence.
-        # TODO change this once the precision-recall curve is available.
-        return y
-        #return 100 * np.maximum(0, 1 - 2*y)
+        # Map confidence to 0-100 range.
+        y_mapped = map_confidence(y)
+        return y_mapped
 
 
 def predict_with_context(pcen, context, detector, logger_level):
@@ -517,9 +517,11 @@ def predict_with_context(pcen, context, detector, logger_level):
         {"spec_input": X_pcen, "bg_input": X_bg},
         verbose=verbose)
 
+    # Map confidence range.
+    y_mapped = map_confidence(y)
+
     # Return confidence.
-    # TODO change this once the precision-recall curve is available.
-    return y
+    return y_mapped
 
 
 def get_output_path(filepath, suffix, output_dir=None):
