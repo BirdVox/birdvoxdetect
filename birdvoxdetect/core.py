@@ -480,10 +480,9 @@ def predict(pcen, detector, logger_level):
         X_pcen = np.transpose(X_pcen, (0, 2, 1))[:, :, :, np.newaxis]
 
         # Predict.
-        verbose = True
+        verbose = False
         y = detector.predict(X_pcen, verbose=verbose)
 
-        # Return confidence.
         # Map confidence to 0-100 range.
         y_mapped = map_confidence(y)
         return y_mapped
