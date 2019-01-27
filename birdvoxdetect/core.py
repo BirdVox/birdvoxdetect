@@ -473,12 +473,12 @@ def predict(pcen, detector, logger_level):
         pcen_settings = get_pcen_settings()
         stride_length = pcen_settings["stride_length"]
         n_freqs, n_times = pcen.shape
-        n_hops = 1 + int((n_times - clip_length) / hop_length)
+        n_hops = 1 + int((n_times - clip_length) / stride_length)
         itemsize = pcen.itemsize
 
         # Stride and tile.
         X_shape = (n_hops, clip_length, n_freqs)
-        X_stride = (itemsize*n_freqs*hop_length, itemsize*n_freqs, itemsize)
+        X_stride = (itemsize*n_freqs*stride_length, itemsize*n_freqs, itemsize)
         X_pcen = np.lib.stride_tricks.as_strided(
             np.ravel(np.copy(pcen).T),
             shape=X_shape,
@@ -500,13 +500,13 @@ def predict_with_context(pcen, context, detector, logger_level):
     clip_length = 104
     pcen_settings = get_pcen_settings()
     stride_length = pcen_settings["stride_length"]
-    n_freqs, n_times = pcen.shape
-    n_hops = 1 + int((n_times - clip_length) / stride_length)
+    n_freqs, n_hops = pcen.shape
+    n_strides = 1 + int(n_hops / stride_length)
     itemsize = pcen.itemsize
 
     # Stride and tile.
-    X_shape = (n_hops, clip_length, n_freqs)
-    X_stride = (itemsize*n_freqs*hop_length, itemsize*n_freqs, itemsize)
+    X_shape = (n_strides, clip_length, n_freqs)
+    X_stride = (itemsize*n_freqs*stride_length, itemsize*n_freqs, itemsize)
     X_pcen = np.lib.stride_tricks.as_strided(
         np.ravel(np.copy(pcen).T),
         shape=X_shape,
