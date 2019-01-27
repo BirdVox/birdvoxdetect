@@ -126,13 +126,18 @@ def process_file(
     # Print chunk duration.
     logging.info("Chunk duration: {} seconds".format(chunk_duration))
 
+    # Define padding. Set to one second, i.e. 750 hops @ 24 kHz.
+    # Any value above clip duration (150 ms) would work.
+    chunk_padding = pcen_settings["hop_length"] *\
+        int(pcen_settings["sr"] / pcen_settings["hop_length"])
+
     # Pre-load double-ended queue.
     deque = collections.deque()
     for chunk_id in range(min(n_chunks-1, queue_length)):
         # Read audio chunk.
         chunk_start = chunk_id * chunk_length
         sound_file.seek(chunk_start)
-        chunk_audio = sound_file.read(chunk_length)
+        chunk_audio = sound_file.read(chunk_length+chunk_padding)
 
         # Compute PCEN.
         chunk_pcen = compute_pcen(chunk_audio, sr)
@@ -160,9 +165,12 @@ def process_file(
         chunk_pcen = deque[chunk_id]
         if has_context:
             chunk_confidence = predict_with_context(
-                chunk_pcen, deque_context, detector, logger_level)
+                chunk_pcen, deque_context, detector, logger_level,
+                padding=chunk_padding)
         else:
-            chunk_confidence = predict(chunk_pcen, detector, logger_level)
+            chunk_confidence = predict(
+                chunk_pcen, detector, logger_level,
+                padding=chunk_padding)
         chunk_confidence = np.squeeze(chunk_confidence)
 
         # If continuous confidence is required, store it in memory.
@@ -217,7 +225,7 @@ def process_file(
         # Read chunk.
         chunk_start = chunk_id * chunk_length
         sound_file.seek(chunk_start)
-        chunk_audio = sound_file.read(chunk_length)
+        chunk_audio = sound_file.read(chunk_length+chunk_padding)
 
         # Compute PCEN.
         deque.popleft()
@@ -233,9 +241,12 @@ def process_file(
         # Predict.
         if has_context:
             chunk_confidence = predict_with_context(
-                chunk_pcen, deque_context, detector, logger_level)
+                chunk_pcen, deque_context, detector, logger_level,
+                padding=chunk_padding)
         else:
-            chunk_confidence = predict(chunk_pcen, detector, logger_level)
+            chunk_confidence = predict(
+                chunk_pcen, detector, logger_level,
+                padding=chunk_padding)
         chunk_confidence = np.squeeze(chunk_confidence)
 
         # If continuous confidence is required, store it in memory.
@@ -297,10 +308,13 @@ def process_file(
 
         # Predict.
         chunk_confidence = predict_with_context(
-            chunk_pcen, deque_context, detector, logger_level)
+            chunk_pcen, deque_context, detector, logger_level,
+            padding=0)
     else:
         # Predict.
-        chunk_confidence = predict(chunk_pcen, detector, logger_level)
+        chunk_confidence = predict(
+            chunk_pcen, detector, logger_level,
+            padding=0)
     chunk_confidence = np.squeeze(chunk_confidence)
 
     # Threshold last chunk if required.
@@ -456,7 +470,7 @@ def compute_pcen(audio, sr):
     return pcen
 
 
-def predict(pcen, detector, logger_level):
+def predict(pcen, detector, logger_level, padding=0):
     pcen_settings = get_pcen_settings()
 
     # PCEN-SNR
@@ -497,7 +511,7 @@ def predict(pcen, detector, logger_level):
         X_pcen = np.transpose(X_pcen, (0, 2, 1))[:, :, :, np.newaxis]
 
         # Predict.
-        verbose = False
+        verbose = (logger_level < 15)
         y = detector.predict(X_pcen, verbose=verbose)
 
         # Map confidence to 0-100 range.
@@ -505,13 +519,19 @@ def predict(pcen, detector, logger_level):
         return y_mapped
 
 
-def predict_with_context(pcen, context, detector, logger_level):
+def predict_with_context(pcen, context, detector, logger_level, padding=0):
     # Compute number of hops.
     clip_length = 104
     pcen_settings = get_pcen_settings()
     stride_length = pcen_settings["stride_length"]
-    n_freqs, n_hops = pcen.shape
-    n_strides = int(n_hops / stride_length)
+    n_freqs, n_padded_hops = pcen.shape
+    if padding > 0:
+        padding_hops = int(padding / pcen_settings["hop_length"])
+        n_hops = n_padded_hops - padding_hops
+        n_strides = int(n_hops / stride_length)
+    else:
+        n_hops = n_padded_hops
+        n_strides = int((n_hops - clip_length) / stride_length)
     itemsize = pcen.itemsize
 
     # Stride and tile.
@@ -528,7 +548,7 @@ def predict_with_context(pcen, context, detector, logger_level):
         (n_strides, context.shape[1], context.shape[0]))
 
     # Predict.
-    verbose = False
+    verbose = (logger_level < 15)
     y = detector.predict(
         {"spec_input": X_pcen, "bg_input": X_bg},
         verbose=verbose)
