@@ -70,7 +70,6 @@ def test_parse_args():
     assert args.export_confidence == False
     assert args.threshold == 50.0
     assert args.suffix == ""
-    assert args.frame_rate == 20.0
     assert args.clip_duration == 1.0
     assert args.quiet is False
     assert args.verbose is False
@@ -82,7 +81,6 @@ def test_parse_args():
             '-C',
             '-t', '60',
             '-s', 'mysuffix',
-            '-r', '25',
             '-d', '0.5',
             '-q']
     args = parse_args(args)
@@ -91,7 +89,6 @@ def test_parse_args():
     assert args.export_confidence == True
     assert args.threshold == 60.0
     assert args.suffix == 'mysuffix'
-    assert args.frame_rate == 25.0
     assert args.clip_duration == 0.5
     assert args.quiet is True
 

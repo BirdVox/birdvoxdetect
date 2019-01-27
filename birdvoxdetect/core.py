@@ -22,7 +22,6 @@ def process_file(
         export_confidence=False,
         threshold=50.0,
         suffix="",
-        frame_rate=20.0,
         clip_duration=1.0,
         logger_level=logging.INFO,
         detector_name="pcen_snr",
@@ -145,6 +144,9 @@ def process_file(
         deque_context = np.percentile(
             concat_deque, percentiles, axis=1, overwrite_input=True)
 
+    # Define frame rate.
+    frame_rate = 32*34 / 22050
+
     # Compute confidence on queue chunks.
     for chunk_id in range(min(queue_length, n_chunks-1)):
         # Print chunk ID and number of chunks.
@@ -155,11 +157,9 @@ def process_file(
         chunk_pcen = deque[chunk_id]
         if has_context:
             chunk_confidence = predict_with_context(
-                chunk_pcen, deque_context, frame_rate, detector,
-                logger_level)
+                chunk_pcen, deque_context, detector, logger_level)
         else:
-            chunk_confidence = predict(
-                chunk_pcen, frame_rate, detector, logger_level)
+            chunk_confidence = predict(chunk_pcen, detector, logger_level)
         chunk_confidence = np.squeeze(chunk_confidence)
 
         # If continuous confidence is required, store it in memory.
@@ -175,7 +175,7 @@ def process_file(
         peak_vals = chunk_confidence[peak_locs]
 
         # Threshold peaks.
-        th_peak_locs = peak_locs[peak_vals > (threshold/100)]
+        th_peak_locs = peak_locs[peak_vals > threshold]
         th_peak_confidences = chunk_confidence[th_peak_locs]
         chunk_offset = chunk_duration * chunk_id
         th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
@@ -230,11 +230,9 @@ def process_file(
         # Predict.
         if has_context:
             chunk_confidence = predict_with_context(
-                chunk_pcen, deque_context, frame_rate, detector,
-                logger_level)
+                chunk_pcen, deque_context, detector, logger_level)
         else:
-            chunk_confidence = predict(
-                chunk_pcen, frame_rate, detector, logger_level)
+            chunk_confidence = predict(chunk_pcen, detector, logger_level)
         chunk_confidence = np.squeeze(chunk_confidence)
 
         # If continuous confidence is required, store it in memory.
@@ -250,7 +248,7 @@ def process_file(
         peak_vals = chunk_confidence[peak_locs]
 
         # Threshold peaks.
-        th_peak_locs = peak_locs[peak_vals > (threshold/100)]
+        th_peak_locs = peak_locs[peak_vals > threshold]
         th_peak_confidences = chunk_confidence[th_peak_locs]
         chunk_offset = chunk_duration * chunk_id
         th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
@@ -296,11 +294,10 @@ def process_file(
 
         # Predict.
         chunk_confidence = predict_with_context(
-            chunk_pcen, deque_context, frame_rate, detector, logger_level)
+            chunk_pcen, deque_context, detector, logger_level)
     else:
         # Predict.
-        chunk_confidence = predict(
-            chunk_pcen, frame_rate, detector, logger_level)
+        chunk_confidence = predict(chunk_pcen, detector, logger_level)
     chunk_confidence = np.squeeze(chunk_confidence)
 
     # Threshold last chunk if required.
@@ -360,7 +357,6 @@ def process_file(
         total_length = sum(map(len, chunk_confidences))
         with h5py.File(confidence_path, "w") as f:
             f.create_dataset('confidence', (total_length,), dtype="float32")
-            f["frame_rate"] = frame_rate
         chunk_pointer = 0
 
         # Loop over chunks.
@@ -443,11 +439,12 @@ def compute_pcen(audio, sr):
     return pcen
 
 
-def predict(pcen, frame_rate, detector, logger_level):
+def predict(pcen, detector, logger_level):
     pcen_settings = get_pcen_settings()
 
     # PCEN-SNR
     if detector == "pcen_snr":
+        frame_rate = 20.0
         pcen_snr = np.max(pcen, axis=0) - np.min(pcen, axis=0)
         pcen_confidence = pcen_snr / (0.001 + pcen_snr)
         median_confidence = scipy.signal.medfilt(
@@ -466,7 +463,8 @@ def predict(pcen, frame_rate, detector, logger_level):
     else:
         # Compute number of hops.
         clip_length = 104
-        hop_length = 34
+        pcen_settings = get_pcen_settings()
+        stride_length = pcen_settings["stride_length"]
         n_freqs, n_times = pcen.shape
         n_hops = 1 + int((n_times - clip_length) / hop_length)
         itemsize = pcen.itemsize
@@ -491,12 +489,13 @@ def predict(pcen, frame_rate, detector, logger_level):
         #return 100 * np.maximum(0, 1 - 2*y)
 
 
-def predict_with_context(pcen, context, frame_rate, detector, logger_level):
+def predict_with_context(pcen, context, detector, logger_level):
     # Compute number of hops.
     clip_length = 104
-    hop_length = 34
+    pcen_settings = get_pcen_settings()
+    stride_length = pcen_settings["stride_length"]
     n_freqs, n_times = pcen.shape
-    n_hops = 1 + int((n_times - clip_length) / hop_length)
+    n_hops = 1 + int((n_times - clip_length) / stride_length)
     itemsize = pcen.itemsize
 
     # Stride and tile.
@@ -563,6 +562,7 @@ def get_pcen_settings():
         "pcen_norm_exponent": 0.8,
         "pcen_power": 0.25,
         "sr": 22050.0,
+        "stride_length": 34,
         "top_freq_id": 120,
         "win_length": 256,
         "window": "flattop"}

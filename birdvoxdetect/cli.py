@@ -38,7 +38,6 @@ def run(inputs,
         export_confidence=False,
         threshold=50.0,
         suffix="",
-        frame_rate=20.0,
         clip_duration=1.0,
         logger_level=logging.INFO):
     verbose = True
@@ -65,7 +64,6 @@ def run(inputs,
             export_confidence=export_confidence,
             threshold=threshold,
             suffix=suffix,
-            frame_rate=frame_rate,
             clip_duration=clip_duration,
             logger_level=logger_level)
     if verbose:
@@ -109,12 +107,6 @@ def parse_args(args):
         '--suffix', '-s', default="",
         help='String to append to the output filenames.'
              'The default value is the empty string.')
-
-    parser.add_argument(
-        '--frame-rate', '-r', type=positive_float, default=20.0,
-        help='Temporal resolution of the detection curve, '
-             'expressed in frames per second (fps). '
-             'The default value is 20. We recommend values of 15 or above.')
 
     parser.add_argument(
         '--clip-duration', '-d', type=positive_float, default=None,
@@ -177,7 +169,6 @@ def main():
         export_confidence=args.export_confidence,
         threshold=args.threshold,
         suffix=args.suffix,
-        frame_rate=args.frame_rate,
         clip_duration=args.clip_duration,
         logger_level=logger_level)
 
