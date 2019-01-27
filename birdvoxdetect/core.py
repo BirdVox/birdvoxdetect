@@ -367,14 +367,24 @@ def process_file(
         chunk_pointer = 0
 
         # Loop over chunks.
-        for chunk_confidence in chunk_confidences:
+        for chunk_id, chunk_confidence in enumerate(chunk_confidences):
+
+            # Define offset.
+            chunk_length = len(chunk_confidence)
+            next_chunk_pointer = chunk_pointer + chunk_length
+            chunk_start = chunk_duration * (n_chunks-1)
+            chunk_stop = chunk_start + chunk_length/frame_rate
+            chunk_time = np.linspace(
+                chunk_start, chunk_stop, endpoint=False, dtype=np.float32)
 
             # Export chunk as HDF5
             with h5py.File(confidence_path, "a") as f:
-                next_chunk_pointer = chunk_pointer + len(chunk_confidence)
                 f["confidence"][chunk_pointer:next_chunk_pointer] =\
                     chunk_confidence
-                chunk_pointer = next_chunk_pointer
+                f["time"][chunk_pointer:next_chunk_pointer] = chunk_time
+
+            # Increment pointer.
+            chunk_pointer = next_chunk_pointer
 
     # Print final messages.
     logging.info("Done with file: {}.".format(filepath))
@@ -472,8 +482,8 @@ def predict(pcen, detector, logger_level):
         clip_length = 104
         pcen_settings = get_pcen_settings()
         stride_length = pcen_settings["stride_length"]
-        n_freqs, n_times = pcen.shape
-        n_hops = 1 + int((n_times - clip_length) / stride_length)
+        n_freqs, n_hops = pcen.shape
+        n_strides = 1 + int(n_hops / stride_length)
         itemsize = pcen.itemsize
 
         # Stride and tile.
@@ -515,7 +525,7 @@ def predict_with_context(pcen, context, detector, logger_level):
     X_pcen = np.transpose(X_pcen, (0, 2, 1))[:, :, :, np.newaxis]
     X_bg = np.broadcast_to(
         context.T[np.newaxis, :, :],
-        (n_hops, context.shape[1], context.shape[0]))
+        (n_strides, context.shape[1], context.shape[0]))
 
     # Predict.
     verbose = False
