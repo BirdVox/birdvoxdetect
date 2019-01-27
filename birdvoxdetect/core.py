@@ -145,7 +145,10 @@ def process_file(
             concat_deque, percentiles, axis=1, overwrite_input=True)
 
     # Define frame rate.
-    frame_rate = 32*34 / 22050
+    pcen_settings = get_pcen_settings()
+    frame_rate =\
+        pcen_settings["hop_length"] * pcen_settings["stride_length"] /\
+        pcen_settings["sr"]
 
     # Compute confidence on queue chunks.
     for chunk_id in range(min(queue_length, n_chunks-1)):
@@ -357,6 +360,10 @@ def process_file(
         total_length = sum(map(len, chunk_confidences))
         with h5py.File(confidence_path, "w") as f:
             f.create_dataset('confidence', (total_length,), dtype="float32")
+            f.create_dataset('time', (total_length,), dtype="float32")
+            f["chunk_duration"] = chunk_duration
+            f["frame_rate"] = frame_rate
+
         chunk_pointer = 0
 
         # Loop over chunks.
