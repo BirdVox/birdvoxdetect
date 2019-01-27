@@ -128,6 +128,7 @@ def process_file(
 
     # Define padding. Set to one second, i.e. 750 hops @ 24 kHz.
     # Any value above clip duration (150 ms) would work.
+    pcen_settings = get_pcen_settings()
     chunk_padding = pcen_settings["hop_length"] *\
         int(pcen_settings["sr"] / pcen_settings["hop_length"])
 
@@ -150,7 +151,6 @@ def process_file(
             concat_deque, percentiles, axis=1, overwrite_input=True)
 
     # Define frame rate.
-    pcen_settings = get_pcen_settings()
     frame_rate =\
         pcen_settings["sr"] /\
         pcen_settings["hop_length"] * pcen_settings["stride_length"]
