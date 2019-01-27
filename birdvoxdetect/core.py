@@ -211,7 +211,7 @@ def process_file(
                     len(sound_file), int(sr*np.round(t+0.5*clip_duration)))
                 sound_file.seek(clip_start)
                 audio_clip = sound_file.read(clip_stop-clip_start)
-                clip_name = suffix + "{:05.2f}".format(t).replace(".", "-")
+                clip_name = suffix + "{:08.2f}".format(t).replace(".", "-")
                 clip_path = get_output_path(
                     filepath, clip_name + ".wav", output_dir=clips_dir)
                 librosa.output.write_wav(clip_path, audio_clip, sr)
@@ -288,7 +288,7 @@ def process_file(
                     len(sound_file), int(sr*np.round(t+0.5*clip_duration)))
                 sound_file.seek(clip_start)
                 audio_clip = sound_file.read(clip_stop-clip_start)
-                clip_name = suffix + "{:05.2f}".format(t).replace(".", "-")
+                clip_name = suffix + "{:08.2f}".format(t).replace(".", "-")
                 clip_path = get_output_path(
                     filepath, clip_name + ".wav", output_dir=clips_dir)
                 librosa.output.write_wav(clip_path, audio_clip, sr)
@@ -351,7 +351,7 @@ def process_file(
                     len(sound_file), int(sr*np.round(t+0.5*clip_duration)))
                 sound_file.seek(clip_start)
                 audio_clip = sound_file.read(clip_stop-clip_start)
-                clip_name = suffix + "{:05.2f}".format(t).replace(".", "-")
+                clip_name = suffix + "{:08.2f}".format(t).replace(".", "-")
                 clip_path = get_output_path(
                     filepath, clip_name + ".wav", output_dir=clips_dir)
                 librosa.output.write_wav(clip_path, audio_clip, sr)
