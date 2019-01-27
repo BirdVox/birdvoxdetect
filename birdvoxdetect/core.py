@@ -496,8 +496,14 @@ def predict(pcen, detector, logger_level, padding=0):
         clip_length = 104
         pcen_settings = get_pcen_settings()
         stride_length = pcen_settings["stride_length"]
-        n_freqs, n_hops = pcen.shape
-        n_strides = int(n_hops / stride_length)
+        n_freqs, n_padded_hops = pcen.shape
+        if padding > 0:
+            padding_hops = int(padding / pcen_settings["hop_length"])
+            n_hops = n_padded_hops - padding_hops + 1
+            n_strides = int(n_hops / stride_length)
+        else:
+            n_hops = n_padded_hops
+            n_strides = int((n_hops - clip_length) / stride_length)
         itemsize = pcen.itemsize
 
         # Stride and tile.
@@ -527,7 +533,7 @@ def predict_with_context(pcen, context, detector, logger_level, padding=0):
     n_freqs, n_padded_hops = pcen.shape
     if padding > 0:
         padding_hops = int(padding / pcen_settings["hop_length"])
-        n_hops = n_padded_hops - padding_hops
+        n_hops = n_padded_hops - padding_hops + 1
         n_strides = int(n_hops / stride_length)
     else:
         n_hops = n_padded_hops
