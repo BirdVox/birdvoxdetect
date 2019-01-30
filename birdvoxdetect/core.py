@@ -620,5 +620,4 @@ def get_model_path(model_name):
 
 
 def map_confidence(y):
-    return np.clip(25 * np.sqrt(np.clip(
-        -np.log10(y)-2, np.finfo(np.float32).tiny, np.inf)), 0.0, 100.0)
+    return np.log(1-y) - np.log(y)
