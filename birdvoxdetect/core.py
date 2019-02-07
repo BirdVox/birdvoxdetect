@@ -171,7 +171,12 @@ def process_file(
             chunk_confidence = predict(
                 chunk_pcen, detector, logger_level,
                 padding=chunk_padding)
+
+        # Remove trailing singleton dimension
         chunk_confidence = np.squeeze(chunk_confidence)
+
+        # Map confidence to 0-100 range.
+        chunk_confidence = map_confidence(chunk_confidence, detector_name)
 
         # If continuous confidence is required, store it in memory.
         if export_confidence:
@@ -521,10 +526,6 @@ def predict(pcen, detector, logger_level, padding=0):
         verbose = (logger_level < 15)
         y = detector.predict(X_pcen, verbose=verbose)
 
-        # Map confidence to 0-100 range.
-        y_mapped = map_confidence(y)
-        return y_mapped
-
 
 def predict_with_context(pcen, context, detector, logger_level, padding=0):
     # Compute number of hops.
@@ -560,11 +561,8 @@ def predict_with_context(pcen, context, detector, logger_level, padding=0):
         {"spec_input": X_pcen, "bg_input": X_bg},
         verbose=verbose)
 
-    # Map confidence range.
-    y_mapped = map_confidence(y)
-
     # Return confidence.
-    return y_mapped
+    return y
 
 
 def get_output_path(filepath, suffix, output_dir=None):
@@ -619,5 +617,7 @@ def get_model_path(model_name):
         os.path.dirname(__file__), "models", model_name + '.h5')
 
 
-def map_confidence(y):
-    return np.log(1-y) - np.log(y)
+def map_confidence(y, model_name):
+    y_inverse_sigmoid =  np.log(1-y) - np.log(y)
+    linreg_a = -0.03931873
+    linreg_b = 45.20103258
