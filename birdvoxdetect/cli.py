@@ -99,7 +99,7 @@ def parse_args(args):
     parser.add_argument(
         '--threshold', '-t', type=valid_threshold, default=50,
         help='Detection threshold, between 10 and 90. '
-             'The default value is 50. '
+             'The default value is 30. '
              'Greater values lead to higher precision at the expense '
              'of a lower recall.')
 

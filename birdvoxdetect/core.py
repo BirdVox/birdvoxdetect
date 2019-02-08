@@ -20,7 +20,7 @@ def process_file(
         output_dir=None,
         export_clips=False,
         export_confidence=False,
-        threshold=50.0,
+        threshold=30.0,
         suffix="",
         clip_duration=1.0,
         logger_level=logging.INFO,
