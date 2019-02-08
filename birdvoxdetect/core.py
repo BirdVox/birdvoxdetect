@@ -633,7 +633,7 @@ def map_confidence(y, model_name):
         linreg_a = -0.03931873
         linreg_b = 45.20103258
         y_linreg = (y - linreg_b) / linreg_a
-        y_clipped = np.clip(1000 - y_linref, 0, 1000)
+        y_clipped = np.clip(1000 - y_linreg, 0, 1000)
         y_mapped = 0.1 * y_clipped
     else:
         y_out = y
