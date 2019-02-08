@@ -252,7 +252,12 @@ def process_file(
             chunk_confidence = predict(
                 chunk_pcen, detector, logger_level,
                 padding=chunk_padding)
+
+        # Remove trailing singleton dimension
         chunk_confidence = np.squeeze(chunk_confidence)
+
+        # Map confidence to 0-100 range.
+        chunk_confidence = map_confidence(chunk_confidence, detector_name)
 
         # If continuous confidence is required, store it in memory.
         if export_confidence:
@@ -320,7 +325,12 @@ def process_file(
         chunk_confidence = predict(
             chunk_pcen, detector, logger_level,
             padding=0)
+
+    # Remove trailing singleton dimension
     chunk_confidence = np.squeeze(chunk_confidence)
+
+    # Map confidence to 0-100 range.
+    chunk_confidence = map_confidence(chunk_confidence, detector_name)
 
     # Threshold last chunk if required.
     if threshold is not None:
@@ -618,6 +628,13 @@ def get_model_path(model_name):
 
 
 def map_confidence(y, model_name):
-    y_inverse_sigmoid =  np.log(1-y) - np.log(y)
-    linreg_a = -0.03931873
-    linreg_b = 45.20103258
+    if model_name == "BirdVox-300k_birdvoxdetect_trial-12_network_epoch-029_adaptive-threshold-T1800":
+        y_inverse_sigmoid =  np.log(1-y) - np.log(y)
+        linreg_a = -0.03931873
+        linreg_b = 45.20103258
+        y_linreg = (y - linreg_b) / linreg_a
+        y_clipped = np.clip(1000 - y_linref, 0, 1000)
+        y_mapped = 0.1 * y_clipped
+    else:
+        y_out = y
+    return y
