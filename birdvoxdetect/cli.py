@@ -10,6 +10,9 @@ import sys
 import birdvoxdetect
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
 
+# The following line circumvent issue #1715 in xgboost
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
+
 
 def get_file_list(input_list):
     """Parse list of input paths."""
