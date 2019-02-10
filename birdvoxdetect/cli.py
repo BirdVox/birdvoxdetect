@@ -100,7 +100,7 @@ def parse_args(args):
              'in HDF5 format.')
 
     parser.add_argument(
-        '--threshold', '-t', type=valid_threshold, default=50,
+        '--threshold', '-t', type=valid_threshold, default=30,
         help='Detection threshold, between 10 and 90. '
              'The default value is 30. '
              'Greater values lead to higher precision at the expense '
