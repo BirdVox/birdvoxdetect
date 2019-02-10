@@ -627,7 +627,7 @@ def get_model_path(model_name):
 
 
 def map_confidence(y, model_name):
-    if model_name == "BirdVox-300k_birdvoxdetect_trial-12_network_epoch-029_adaptive-threshold-T1800":
+    if model_name == "birdvoxdetect_pcen_cnn_adaptive-threshold-T1800":
         y_inverse_sigmoid =  np.log(1-y) - np.log(y)
         linreg_a = -0.03931873
         linreg_b = 45.20103258
