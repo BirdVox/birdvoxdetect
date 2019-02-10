@@ -24,10 +24,9 @@ def process_file(
         suffix="",
         clip_duration=1.0,
         logger_level=logging.INFO,
-        detector_name="pcen_snr",
+        detector_name="BirdVox-300k_birdvoxdetect_trial-12_network_epoch-029_adaptive-threshold-T1800",
         custom_objects=None):
 
-    # detector_name="birdvoxdetect_pcen_cnn_adaptive-threshold-T1800"):
     # Set logger level.
     logging.getLogger().setLevel(logger_level)
 
