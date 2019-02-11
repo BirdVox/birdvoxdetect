@@ -68,7 +68,7 @@ def process_file(
         except Exception:
             exc_str = 'Could not open model "{}":\n{}'
             formatted_trace = traceback.format_exc()
-            exc_formatted_str = exc_str.format(filepath, formatted_trace)
+            exc_formatted_str = exc_str.format(model_path, formatted_trace)
             raise BirdVoxDetectError(exc_formatted_str)
 
     # Define chunk size.
