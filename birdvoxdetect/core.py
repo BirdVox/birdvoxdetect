@@ -631,7 +631,7 @@ def map_confidence(y, model_name):
         y_inverse_sigmoid =  np.log(1-y) - np.log(y)
         linreg_a = -0.03931873
         linreg_b = 45.20103258
-        y_linreg = (y - linreg_b) / linreg_a
+        y_linreg = (y_inverse_sigmoid - linreg_b) / linreg_a
         y_clipped = np.clip(1000 - y_linreg, 0, 1000)
         y_out = 0.1 * y_clipped
     else:
