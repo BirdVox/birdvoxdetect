@@ -56,6 +56,23 @@ def run(inputs,
             str(inputs)))
         sys.exit(-1)
 
+    # Print header
+    if verbose:
+        if threshold:
+            print("birdvoxdetect: Threshold = {:4.1f}".format(threshold))
+
+        if output_dir:
+            print("birdvoxdetect: Output directory = " + output_dir)
+
+        if not suffix == "":
+            print("birdvoxdetect: Suffix string = " + suffix)
+
+        if export_clips:
+            export_clips_str = "".join([
+                "Duration of exported clips = ",
+                "{:.2f} seconds.".format(clip_duration)])
+            print("birdvoxdetect: " + export_clips_str)
+
     # Process all files in the arguments
     for filepath in file_list:
         if verbose:
