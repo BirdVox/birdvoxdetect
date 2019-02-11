@@ -31,7 +31,7 @@ def process_file(
     logging.getLogger().setLevel(logger_level)
 
     # Print new line and file name.
-    logging.info("-" * 55)
+    logging.info("-" * 72)
     logging.info("Loading file: {}".format(filepath))
 
     # Check for existence of the input file.
