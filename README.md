@@ -16,7 +16,7 @@ For details about the deep learning model in BirdVoxDetect and how it was traine
 
 Robust Sound Event Detection in Bioacoustic Sensor Networks<br/>
 Vincent Lostanlen, Justin Salamon, Andrew Farnsworth, Steve Kelling, and Juan Pablo Bello<br/>
-Under review, 2018.
+Under review, 2019.
 
 
 # Installation instructions
@@ -50,9 +50,7 @@ For more detailed information, please consult the
 Installing BirdVoxDetect
 ------------------------
 The simplest way to install BirdVoxDetect is by using ``pip``, which will also install the additional required dependencies
-if needed. To install the latest stable version of BirdVoxDetect using ``pip``, simply run
-
-    pip install birdvoxdetect
+if needed.
 
 To install the latest version of BirdVoxDetect from source:
 
@@ -72,4 +70,4 @@ Please cite the following paper when using BirdVoxDetect in your work:
 
 [1] Robust Sound Event Detection in Bioacoustic Sensor Networks<br/>
 Vincent Lostanlen, Justin Salamon, Andrew Farnsworth, Steve Kelling, and Juan Pablo Bello<br/>
-Under review, 2018.
+Under review, 2019.
