@@ -522,7 +522,7 @@ def predict(pcen, detector, logger_level, padding=0):
         itemsize = pcen.itemsize
 
         # Stride and tile.
-        X_shape = (n_hops, clip_length, n_freqs)
+        X_shape = (n_strides, clip_length, n_freqs)
         X_stride = (itemsize*n_freqs*stride_length, itemsize*n_freqs, itemsize)
         X_pcen = np.lib.stride_tricks.as_strided(
             np.ravel(np.copy(pcen).T),
