@@ -628,12 +628,11 @@ def get_model_path(model_name):
 
 def map_confidence(y, model_name):
     if model_name == "birdvoxdetect_pcen_cnn_adaptive-threshold-T1800":
-        y_inverse_sigmoid =  np.log(1-y) - np.log(y)
-        linreg_a = -0.03931873
-        linreg_b = 45.20103258
-        y_linreg = (y_inverse_sigmoid - linreg_b) / linreg_a
-        y_clipped = np.clip(1000 - y_linreg, 0, 1000)
-        y_out = 0.1 * y_clipped
+        # Calibrated on BirdVox-300h.
+        # See repository: github.com/BirdVox/birdvox-full-season
+        # Notebook: detector/notebooks/BirdVoxDetect-v01_calibration.ipynb
+        y_inverse_sigmoid = np.log(1-y) - np.log(y)
+        y_out = 2.7 * y_inverse_sigmoid - 21
     else:
         y_out = y
     return y_out
