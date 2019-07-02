@@ -540,7 +540,6 @@ def predict(pcen, detector, logger_level, padding=0):
 def predict_with_context(pcen, context, detector, logger_level, padding=0):
     # Truncate frequency spectrum (from 128 to 120 bins)
     pcen = pcen[:120, :]
-    context = context[:120, :]
 
     # Compute number of hops.
     clip_length = 104
