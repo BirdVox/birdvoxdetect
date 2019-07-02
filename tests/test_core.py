@@ -72,7 +72,7 @@ def test_process_file():
         FG_10SEC_PATH,
         output_dir=tempdir,
         export_clips=True,
-        detector_name="pcen_snr"))
+        detector_name="pcen_snr")
     clips_dir = os.path.join(
         tempdir, 'BirdVox-scaper_example_foreground_clips')
     assert os.path.exists(clips_dir)
