@@ -503,7 +503,6 @@ def predict(pcen, detector, logger_level, padding=0):
             audio_duration*sr/hop_length,
             sr/(hop_length*frame_rate))[:-1].astype('int')
         y = 100 * np.clip(median_confidence[confidence_x], 0.0, 1.0)
-        return y
 
     # PCEN-CNN. (no context adaptation)
     else:
@@ -522,7 +521,7 @@ def predict(pcen, detector, logger_level, padding=0):
         itemsize = pcen.itemsize
 
         # Stride and tile.
-        X_shape = (n_hops, clip_length, n_freqs)
+        X_shape = (n_strides, clip_length, n_freqs)
         X_stride = (itemsize*n_freqs*stride_length, itemsize*n_freqs, itemsize)
         X_pcen = np.lib.stride_tricks.as_strided(
             np.ravel(np.copy(pcen).T),
@@ -535,8 +534,14 @@ def predict(pcen, detector, logger_level, padding=0):
         verbose = (logger_level < 15)
         y = detector.predict(X_pcen, verbose=verbose)
 
+    return y
+
 
 def predict_with_context(pcen, context, detector, logger_level, padding=0):
+    # Truncate frequency spectrum (from 128 to 120 bins)
+    pcen = pcen[:120, :]
+    context = context[:, :120]
+
     # Compute number of hops.
     clip_length = 104
     pcen_settings = get_pcen_settings()
@@ -615,7 +620,7 @@ def get_pcen_settings():
         "pcen_power": 0.25,
         "sr": 22050.0,
         "stride_length": 34,
-        "top_freq_id": 120,
+        "top_freq_id": 128,
         "win_length": 256,
         "window": "flattop"}
     return pcen_settings
@@ -628,12 +633,23 @@ def get_model_path(model_name):
 
 def map_confidence(y, model_name):
     if model_name == "birdvoxdetect_pcen_cnn_adaptive-threshold-T1800":
-        y_inverse_sigmoid =  np.log(1-y) - np.log(y)
-        linreg_a = -0.03931873
-        linreg_b = 45.20103258
-        y_linreg = (y_inverse_sigmoid - linreg_b) / linreg_a
-        y_clipped = np.clip(1000 - y_linreg, 0, 1000)
-        y_out = 0.1 * y_clipped
+        # Calibrated on BirdVox-300h.
+        # See repository: github.com/BirdVox/birdvox-full-season
+        # Notebook: detector/notebooks/BirdVoxDetect-v01_calibration.ipynb
+        # This model encodes "0" resp. "1" as "event" resp. "no event"
+        log1my = np.log1p(np.clip(-y, np.finfo(np.float32).eps - 1, None))
+        logy = np.log(np.clip(y, np.finfo(np.float32).tiny, None))
+        y_inverse_sigmoid = log1my - logy
+        y_out = 2.7 * y_inverse_sigmoid - 21
+    elif model_name == "birdvoxdetect_pcen_cnn":
+        # Calibrated on BirdVox-full-night_unit03_00-19-45_01min.
+        # See repository: github.com/BirdVox/birdvox-full-season
+        # Notebook: detector/notebooks/BirdVoxDetect-v01_calibration-nocontext.ipynb
+        # This model encodes "1" resp. "0" as "event" resp. "no event"
+        log1my = np.log1p(np.clip(-y, np.finfo(np.float32).eps - 1, None))
+        logy = np.log(np.clip(y, np.finfo(np.float32).tiny, None))
+        y_inverse_sigmoid = logy - log1my
+        y_out = 6 * y_inverse_sigmoid
     else:
         y_out = y
     return y_out

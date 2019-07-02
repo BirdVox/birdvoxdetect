@@ -49,7 +49,10 @@ def test_process_file():
 
     # standard call
     tempdir = tempfile.mkdtemp()
-    process_file(FG_10SEC_PATH, output_dir=os.path.join(tempdir, "subfolder"))
+    process_file(
+        FG_10SEC_PATH,
+        output_dir=os.path.join(tempdir, "subfolder"),
+        detector_name="pcen_snr")
     csv_path = os.path.join(
         tempdir, "subfolder",
         'BirdVox-scaper_example_foreground_timestamps.csv')
@@ -60,20 +63,24 @@ def test_process_file():
     assert df.columns[1] == "Time (s)"
     assert df.columns[2] == "Confidence (%)"
     assert np.allclose(
-        np.array(df["Time (s)"]), np.array([2.45, 5.2, 6.8]), atol=0.05)
+        np.array(df["Time (s)"]), np.array([2.4, 5.1, 6.7]), atol=0.1)
     shutil.rmtree(tempdir)
 
     # export clips
     tempdir = tempfile.mkdtemp()
-    process_file(FG_10SEC_PATH, output_dir=tempdir, export_clips=True)
+    process_file(
+        FG_10SEC_PATH,
+        output_dir=tempdir,
+        export_clips=True,
+        detector_name="pcen_snr")
     clips_dir = os.path.join(
         tempdir, 'BirdVox-scaper_example_foreground_clips')
     assert os.path.exists(clips_dir)
     clips_list = sorted(os.listdir(clips_dir))
     assert len(clips_list) == 3
-    assert clips_list[0].startswith('BirdVox-scaper_example_foreground_02')
-    assert clips_list[1].startswith('BirdVox-scaper_example_foreground_05')
-    assert clips_list[2].startswith('BirdVox-scaper_example_foreground_06')
+    assert clips_list[0].startswith('BirdVox-scaper_example_foreground_00002')
+    assert clips_list[1].startswith('BirdVox-scaper_example_foreground_00005')
+    assert clips_list[2].startswith('BirdVox-scaper_example_foreground_00006')
     assert np.all([c.endswith(".wav") for c in clips_list])
     shutil.rmtree(tempdir)
 
@@ -84,7 +91,7 @@ def test_process_file():
         tempdir, 'BirdVox-scaper_example_foreground_confidence.hdf5')
     with h5py.File(confidence_path, "r") as f:
         confidence = f["confidence"].value
-    assert confidence.shape == (200,)
+    assert confidence.shape == (199,)
     shutil.rmtree(tempdir)
 
     # suffix
