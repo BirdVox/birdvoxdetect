@@ -63,7 +63,7 @@ def test_process_file():
     assert df.columns[1] == "Time (s)"
     assert df.columns[2] == "Confidence (%)"
     assert np.allclose(
-        np.array(df["Time (s)"]), np.array([2.45, 5.2, 6.8]), atol=0.05)
+        np.array(df["Time (s)"]), np.array([2.4, 5.1, 6.7]), atol=0.1)
     shutil.rmtree(tempdir)
 
     # export clips
