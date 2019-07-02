@@ -91,7 +91,7 @@ def test_process_file():
         tempdir, 'BirdVox-scaper_example_foreground_confidence.hdf5')
     with h5py.File(confidence_path, "r") as f:
         confidence = f["confidence"].value
-    assert confidence.shape == (200,)
+    assert confidence.shape == (199,)
     shutil.rmtree(tempdir)
 
     # suffix
