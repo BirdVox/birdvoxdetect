@@ -62,7 +62,7 @@ def process_file(
             with warnings.catch_warnings():
                 # Suppress TF and Keras warnings when importing
                 warnings.simplefilter("ignore")
-                import keras
+                from tensorflow import keras
                 detector = keras.models.load_model(
                     model_path, custom_objects=custom_objects)
         except Exception:
