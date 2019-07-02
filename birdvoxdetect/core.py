@@ -631,7 +631,10 @@ def map_confidence(y, model_name):
         # Calibrated on BirdVox-300h.
         # See repository: github.com/BirdVox/birdvox-full-season
         # Notebook: detector/notebooks/BirdVoxDetect-v01_calibration.ipynb
-        y_inverse_sigmoid = np.log(1-y) - np.log(y)
+        y_inverse_sigmoid = np.log1p(
+            np.clip(-y, np.finfo(np.float32).eps - 1, None)
+        ) -\
+        np.log(np.clip(y, np.finfo(np.float32).tiny, None))
         y_out = 2.7 * y_inverse_sigmoid - 21
     else:
         y_out = y
