@@ -503,7 +503,6 @@ def predict(pcen, detector, logger_level, padding=0):
             audio_duration*sr/hop_length,
             sr/(hop_length*frame_rate))[:-1].astype('int')
         y = 100 * np.clip(median_confidence[confidence_x], 0.0, 1.0)
-        return y
 
     # PCEN-CNN. (no context adaptation)
     else:
@@ -534,6 +533,8 @@ def predict(pcen, detector, logger_level, padding=0):
         # Predict.
         verbose = (logger_level < 15)
         y = detector.predict(X_pcen, verbose=verbose)
+
+    return y
 
 
 def predict_with_context(pcen, context, detector, logger_level, padding=0):
