@@ -1,8 +1,8 @@
-import os
-import sys
 import gzip
-import imp
+from importlib.machinery import SourceFileLoader
+import os
 from setuptools import setup, find_packages
+import sys
 
 try:
     from urllib.request import urlretrieve
@@ -42,8 +42,9 @@ else:
             print('Removing compressed file')
 
 
-version = imp.load_source(
-    'birdvoxdetect.version', os.path.join('birdvoxdetect', 'version.py'))
+version = SourceFileLoader(
+    'birdvoxdetect.version',
+    os.path.join('birdvoxdetect', 'version.py')).load_module()
 
 with open('README.md') as file:
     long_description = file.read()
