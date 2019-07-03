@@ -81,7 +81,7 @@ setup(
     },
     install_requires=[
         'h5py>=2.9.0',
-        'jams>=0.3.2'
+        'jams>=0.3.2',
         'librosa>=0.6.2',
         'mir-eval>=0.5',
         'numpy>=1.16.0',
