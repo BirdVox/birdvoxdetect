@@ -85,7 +85,7 @@ setup(
         'librosa>=0.6.2',
         'mir-eval>=0.5',
         'numpy>=1.16.0',
-        'PySoundFile>=0.10.0',
+        'PySoundFile>=0.9.0',
         'resampy>=0.2.1',
         'scikit-learn>=0.21.2',
         'scipy>=1.0.0',
