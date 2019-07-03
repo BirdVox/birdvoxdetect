@@ -2,7 +2,7 @@
 
 An open-source Python library and command-line tool for automatically detecting bird flight calls in audio recordings.
 
-[![PyPI](https://img.shields.io/badge/python-2.7%2C%203.5%2C%203.6-blue.svg)]()
+[![PyPI](https://img.shields.io/badge/python-3.5%2C%203.6-blue.svg)]()
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://choosealicense.com/licenses/mit/)
 [![Coverage Status](https://coveralls.io/repos/github/BirdVox/birdvoxdetect/badge.svg)](https://coveralls.io/github/BirdVox/birdvoxdetect)
 [![Build Status](https://travis-ci.org/BirdVox/birdvoxdetect.svg?branch=master)](https://travis-ci.org/BirdVox/birdvoxdetect)
