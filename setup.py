@@ -15,7 +15,9 @@ suffixes = [
     'pcen_cnn_adaptive-threshold-T1800',
     'empty'  # for unit tests
 ]
-weight_files = ['birdvoxdetect_{}.h5'.format(suffix) for suffix in suffixes]
+weight_files = ['birdvoxactivate.pkl'] + [
+    'birdvoxdetect_{}.h5'.format(suffix) for suffix in suffixes
+]
 base_url = 'https://github.com/BirdVox/birdvoxdetect/raw/models/'
 
 if len(sys.argv) > 1 and sys.argv[1] == 'sdist':
@@ -24,7 +26,6 @@ if len(sys.argv) > 1 and sys.argv[1] == 'sdist':
 else:
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
-    # in all other cases, decompress the weights file if necessary
     for weight_file in weight_files:
         weight_path = os.path.join(model_dir, weight_file)
         if not os.path.isfile(weight_path):
