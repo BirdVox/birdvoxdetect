@@ -6,6 +6,7 @@ import numpy as np
 import os
 import pandas as pd
 import scipy.signal
+import sklearn
 import soundfile as sf
 import traceback
 import warnings
@@ -32,6 +33,12 @@ def process_file(
 
     # Print new line and file name.
     logging.info("-" * 72)
+    modules = [
+        birdvoxdetect, h5py, librosa, logging,
+        np, pd, tf, scipy, sf, sklearn]
+    for module in modules:
+        logging.info(module.__name__.ljust(15) + " v" + module.__version__)
+    logging.info("")
     logging.info("Loading file: {}".format(filepath))
 
     # Check for existence of the input file.
