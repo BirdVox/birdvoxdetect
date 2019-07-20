@@ -1,5 +1,6 @@
 import collections
 import h5py
+import joblib
 import librosa
 import logging
 import numpy as np
@@ -34,7 +35,7 @@ def process_file(
     # Print new line and file name.
     logging.info("-" * 72)
     modules = [
-        birdvoxdetect, h5py, librosa, logging,
+        birdvoxdetect, h5py, joblib, librosa, logging,
         np, pd, tf, scipy, sf, sklearn]
     for module in modules:
         logging.info(module.__name__.ljust(15) + " v" + module.__version__)
