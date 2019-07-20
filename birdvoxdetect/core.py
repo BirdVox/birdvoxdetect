@@ -58,11 +58,18 @@ def process_file(
     # Print model.
     logging.info("Loading model: {}".format(detector_name))
 
-    # Load the detector.
+    # Load the detector of sensor faults.
+    sensorfault_model_path = get_model_path('birdvoxactivate.pkl')
+    if not os.path.exists(sensorfault_model_path):
+        raise BirdVoxDetectError(
+            'Model "{}" could not be found.'.format(detector_name))
+    sensorfault_model = joblib.load(bva_path)
+
+    # Load the detector of flight calls.
     if detector_name == "pcen_snr":
         detector = "pcen_snr"
     else:
-        model_path = get_model_path(detector_name)
+        model_path = get_model_path(detector_name + '.h5')
         if not os.path.exists(model_path):
             raise BirdVoxDetectError(
                 'Model "{}" could not be found.'.format(detector_name))
@@ -157,13 +164,36 @@ def process_file(
         deque_context = np.percentile(
             concat_deque, percentiles, axis=1, overwrite_input=True)
 
+    # Compute sensor fault features.
+    # Median is 4th order statistic. Restrict to lowest 120 mel-freq bins
+    context_median = deque_context[4, :120]
+    context_median_medfilt = scipy.signal.medfilt(
+    context_median, kernel_size=(13,))
+    sensorfault_features = context_median_medfilt[::12].reshape(1, -1)
+
+    # Compute probability of sensor fault.
+    sensor_fault_probability = sensorfault_model.predict(sensorfault_features)
+
+    # If probability of sensor fault is above 50%, exclude start of recording
+    if sensor_fault_probability > 0.5:
+        logging.info("Probability of sensor fault: {:5.2f}%".format(
+            100*sensor_fault_probability))
+        chunk_id_start = min(n_chunks-1, queue_length)
+        context_duration = chunk_duration chunk_id_start
+        context_duration_str = str(datetime.timedelta(seconds=context_duration))
+        logging.info(
+            "Ignoring segment between 00:00:00 and " + context_duration_str +\
+            " (" + chunk_id_start + " chunks)")
+    else:
+        chunk_id_start = 0
+
     # Define frame rate.
     frame_rate =\
         pcen_settings["sr"] /\
         (pcen_settings["hop_length"] * pcen_settings["stride_length"])
 
     # Compute confidence on queue chunks.
-    for chunk_id in range(min(queue_length, n_chunks-1)):
+    for chunk_id in range(chunk_id_start, min(queue_length, n_chunks-1)):
         # Print chunk ID and number of chunks.
         logging.info("Chunk ID: {}/{}".format(
             str(1+chunk_id).zfill(len(str(n_chunks))), n_chunks))
@@ -636,7 +666,7 @@ def get_pcen_settings():
 
 def get_model_path(model_name):
     return os.path.join(
-        os.path.dirname(__file__), "models", model_name + '.h5')
+        os.path.dirname(__file__), "models", model_name)
 
 
 def map_confidence(y, model_name):
