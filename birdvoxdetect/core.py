@@ -176,17 +176,16 @@ def process_file(
     sensor_fault_probability = sensorfault_model.predict(sensorfault_features)
 
     # If probability of sensor fault is above 50%, exclude start of recording
-    if sensor_fault_probability > 0.5:
+    has_sensor_fault = (sensor_fault_probability > 0.5)
+    if has_sensor_fault:
         logging.info("Probability of sensor fault: {:5.2f}%".format(
             100*sensor_fault_probability))
         chunk_id_start = min(n_chunks-1, queue_length)
-        context_duration = chunk_duration chunk_id_start
+        context_duration = chunk_duration * chunk_id_start
         context_duration_str = str(datetime.timedelta(seconds=context_duration))
         logging.info(
             "Ignoring segment between 00:00:00 and " + context_duration_str +\
             " (" + chunk_id_start + " chunks)")
-    else:
-        chunk_id_start = 0
 
     # Define frame rate.
     frame_rate =\
@@ -194,6 +193,7 @@ def process_file(
         (pcen_settings["hop_length"] * pcen_settings["stride_length"])
 
     # Compute confidence on queue chunks.
+    # Note that this loop contains zero iterations iff has_sensor_fault
     for chunk_id in range(chunk_id_start, min(queue_length, n_chunks-1)):
         # Print chunk ID and number of chunks.
         logging.info("Chunk ID: {}/{}".format(
@@ -260,7 +260,8 @@ def process_file(
                 librosa.output.write_wav(clip_path, audio_clip, sr)
 
     # Loop over chunks.
-    for chunk_id in range(queue_length, n_chunks-1):
+    chunk_id = queue_length
+    while chunk_id < (n_chunks-1):
         # Print chunk ID and number of chunks.
         logging.info("Chunk ID: {}/{}".format(
             str(1+chunk_id).zfill(len(str(n_chunks))), n_chunks))
@@ -281,7 +282,40 @@ def process_file(
             concat_deque, percentiles,
             axis=1, out=deque_context, overwrite_input=True)
 
-        # Predict.
+        # Compute sensor fault features.
+        # Median is 4th order statistic. Restrict to lowest 120 mel-freq bins
+        context_median = deque_context[4, :120]
+        context_median_medfilt = scipy.signal.medfilt(
+        context_median, kernel_size=(13,))
+        sensorfault_features = context_median_medfilt[::12].reshape(1, -1)
+
+        # Compute probability of sensor fault.
+        sensor_fault_probability =\
+            sensorfault_model.predict(sensorfault_features)
+
+        # If probability of sensor fault is above 50%, exclude start of recording
+        has_sensor_fault = (sensor_fault_probability > 0.5)
+        if has_sensor_fault:
+            logging.info("Probability of sensor fault: {:5.2f}%".format(
+                100*sensor_fault_probability))
+            context_duration = queue_length * chunk_duration
+            ignored_start_str = str(datetime.timedelta(
+                seconds=chunk_id*chunk_duration))
+            ignored_stop_str = str(datetime.timedelta(
+                seconds=(chunk_id+1)*chunk_duration))
+            logging.info(
+                "Ignoring segment between " +\
+                segment_start_str + " and " +\
+                segment_stop_str + " (1 chunk)")
+            if export_confidence:
+                chunk_confidence_length =\
+                    queue_length * chunk_duration * frame_rate
+                chunk_confidence = np.full(chunk_confidence_length, np.nan)
+                chunk_confidences.append(chunk_confidence)
+            chunk_id = chunk_id + 1
+            continue
+
+        # Otherwise, detect flight calls.
         if has_context:
             chunk_confidence = predict_with_context(
                 chunk_pcen, deque_context, detector, logger_level,
@@ -341,73 +375,105 @@ def process_file(
                     filepath, clip_name + ".wav", output_dir=clips_dir)
                 librosa.output.write_wav(clip_path, audio_clip, sr)
 
-    # Last chunk.
-    # Print chunk ID and number of chunks.
-    logging.info("Chunk ID: {}/{}".format(n_chunks, n_chunks))
-    chunk_start = (n_chunks-1) * chunk_length
-    sound_file.seek(chunk_start)
-    chunk_audio = sound_file.read(full_length - chunk_start)
-    chunk_pcen = compute_pcen(chunk_audio, sr)
-    if has_context:
-        # If the queue is empty, compute percentiles on the fly.
-        if n_chunks == 1:
-            deque_context = np.percentile(
-                chunk_pcen, percentiles, axis=1, overwrite_input=True)
+        # Go to next chunk.
+        chunk_id = chunk_id + 1
 
-        # Predict.
-        chunk_confidence = predict_with_context(
-            chunk_pcen, deque_context, detector, logger_level,
-            padding=0)
-    else:
-        # Predict.
-        chunk_confidence = predict(
-            chunk_pcen, detector, logger_level,
-            padding=0)
+    # Last chunk. For n_chunks>1, we reuse the context from the penultimate
+    # chunk because this last chunk is typically shorter than chunk_length.
+    # But if the queue is empty (n_chunks==1), we compute context on the fly
+    # even if this chunk is shorter. This can potentially be numerically
+    # unstable with files shorter than 30 minutes, which is why we issue a
+    # warning. We also don't try to detect sensor faults in files shorter than
+    # 30 minutes.
+    if (n_chunks>1) and has_sensor_fault:
+        logging.info("Probability of sensor fault: {:5.2f}%".format(
+            100*sensor_fault_probability))
+        ignored_start_str = str(datetime.timedelta(
+            seconds=chunk_id*chunk_duration))
+        ignored_stop_str = str(datetime.timedelta(
+            seconds=full_length*sr))
+        logging.info(
+            "Ignoring segment between " +\
+            segment_start_str + " and " +\
+            segment_stop_str + " (i.e., up to end of file)")
 
-    # Remove trailing singleton dimension
-    chunk_confidence = np.squeeze(chunk_confidence)
+    if (n_chunks == 1) and has_context:
+        deque_context = np.percentile(
+            chunk_pcen, percentiles, axis=1, overwrite_input=True)
+        logging.warn(
+            "File duration ({}} shorter than 25% of context duration ({}}.\n" +\
+            "This may cause numerical instabilities in threshold adaptation.\n" +\
+            "We recommend disabling the context-adaptive threshold\n" +\
+            "(i.e., setting \'detector\'=\'birdvoxdetect_pcen_cnn\') when\n" +\
+            "running birdvoxdetect on short audio files.".format(
+            str(datetime.timedelta(seconds=full_length*sr)),
+            str(datetime.timedelta(seconds=context_duration))
+        ))
+        has_sensor_fault = False
+        chunk_confidence_length = full_length*sr/frame_rate
+        chunk_confidence = np.full(chunk_confidence_length, np.nan)
 
-    # Map confidence to 0-100 range.
-    chunk_confidence = map_confidence(chunk_confidence, detector_name)
+    if not has_sensor_fault:
+        # Print chunk ID and number of chunks.
+        logging.info("Chunk ID: {}/{}".format(n_chunks, n_chunks))
+        chunk_start = (n_chunks-1) * chunk_length
+        sound_file.seek(chunk_start)
+        chunk_audio = sound_file.read(full_length - chunk_start)
+        chunk_pcen = compute_pcen(chunk_audio, sr)
 
-    # Threshold last chunk if required.
-    if threshold is not None:
+        if has_context:
+            # Predict.
+            chunk_confidence = predict_with_context(
+                chunk_pcen, deque_context, detector, logger_level, padding=0)
+        else:
+            # Predict.
+            chunk_confidence = predict(
+                chunk_pcen, detector, logger_level, padding=0)
 
-        # Find peaks.
-        peak_locs, _ = scipy.signal.find_peaks(chunk_confidence)
-        peak_vals = chunk_confidence[peak_locs]
+        # Remove trailing singleton dimension
+        chunk_confidence = np.squeeze(chunk_confidence)
 
-        # Threshold peaks.
-        th_peak_locs = peak_locs[peak_vals > threshold]
-        th_peak_confidences = chunk_confidence[th_peak_locs]
-        chunk_offset = chunk_duration * (n_chunks-1)
-        th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
-        n_peaks = len(th_peak_timestamps)
-        logging.info("Number of timestamps: {}".format(n_peaks))
+        # Map confidence to 0-100 range.
+        chunk_confidence = map_confidence(chunk_confidence, detector_name)
 
-        # Export timestamps.
-        event_times = event_times + list(th_peak_timestamps)
-        event_confidences = event_confidences + list(th_peak_confidences)
-        df = pd.DataFrame({
-            "Time (s)": event_times,
-            "Confidence (%)": event_confidences
-        })
-        df.to_csv(
-            timestamps_path,
-            columns=df_columns, float_format='%8.2f', index=True)
+        # Threshold last chunk if required.
+        if threshold is not None:
 
-        # Export clips.
-        if export_clips:
-            for t in th_peak_timestamps:
-                clip_start = max(0, int(np.round(sr*(t-0.5*clip_duration))))
-                clip_stop = min(
-                    len(sound_file), int(np.round(sr*(t+0.5*clip_duration))))
-                sound_file.seek(clip_start)
-                audio_clip = sound_file.read(clip_stop-clip_start)
-                clip_name = suffix + "{:08.2f}".format(t).replace(".", "-")
-                clip_path = get_output_path(
-                    filepath, clip_name + ".wav", output_dir=clips_dir)
-                librosa.output.write_wav(clip_path, audio_clip, sr)
+            # Find peaks.
+            peak_locs, _ = scipy.signal.find_peaks(chunk_confidence)
+            peak_vals = chunk_confidence[peak_locs]
+
+            # Threshold peaks.
+            th_peak_locs = peak_locs[peak_vals > threshold]
+            th_peak_confidences = chunk_confidence[th_peak_locs]
+            chunk_offset = chunk_duration * (n_chunks-1)
+            th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
+            n_peaks = len(th_peak_timestamps)
+            logging.info("Number of timestamps: {}".format(n_peaks))
+
+            # Export timestamps.
+            event_times = event_times + list(th_peak_timestamps)
+            event_confidences = event_confidences + list(th_peak_confidences)
+            df = pd.DataFrame({
+                "Time (s)": event_times,
+                "Confidence (%)": event_confidences
+            })
+            df.to_csv(
+                timestamps_path,
+                columns=df_columns, float_format='%8.2f', index=True)
+
+            # Export clips.
+            if export_clips:
+                for t in th_peak_timestamps:
+                    clip_start = max(0, int(np.round(sr*(t-0.5*clip_duration))))
+                    clip_stop = min(
+                        len(sound_file), int(np.round(sr*(t+0.5*clip_duration))))
+                    sound_file.seek(clip_start)
+                    audio_clip = sound_file.read(clip_stop-clip_start)
+                    clip_name = suffix + "{:08.2f}".format(t).replace(".", "-")
+                    clip_path = get_output_path(
+                        filepath, clip_name + ".wav", output_dir=clips_dir)
+                    librosa.output.write_wav(clip_path, audio_clip, sr)
 
     # Export confidence curve.
     if export_confidence:
