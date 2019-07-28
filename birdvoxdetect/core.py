@@ -180,7 +180,7 @@ def process_file(
         logging.info("Probability of sensor fault: {:5.2f}%".format(
             100*sensor_fault_probability))
         chunk_id_start = min(n_chunks-1, queue_length)
-        context_duration = chunk_duration chunk_id_start
+        context_duration = chunk_duration
         context_duration_str = str(datetime.timedelta(seconds=context_duration))
         logging.info(
             "Ignoring segment between 00:00:00 and " + context_duration_str +\
