@@ -536,6 +536,9 @@ def compute_pcen(audio, sr):
     # Load settings.
     pcen_settings = get_pcen_settings()
 
+    # Validate audio
+    librosa.util.valid_audio(audio, mono=True)
+
     # Map to the range [-2**31, 2**31[
     audio = (audio * (2**31)).astype('float32')
 
