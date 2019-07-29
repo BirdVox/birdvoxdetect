@@ -7,9 +7,11 @@ import logging
 import numpy as np
 import os
 import pandas as pd
+import scipy
 import scipy.signal
 import sklearn
 import soundfile as sf
+import tensorflow as tf
 import traceback
 import warnings
 
