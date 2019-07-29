@@ -191,6 +191,8 @@ def process_file(
                 context_duration_str + " (" + chunk_id_start + " chunks)")
         else:
             chunk_id_start = 0
+    else:
+        chunk_id_start = 0
 
     # Define frame rate.
     frame_rate =\
