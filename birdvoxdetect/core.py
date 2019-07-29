@@ -66,7 +66,7 @@ def process_file(
     if not os.path.exists(sensorfault_model_path):
         raise BirdVoxDetectError(
             'Model "{}" could not be found.'.format(detector_name))
-    sensorfault_model = joblib.load(bva_path)
+    sensorfault_model = joblib.load(sensorfault_model_path)
 
     # Load the detector of flight calls.
     if detector_name == "pcen_snr":
