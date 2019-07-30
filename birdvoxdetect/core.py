@@ -86,11 +86,12 @@ def process_file(
                 warnings.simplefilter("ignore")
                 from tensorflow import keras
                 detector = keras.models.load_model(
-                    model_path, custom_objects=custom_objects)
+                    detector_model_path, custom_objects=custom_objects)
         except Exception:
             exc_str = 'Could not open model "{}":\n{}'
             formatted_trace = traceback.format_exc()
-            exc_formatted_str = exc_str.format(model_path, formatted_trace)
+            exc_formatted_str = exc_str.format(
+                detector_model_path, formatted_trace)
             raise BirdVoxDetectError(exc_formatted_str)
 
     # Define chunk size.
