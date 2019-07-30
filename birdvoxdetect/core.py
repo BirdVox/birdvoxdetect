@@ -4,6 +4,7 @@ import datetime
 import h5py
 import jams
 import joblib
+import json
 import librosa
 import logging
 import numpy as np
@@ -41,8 +42,8 @@ def process_file(
     # Print new line and file name.
     logging.info("-" * 72)
     modules = [
-        birdvoxdetect, birdvoxclassify, h5py, jams, joblib, librosa,
-        logging, np, pd, tf, scipy, sf, sklearn]
+        birdvoxdetect, birdvoxclassify, h5py, jams, joblib, json,
+        librosa, logging, np, pd, tf, scipy, sf, sklearn]
     for module in modules:
         logging.info(module.__name__.ljust(15) + " v" + module.__version__)
     logging.info("")
@@ -113,6 +114,11 @@ def process_file(
         exc_formatted_str = exc_str.format(
             classifier_model_path, formatted_trace)
         raise BirdVoxDetectError(exc_formatted_str)
+
+    # Load the taxonomy.
+    taxonomy_path = birdvoxclassify.get_taxonomy_path(classifier_name)
+    with open(taxonomy_path) as f:
+        taxonomy = json.load(f)
 
     # Define chunk size.
     has_context = (len(detector_name) > 6) and (detector_name[-6:-4] == "-T")
