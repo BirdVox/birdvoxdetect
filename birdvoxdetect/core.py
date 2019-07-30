@@ -794,3 +794,10 @@ def map_confidence(y, model_name):
     else:
         y_out = y
     return y_out
+
+
+def seconds_to_hhmmss(total_seconds):
+    hours, tmp_seconds = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(tmp_seconds, 60)
+    return "{:02d}:{:02d}:{:02.2f}".format(
+        int(hours), int(minutes), seconds)
