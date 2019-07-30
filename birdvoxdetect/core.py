@@ -94,6 +94,26 @@ def process_file(
                 detector_model_path, formatted_trace)
             raise BirdVoxDetectError(exc_formatted_str)
 
+    # Load the species classifier.
+    logging.info("Loading species classifier: {}".format(classifier_name))
+    classifier_model_path = birdvoxclassify.get_model_path(classifier_name)
+    if not os.path.exists(classifier_model_path):
+        raise BirdVoxDetectError(
+            'Model "{}" could not be found.'.format(classifier_name))
+    try:
+        with warnings.catch_warnings():
+            # Suppress TF and Keras warnings when importing
+            warnings.simplefilter("ignore")
+            from tensorflow import keras
+            classifier = keras.models.load_model(
+                classifier_model_path, custom_objects=custom_objects)
+    except Exception:
+        exc_str = 'Could not open model "{}":\n{}'
+        formatted_trace = traceback.format_exc()
+        exc_formatted_str = exc_str.format(
+            classifier_model_path, formatted_trace)
+        raise BirdVoxDetectError(exc_formatted_str)
+
     # Define chunk size.
     has_context = (len(detector_name) > 6) and (detector_name[-6:-4] == "-T")
     if has_context:
