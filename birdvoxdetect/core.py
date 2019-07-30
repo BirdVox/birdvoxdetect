@@ -139,20 +139,20 @@ def process_file(
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-    # Initialize file of timestamps.
+    # Initialize checklist as a Pandas DataFrame.
     if threshold is not None:
-        timestamps_path = get_output_path(
-            filepath, suffix + "timestamps.csv", output_dir=output_dir)
-        event_times = []
+        checklist_path = get_output_path(
+            filepath, suffix + "checklist.csv", output_dir=output_dir)
+        event_hhmmss = []
+        event_4lettercodes = []
         event_confidences = []
-        df_columns = ["Time (s)", "Confidence (%)"]
+        df_columns = ["Time (hh:mm:ss)", "Species (4-letter code)", "Confidence (%)"]
         df = pd.DataFrame({
-            "Time (s)": event_times,
+            "Time (hh:mm:ss)": event_hhmmss,
+            "Species (4-letter code)": event_4lettercodes,
             "Confidence (%)": event_confidences
         })
-        df.to_csv(
-            timestamps_path,
-            columns=df_columns, float_format='%8.2f', index=True)
+        df.to_csv(checklist_path, columns=df_columns)
 
     # Create directory of output clips.
     if export_clips:
@@ -218,6 +218,7 @@ def process_file(
             chunk_id_start = 0
     else:
         chunk_id_start = 0
+        has_sensor_fault = False
 
     # Define frame rate.
     frame_rate =\
