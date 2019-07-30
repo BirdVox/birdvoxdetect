@@ -32,6 +32,7 @@ def process_file(
         clip_duration=1.0,
         logger_level=logging.INFO,
         detector_name="birdvoxdetect_pcen_cnn_adaptive-threshold-T1800",
+        classifier_name="birdvoxclassify-flat-multitask-convnet_tv1hierarchical-a112ec5506b67d95109894a7dbfd186e"
         custom_objects=None):
 
     # Set logger level.
