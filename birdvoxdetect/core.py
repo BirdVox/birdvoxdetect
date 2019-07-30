@@ -267,9 +267,10 @@ def process_file(
         chunk_offset = chunk_duration * chunk_id
         th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
         n_peaks = len(th_peak_timestamps)
-        logging.info("Number of timestamps: {}".format(n_peaks))
+        logging.info("Number of flight calls in current chunk: {}".format(n_peaks))
 
         # Export timestamps.
+        # TODO update this (event_hhmmss)
         event_times = event_times + list(th_peak_timestamps)
         event_confidences = event_confidences + list(th_peak_confidences)
         df = pd.DataFrame({
@@ -482,7 +483,7 @@ def process_file(
             chunk_offset = chunk_duration * (n_chunks-1)
             th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
             n_peaks = len(th_peak_timestamps)
-            logging.info("Number of timestamps: {}".format(n_peaks))
+            logging.info("Number of flight calls in current chunk: {}".format(n_peaks))
 
             # Export timestamps.
             event_times = event_times + list(th_peak_timestamps)
