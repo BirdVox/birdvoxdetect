@@ -61,14 +61,14 @@ def process_file(
         exc_formatted_str = exc_str.format(filepath, traceback.format_exc())
         raise BirdVoxDetectError(exc_formatted_str)
 
-    # Print model.
-    logging.info("Loading model: {}".format(detector_name))
-
     # Load the detector of sensor faults.
-    sensorfault_model_path = get_model_path('birdvoxactivate.pkl')
+    sensorfault_detector_name = 'birdvoxactivate.pkl'
+    logging.info("Loading sensor fault detector: {}".format(
+        sensorfault_detector_name))
+    sensorfault_model_path = get_model_path(sensorfault_detector_name)
     if not os.path.exists(sensorfault_model_path):
         raise BirdVoxDetectError(
-            'Model "{}" could not be found.'.format(detector_name))
+            'Model "{}" could not be found.'.format(sensorfault_model_name))
     sensorfault_model = joblib.load(sensorfault_model_path)
 
     # Load the detector of flight calls.
