@@ -2,6 +2,7 @@ import birdvoxclassify
 import collections
 import datetime
 import h5py
+import jams
 import joblib
 import librosa
 import logging
