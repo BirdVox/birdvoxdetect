@@ -40,8 +40,8 @@ def process_file(
     # Print new line and file name.
     logging.info("-" * 72)
     modules = [
-        birdvoxdetect, h5py, joblib, librosa, logging,
-        np, pd, tf, scipy, sf, sklearn]
+        birdvoxdetect, birdvoxclassify, h5py, jams, joblib, librosa,
+        logging, np, pd, tf, scipy, sf, sklearn]
     for module in modules:
         logging.info(module.__name__.ljust(15) + " v" + module.__version__)
     logging.info("")
