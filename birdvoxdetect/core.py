@@ -1,3 +1,4 @@
+import birdvoxclassify
 import collections
 import datetime
 import h5py
