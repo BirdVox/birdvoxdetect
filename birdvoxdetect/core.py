@@ -623,7 +623,7 @@ def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
     if "species_4letter_code" in aliases:
         event_4lettercode = aliases["species_4letter_code"]
     else:
-        event_4lettercode = "MISC"
+        event_4lettercode = "OTHE"
 
     return event_4lettercode
 
