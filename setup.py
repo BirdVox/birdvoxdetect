@@ -80,7 +80,7 @@ setup(
     install_requires=[
         'librosa==0.6.3',
 	'tensorflow==1.13.2',
-	'scikit-learn==0.23.2'
+	'scikit-learn==0.21.2'
     ],
     extras_require={
         'docs': [
