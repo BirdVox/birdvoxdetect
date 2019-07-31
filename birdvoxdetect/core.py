@@ -488,7 +488,7 @@ def process_file(
 
             # Classify species.
             th_peak_4lettercodes = list(map(
-                lambda x: classify_species(classifier, chunk_pcen, x),
+                lambda x: classify_species(classifier, chunk_pcen, x, taxonomy),
                 th_peak_locs))
 
             # Count flight calls.
