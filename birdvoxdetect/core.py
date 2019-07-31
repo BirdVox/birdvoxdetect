@@ -39,6 +39,7 @@ def process_file(
 
     # Set logger level.
     logging.getLogger().setLevel(logger_level)
+    logging.basicConfig(format='%(message)s')
 
     # Print new line and file name.
     logging.info("-" * 72)
