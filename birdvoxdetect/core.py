@@ -34,9 +34,9 @@ def process_file(
         clip_duration=1.0,
         logger_level=logging.INFO,
         detector_name="birdvoxdetect_pcen_cnn",
-        classifier_name="_".join(
+        classifier_name="_".join([
             "birdvoxclassify-flat-multitask-convnet",
-            "tv1hierarchical-a112ec5506b67d95109894a7dbfd186e"),
+            "tv1hierarchical-a112ec5506b67d95109894a7dbfd186e"]),
         custom_objects=None):
 
     # Set logger level.
