@@ -159,7 +159,7 @@ def process_file(
             "Species (4-letter code)": event_4lettercodes,
             "Confidence (%)": event_confidences
         })
-        df.to_csv(checklist_path, columns=df_columns)
+        df.to_csv(checklist_path, columns=df_columns, index=False)
 
     # Create directory of output clips.
     if export_clips:
@@ -284,9 +284,7 @@ def process_file(
             "Time (s)": event_times,
             "Confidence (%)": event_confidences
         })
-        df.to_csv(
-            timestamps_path,
-            columns=df_columns, float_format='%8.2f', index=True)
+        df.to_csv(checklist_path, columns=df_columns, index=False)
 
         if export_clips:
             for t in th_peak_timestamps:
