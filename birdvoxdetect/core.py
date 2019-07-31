@@ -586,7 +586,7 @@ def process_file(
         logging.info(event_str.format(confidence_path))
 
 
-def classify_species(classifier, chunk_pcen, th_peak_loc):
+def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
     # Load settings
     pcen_settings = get_pcen_settings()
     clip_length = 104
