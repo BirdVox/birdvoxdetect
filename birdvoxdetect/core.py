@@ -455,7 +455,7 @@ def process_file(
                 str(datetime.timedelta(seconds=context_duration)) + ").\n"
                 "This may cause numerical instabilities in threshold adaptation.\n" +\
                 "We recommend disabling the context-adaptive threshold\n" +\
-                "(i.e., setting \'detector\'=\'birdvoxdetect_pcen_cnn\') when\n" +\
+                "(i.e., setting \'detector_name\'=\'birdvoxdetect_pcen_cnn\') when\n" +\
                 "running birdvoxdetect on short audio files.")
             has_sensor_fault = False
 
