@@ -604,17 +604,17 @@ def classify_species(chunk_pcen, th_peak_loc):
         pcen_clip_start:pcen_clip_stop, np.newaxis]
 
     # Call birdvoxclassify to extract rich prediction
-    full_pred_dict = birdvoxclassify.format_pred(
+    full_pred = birdvoxclassify.format_pred(
         birdvoxclassify.predict(pcen_clip, classifier=classifier),
         taxonomy=taxonomy)
 
     # Extract three-digit tag of maximum probability
-    fine_tag = max({k: pred_dict["fine"][k]["probability"]
-            for k in pred_dict["fine"]}.items(),
+    fine_tag = max({k: full_pred["fine"][k]["probability"]
+            for k in full_pred["fine"]}.items(),
         key=operator.itemgetter(1))[0]
 
     # Convert three-digit tag to fine taxonomy
-    event_4lettercode = pred_dict["fine"][fine_tag][
+    event_4lettercode = full_pred["fine"][fine_tag][
         "taxonomy_level_aliases"]["species_4letter_code"]
 
     return event_4lettercode
