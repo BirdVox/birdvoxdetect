@@ -580,9 +580,7 @@ def process_file(
         df = pd.read_csv(checklist_path)
         logging.info("\n".join([(k + " " + str(v).rjust(3)) for (k, v) in
             collections.Counter(df["Species (4-letter code)"]).most_common()]))
-        logging.info(" ")
         logging.info("TOTAL: {}.".format(str(len(df)).rjust(3)))
-        logging.info(" ")
         timestamp_str = "Checklist is available at: {}"
         logging.info(timestamp_str.format(checklist_path))
     if export_clips:
@@ -590,7 +588,6 @@ def process_file(
     if export_confidence:
         event_str = "Event detection curve is available at: {}"
         logging.info(event_str.format(confidence_path))
-    logging.info(" ")
     logging.info("Done with file: {}.".format(filepath))
 
 
