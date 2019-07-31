@@ -2,7 +2,6 @@ import birdvoxclassify
 import collections
 import datetime
 import h5py
-import jams
 import joblib
 import json
 import librosa
@@ -46,7 +45,7 @@ def process_file(
     # Print new line and file name.
     logger.info("-" * 80)
     modules = [
-        birdvoxdetect, birdvoxclassify, h5py, jams, joblib, json,
+        birdvoxdetect, birdvoxclassify, h5py, joblib, json,
         librosa, logging, np, pd, tf, scipy, sf, sklearn]
     for module in modules:
         logger.debug(module.__name__.ljust(15) + " v" + module.__version__)
