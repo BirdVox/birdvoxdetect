@@ -435,7 +435,7 @@ def process_file(
             segment_stop_str + " (i.e., up to end of file)")
     else:
         logging.info("Chunk ID: {}/{}".format(n_chunks, n_chunks))
-        chunk_start = (n_chunks-1) * chunk_hop_length
+        chunk_start = (n_chunks-1) * chunk_length
         sound_file.seek(chunk_start)
         context_duration = chunk_duration
         chunk_audio = sound_file.read(full_length - chunk_start)
