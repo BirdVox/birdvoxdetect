@@ -420,7 +420,7 @@ def process_file(
     # But if the queue is empty (n_chunks==1), we compute context on the fly
     # even if this chunk is shorter. This can potentially be numerically
     # unstable with files shorter than 30 minutes, which is why we issue a
-    # warning. We also don't try to detect sensor faults in files shorter than
+    # warning. Also, we do not try to detect sensor faults in files shorter than
     # 30 minutes.
     if (n_chunks>1) and has_sensor_fault:
         logging.info("Probability of sensor fault: {:5.2f}%".format(
@@ -433,8 +433,12 @@ def process_file(
             "Ignoring segment between " +\
             segment_start_str + " and " +\
             segment_stop_str + " (i.e., up to end of file)")
-
-    if (n_chunks == 1) and has_context:
+    elif (n_chunks == 1) and has_context:
+        logging.info("Chunk ID: {}/{}".format(n_chunks, n_chunks))
+        chunk_start = 0
+        sound_file.seek(chunk_start)
+        chunk_audio = sound_file.read(full_length - chunk_start)
+        chunk_pcen = compute_pcen(chunk_audio, sr)
         deque_context = np.percentile(
             chunk_pcen, percentiles, axis=1, overwrite_input=True)
         logging.warn(
@@ -451,13 +455,6 @@ def process_file(
         chunk_confidence = np.full(chunk_confidence_length, np.nan)
 
     if not has_sensor_fault:
-        # Print chunk ID and number of chunks.
-        logging.info("Chunk ID: {}/{}".format(n_chunks, n_chunks))
-        chunk_start = (n_chunks-1) * chunk_length
-        sound_file.seek(chunk_start)
-        chunk_audio = sound_file.read(full_length - chunk_start)
-        chunk_pcen = compute_pcen(chunk_audio, sr)
-
         if has_context:
             # Predict.
             chunk_confidence = predict_with_context(
