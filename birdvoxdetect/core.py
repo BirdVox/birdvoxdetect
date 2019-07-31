@@ -437,6 +437,7 @@ def process_file(
         logging.info("Chunk ID: {}/{}".format(n_chunks, n_chunks))
         chunk_start = 0
         sound_file.seek(chunk_start)
+        context_duration = chunk_duration
         chunk_audio = sound_file.read(full_length - chunk_start)
         chunk_pcen = compute_pcen(chunk_audio, sr)
         deque_context = np.percentile(
