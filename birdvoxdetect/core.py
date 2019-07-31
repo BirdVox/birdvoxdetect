@@ -32,7 +32,7 @@ def process_file(
         threshold=30.0,
         suffix="",
         clip_duration=1.0,
-        logger_level=logging.info,
+        logger_level=logging.INFO,
         detector_name="birdvoxdetect_pcen_cnn",
         classifier_name="_".join([
             "birdvoxclassify-flat-multitask-convnet",
