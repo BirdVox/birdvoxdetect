@@ -273,7 +273,7 @@ def process_file(
         th_peak_confidences = chunk_confidence[th_peak_locs]
 
         # Recenter
-        th_peak_locs = th_peak_locs + 1
+        th_peak_locs = th_peak_locs + 1.5
         chunk_offset = chunk_duration * chunk_id
         th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
         n_peaks = len(th_peak_timestamps)
@@ -387,7 +387,7 @@ def process_file(
         th_peak_confidences = chunk_confidence[th_peak_locs]
 
         # Recenter
-        th_peak_locs = th_peak_locs + 1
+        th_peak_locs = th_peak_locs + 1.5
         chunk_offset = chunk_duration * chunk_id
         th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
         n_peaks = len(th_peak_timestamps)
@@ -484,7 +484,7 @@ def process_file(
             th_peak_confidences = chunk_confidence[th_peak_locs]
 
             # Recenter
-            th_peak_locs = th_peak_locs + 1
+            th_peak_locs = th_peak_locs + 1.5
 
             chunk_offset = chunk_duration * (n_chunks-1)
             chunk_timestamps = chunk_offset + th_peak_locs/frame_rate
