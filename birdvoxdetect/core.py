@@ -348,7 +348,7 @@ def process_file(
                 segment_stop_str + " (1 chunk)")
             if export_confidence:
                 chunk_confidence_length =\
-                    queue_length * chunk_duration * frame_rate
+                    int(queue_length * chunk_duration * frame_rate)
                 chunk_confidence = np.full(chunk_confidence_length, np.nan)
                 chunk_confidences.append(chunk_confidence)
             chunk_id = chunk_id + 1
