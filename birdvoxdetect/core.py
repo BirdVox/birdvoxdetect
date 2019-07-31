@@ -524,9 +524,11 @@ def process_file(
                 chunk_zip = zip(
                     chunk_timestamps, chunk_hhmmss, chunk_4lettercodes)
                 for clip_timestamp, clip_hhmmss, clip_4lettercode in chunk_zip:
-                    clip_start = max(0, int(np.round(sr*(t-0.5*clip_duration))))
+                    clip_start = max(0, int(np.round(
+                        sr*(clip_timestamp-0.5*clip_duration))))
                     clip_stop = min(
-                        len(sound_file), int(np.round(sr*(t+0.5*clip_duration))))
+                        len(sound_file), int(np.round(
+                        sr*(clip_timestamp+0.5*clip_duration))))
                     sound_file.seek(clip_start)
                     audio_clip = sound_file.read(clip_stop-clip_start)
                     clip_hhmmss_escaped = clip_hhmmss.replace(
