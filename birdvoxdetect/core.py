@@ -399,9 +399,7 @@ def process_file(
             "Time (s)": event_times,
             "Confidence (%)": event_confidences
         })
-        df.to_csv(
-            timestamps_path,
-            columns=df_columns, float_format='%8.2f', index=True)
+        df.to_csv(checklist_path, columns=df_columns, index=False)
 
         # Export clips.
         if export_clips:
@@ -517,13 +515,18 @@ def process_file(
 
             # Export clips.
             if export_clips:
-                for t in th_peak_timestamps:
+                chunk_zip = zip(
+                    chunk_timestamps, chunk_hhmmss, chunk_4lettercodes)
+                for clip_timestamp, clip_hhmmss, clip_4lettercode in chunk_zip:
                     clip_start = max(0, int(np.round(sr*(t-0.5*clip_duration))))
                     clip_stop = min(
                         len(sound_file), int(np.round(sr*(t+0.5*clip_duration))))
                     sound_file.seek(clip_start)
                     audio_clip = sound_file.read(clip_stop-clip_start)
-                    clip_name = suffix + "{:08.2f}".format(t).replace(".", "-")
+                    clip_hhmmss_escaped = clip_hhmmss.replace(
+                        ":", "_").replace(".", "-")
+                    clip_name = \
+                        suffix + clip_hhmmss_escaped + "_" + clip_4lettercode
                     clip_path = get_output_path(
                         filepath, clip_name + ".wav", output_dir=clips_dir)
                     librosa.output.write_wav(clip_path, audio_clip, sr)
