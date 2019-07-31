@@ -433,26 +433,28 @@ def process_file(
             "Ignoring segment between " +\
             segment_start_str + " and " +\
             segment_stop_str + " (i.e., up to end of file)")
-    elif (n_chunks == 1) and has_context:
+    else:
         logging.info("Chunk ID: {}/{}".format(n_chunks, n_chunks))
-        chunk_start = 0
+        chunk_start = (n_chunks-1) * chunk_hop_length
         sound_file.seek(chunk_start)
         context_duration = chunk_duration
         chunk_audio = sound_file.read(full_length - chunk_start)
         chunk_pcen = compute_pcen(chunk_audio, sr)
-        deque_context = np.percentile(
-            chunk_pcen, percentiles, axis=1, overwrite_input=True)
-        logging.warning(
-            "\nFile duration (" + str(datetime.timedelta(seconds=full_length/sr)) +\
-            ") shorter than 25% of context duration (" +\
-            str(datetime.timedelta(seconds=context_duration)) + ").\n"
-            "This may cause numerical instabilities in threshold adaptation.\n" +\
-            "We recommend disabling the context-adaptive threshold\n" +\
-            "(i.e., setting \'detector\'=\'birdvoxdetect_pcen_cnn\') when\n" +\
-            "running birdvoxdetect on short audio files.")
-        has_sensor_fault = False
         chunk_confidence_length = int(full_length/(sr*frame_rate))
         chunk_confidence = np.full(chunk_confidence_length, np.nan)
+
+        if has_context:
+            deque_context = np.percentile(
+                chunk_pcen, percentiles, axis=1, overwrite_input=True)
+            logging.warning(
+                "\nFile duration (" + str(datetime.timedelta(seconds=full_length/sr)) +\
+                ") shorter than 25% of context duration (" +\
+                str(datetime.timedelta(seconds=context_duration)) + ").\n"
+                "This may cause numerical instabilities in threshold adaptation.\n" +\
+                "We recommend disabling the context-adaptive threshold\n" +\
+                "(i.e., setting \'detector\'=\'birdvoxdetect_pcen_cnn\') when\n" +\
+                "running birdvoxdetect on short audio files.")
+            has_sensor_fault = False
 
     if not has_sensor_fault:
         if has_context:
