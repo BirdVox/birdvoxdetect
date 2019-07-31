@@ -70,9 +70,7 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Topic :: Multimedia :: Sound/Audio :: Analysis',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
     ],
     keywords='tfrecord',
     project_urls={
@@ -80,7 +78,9 @@ setup(
         'Tracker': 'https://github.com/BirdVox/birdvoxdetect/issues'
     },
     install_requires=[
-        'tensorflow==1.13.2'
+        'librosa==0.6.3',
+	'tensorflow==1.13.2',
+	'scikit-learn==0.23.2'
     ],
     extras_require={
         'docs': [
