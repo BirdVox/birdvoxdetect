@@ -575,7 +575,7 @@ def process_file(
     logging.info("Done with file: {}.".format(filepath))
     if threshold is not None:
         timestamp_str = "Timestamps are available at: {}"
-        logging.info(timestamp_str.format(timestamps_path))
+        logging.info(timestamp_str.format(checklist_path))
     if export_clips:
         logging.info("Clips are available at: {}".format(clips_dir))
     if export_confidence:
