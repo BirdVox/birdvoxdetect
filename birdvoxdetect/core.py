@@ -717,7 +717,7 @@ def predict(pcen, detector, logger_level, padding=0):
         verbose = (logger_level < 15)
         y = detector.predict(X_pcen, verbose=verbose)
 
-    return y
+    return np.round(y).astype('int')
 
 
 def predict_with_context(pcen, context, detector, logger_level, padding=0):
