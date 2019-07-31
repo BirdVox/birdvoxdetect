@@ -20,6 +20,7 @@ import warnings
 
 with warnings.catch_warnings():
     # Suppress TF and Keras warnings when importing
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
     warnings.simplefilter("ignore")
     import tensorflow as tf
     tf.logging.set_verbosity(tf.logging.ERROR)
