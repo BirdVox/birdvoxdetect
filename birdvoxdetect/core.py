@@ -14,7 +14,12 @@ import scipy
 import scipy.signal
 import sklearn
 import soundfile as sf
-import tensorflow as tf
+
+with warnings.catch_warnings():
+    # Suppress TF and Keras warnings when importing
+    warnings.simplefilter("ignore")
+    import tensorflow as tf
+
 import traceback
 import warnings
 
