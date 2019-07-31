@@ -592,9 +592,6 @@ def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
     # Convert birdvoxdetect hops to PCEN hops
     th_peak_hop = th_peak_loc * pcen_settings["stride_length"]
 
-    # We recenter the clip around the flight call by a half-stride
-    th_peak_hop = th_peak_hop - pcen_settings["stride_length"]//2
-
     # Extract clip in PCEN domain
     pcen_clip_start = th_peak_hop - clip_length//2
     pcen_clip_stop = th_peak_hop + clip_length//2
