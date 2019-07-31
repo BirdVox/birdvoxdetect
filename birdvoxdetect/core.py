@@ -253,9 +253,6 @@ def process_file(
                 chunk_pcen, detector, logger_level,
                 padding=chunk_padding)
 
-        # Remove trailing singleton dimension
-        chunk_confidence = np.squeeze(chunk_confidence)
-
         # Map confidence to 0-100 range.
         chunk_confidence = map_confidence(chunk_confidence, detector_name)
 
@@ -367,9 +364,6 @@ def process_file(
                 chunk_pcen, detector, logger_level,
                 padding=chunk_padding)
 
-        # Remove trailing singleton dimension
-        chunk_confidence = np.squeeze(chunk_confidence)
-
         # Map confidence to 0-100 range.
         chunk_confidence = map_confidence(chunk_confidence, detector_name)
 
@@ -468,9 +462,6 @@ def process_file(
             # Predict.
             chunk_confidence = predict(
                 chunk_pcen, detector, logger_level, padding=0)
-
-        # Remove trailing singleton dimension
-        chunk_confidence = np.squeeze(chunk_confidence)
 
         # Map confidence to 0-100 range.
         chunk_confidence = map_confidence(chunk_confidence, detector_name)
@@ -740,6 +731,8 @@ def predict(pcen, detector, logger_level, padding=0):
         verbose = (logger_level < 15)
         y = detector.predict(X_pcen, verbose=verbose)
 
+    # Apply median filter
+    y_medfilt = scipy.signal.medfilt(y.squeeze(), kernel_size=(3,))
     return np.round(y).astype('int')
 
 
@@ -782,7 +775,7 @@ def predict_with_context(pcen, context, detector, logger_level, padding=0):
         verbose=verbose)
 
     # Return confidence.
-    return y
+    return y.squeeze()
 
 
 def get_output_path(filepath, suffix, output_dir=None):
