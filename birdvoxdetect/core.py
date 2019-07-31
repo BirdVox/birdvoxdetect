@@ -442,7 +442,7 @@ def process_file(
         chunk_pcen = compute_pcen(chunk_audio, sr)
         deque_context = np.percentile(
             chunk_pcen, percentiles, axis=1, overwrite_input=True)
-        logging.warn(
+        logging.warning(
             "File duration ({:s}} shorter than 25% of context duration ({:s}}.\n" +\
             "This may cause numerical instabilities in threshold adaptation.\n" +\
             "We recommend disabling the context-adaptive threshold\n" +\
