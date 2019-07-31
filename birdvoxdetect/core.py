@@ -491,6 +491,19 @@ def process_file(
             th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
             n_peaks = len(th_peak_timestamps)
             logging.info("Number of flight calls in current chunk: {}".format(n_peaks))
+            chunk_timestamps = chunk_offset + th_peak_locs/frame_rate
+            n_peaks = len(chunk_timestamps)
+
+            # Classify species.
+            th_peak_4lettercodes = list(map(
+                lambda x: classify_species(chunk_pcen, x), th_peak_locs))
+
+            # Count flight calls.
+            chunk_counter = collections.Counter(th_peak_4lettercodes)
+            logging.info(
+                "Number of flight calls in current chunk: {}".format(n_peaks))
+            logging.info("(" + ", ".join((str(chunk_counter[k]) + " " + k)
+                for k in chunk_counter) + ")")
 
             # Export timestamps.
             event_times = event_times + list(th_peak_timestamps)
