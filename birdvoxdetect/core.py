@@ -1,5 +1,6 @@
 import birdvoxclassify
 import collections
+from contextlib import redirect_stderr
 import datetime
 import h5py
 import joblib
@@ -14,6 +15,7 @@ import scipy
 import scipy.signal
 import sklearn
 import soundfile as sf
+import traceback
 import warnings
 
 with warnings.catch_warnings():
@@ -21,9 +23,8 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import tensorflow as tf
     tf.logging.set_verbosity(tf.logging.ERROR)
-
-import traceback
-import warnings
+    with redirect_stderr(open(os.devnull, "w")):
+        import keras
 
 
 import birdvoxdetect
@@ -93,9 +94,7 @@ def process_file(
                 'Model "{}" could not be found.'.format(detector_name))
         try:
             with warnings.catch_warnings():
-                # Suppress TF and Keras warnings when importing
                 warnings.simplefilter("ignore")
-                from tensorflow import keras
                 detector = keras.models.load_model(
                     detector_model_path, custom_objects=custom_objects)
         except Exception:
@@ -113,9 +112,7 @@ def process_file(
             'Model "{}" could not be found.'.format(classifier_name))
     try:
         with warnings.catch_warnings():
-            # Suppress TF and Keras warnings when importing
             warnings.simplefilter("ignore")
-            import keras
             classifier = keras.models.load_model(
                 classifier_model_path, custom_objects=custom_objects)
     except Exception:
