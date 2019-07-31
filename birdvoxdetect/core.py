@@ -581,7 +581,7 @@ def process_file(
     # Print final messages.
     if threshold is not None:
         df = pd.read_csv(checklist_path)
-        logger.info("\n".join([(k + " " + str(v).rjust(3)) for (k, v) in
+        logger.info("\n".join([(k + " " + str(v).rjust(6)) for (k, v) in
             collections.Counter(df["Species (4-letter code)"]).most_common()]))
         logger.info("TOTAL: {}.".format(str(len(df)).rjust(3)))
         timestamp_str = "Checklist is available at: {}"
