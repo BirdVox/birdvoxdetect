@@ -573,10 +573,14 @@ def process_file(
         logging.info(event_str.format(confidence_path))
 
 
-def classify_species(chunk_pcen, th_peak_hop):
+def classify_species(chunk_pcen, th_peak_timestamp):
     # Load settings
     pcen_settings = get_pcen_settings()
     clip_length = 104
+
+    # Convert timestamp to hop
+    th_peak_hop = (th_peak_timestamp *\
+        pcen_settings["sr"]/pcen_settings["hop_length"]).astype('int')
 
     # We recenter the clip around the flight call by a half-stride
     th_peak_hop = th_peak_hop - pcen_settings["stride_length"]//2
