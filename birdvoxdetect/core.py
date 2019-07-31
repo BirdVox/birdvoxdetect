@@ -578,8 +578,8 @@ def process_file(
     # Print final messages.
     if threshold is not None:
         df = pd.read_csv(checklist_path)
-        logging.info("\n".join((k + " " + str(v).rjust(3)) for (k, v) in
-            collections.Counter(df["Species (4-letter code)"]).most_common()))
+        logging.info("\n".join([(k + " " + str(v).rjust(3)) for (k, v) in
+            collections.Counter(df["Species (4-letter code)"]).most_common()]))
         logging.info(" ")
         logging.info("TOTAL: {}.".format(str(len(df)).rjust(3)))
         logging.info(" ")
