@@ -443,7 +443,7 @@ def process_file(
         deque_context = np.percentile(
             chunk_pcen, percentiles, axis=1, overwrite_input=True)
         logging.warning(
-            "File duration (" + str(datetime.timedelta(seconds=full_length*sr)) +\
+            "File duration (" + str(datetime.timedelta(seconds=full_length/sr)) +\
             ") shorter than 25% of context duration (" +\
             str(datetime.timedelta(seconds=context_duration)) + ").\n"
             "This may cause numerical instabilities in threshold adaptation.\n" +\
