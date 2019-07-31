@@ -731,8 +731,9 @@ def predict(pcen, detector, logger_level, padding=0):
         verbose = (logger_level < 15)
         y = detector.predict(X_pcen, verbose=verbose)
 
-    # Apply median filter
-    y_medfilt = scipy.signal.medfilt(y.squeeze(), kernel_size=(3,))
+        # Apply median filter
+        y = scipy.signal.medfilt(y.squeeze(), kernel_size=(3,))
+
     return np.round(y).astype('int')
 
 
