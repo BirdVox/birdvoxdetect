@@ -598,8 +598,8 @@ def classify_species(chunk_pcen, th_peak_loc):
     th_peak_hop = th_peak_hop - pcen_settings["stride_length"]//2
 
     # Extract clip in PCEN domain
-    pcen_clip_start = th_peak_hop - birdvoxclassify_clip_length//2
-    pcen_clip_stop = th_peak_hop + birdvoxclassify_clip_length//2
+    pcen_clip_start = th_peak_hop - clip_length//2
+    pcen_clip_stop = th_peak_hop + clip_length//2
     pcen_clip = chunk_pcen[:120,
         pcen_clip_start:pcen_clip_stop, np.newaxis]
 
