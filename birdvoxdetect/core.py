@@ -40,11 +40,10 @@ def process_file(
         custom_objects=None):
 
     # Set logger level.
-    logging.getLogger().setLevel(logger_level)
-    logging.basicConfig(format='%(message)s')
+    logging.basicConfig(format='%(message)s', level=logger_level)
 
     # Print new line and file name.
-    logging.info("-" * 72)
+    logging.info("-" * 80)
     modules = [
         birdvoxdetect, birdvoxclassify, h5py, jams, joblib, json,
         librosa, logging, np, pd, tf, scipy, sf, sklearn]
