@@ -1,8 +1,9 @@
 import logging
+
+logging._warn_preinit_stderr = 0
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelno)s:%(levelname)s - %(message)s',
-    datefmt='%H:%M:%S'
+    format='%(message)s',
 )
 logger = logging.getLogger(__name__)
 
