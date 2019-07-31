@@ -614,8 +614,11 @@ def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
         key=operator.itemgetter(1))[0]
 
     # Convert three-digit tag to fine taxonomy
-    event_4lettercode = full_pred["fine"][fine_tag][
-        "taxonomy_level_aliases"]["species_4letter_code"]
+    aliases = full_pred["fine"][fine_tag]["taxonomy_level_aliases"]
+    if "species_4letter_code" in aliases:
+        event_4lettercode = aliases["species_4letter_code"]
+    else:
+        event_4lettercode = "MISC"
 
     return event_4lettercode
 
