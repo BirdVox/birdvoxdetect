@@ -496,8 +496,8 @@ def process_file(
             chunk_counter = collections.Counter(th_peak_4lettercodes)
             logging.info(
                 "Number of flight calls in current chunk: {}".format(n_peaks))
-            logging.info("(" + ", ".join((str(chunk_counter[k]) + " " + k)
-                for k in chunk_counter.most_common()) + ")")
+            logging.info("(" + ", ".join((str(v) + " " + k)
+                for (k, v) in chunk_counter.most_common()) + ")")
 
             # Export timestamps.
             chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
