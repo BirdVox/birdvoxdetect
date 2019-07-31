@@ -488,7 +488,8 @@ def process_file(
 
             # Classify species.
             th_peak_4lettercodes = list(map(
-                lambda x: classify_species(chunk_pcen, x), th_peak_locs))
+                lambda x: classify_species(classifier, chunk_pcen, x),
+                th_peak_locs))
 
             # Count flight calls.
             chunk_counter = collections.Counter(th_peak_4lettercodes)
@@ -585,7 +586,7 @@ def process_file(
         logging.info(event_str.format(confidence_path))
 
 
-def classify_species(chunk_pcen, th_peak_loc):
+def classify_species(classifier, chunk_pcen, th_peak_loc):
     # Load settings
     pcen_settings = get_pcen_settings()
     clip_length = 104
