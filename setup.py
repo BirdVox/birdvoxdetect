@@ -80,18 +80,7 @@ setup(
         'Tracker': 'https://github.com/BirdVox/birdvoxdetect/issues'
     },
     install_requires=[
-        'h5py>=2.9.0',
-        'jams>=0.3.2',
-        'librosa>=0.6.2',
-        'mir-eval>=0.5',
-        'numpy>=1.16.0',
-        'PySoundFile>=0.9.0',
-        'resampy>=0.2.1',
-        'scikit-learn>=0.21.2',
-        'scipy>=1.0.0',
-        'pandas>=0.24',
-        'pescador>=2.0.0',
-        'tensorflow>=1.14.0'
+        'tensorflow==1.13.2'
     ],
     extras_require={
         'docs': [
