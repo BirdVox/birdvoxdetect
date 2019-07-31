@@ -573,6 +573,37 @@ def process_file(
         logging.info(event_str.format(confidence_path))
 
 
+def classify_species(chunk_pcen, th_peak_hop):
+    # Load settings
+    pcen_settings = get_pcen_settings()
+    clip_length = 104
+
+    # We recenter the clip around the flight call by a half-stride
+    th_peak_hop = th_peak_hop - pcen_settings["stride_length"]//2
+
+    # Extract clip in PCEN domain
+    pcen_clip_start = th_peak_hop - birdvoxclassify_clip_length//2
+    pcen_clip_stop = th_peak_hop + birdvoxclassify_clip_length//2
+    pcen_clip = chunk_pcen[:120,
+        pcen_clip_start:pcen_clip_stop, np.newaxis]
+
+    # Call birdvoxclassify to extract rich prediction
+    full_pred_dict = birdvoxclassify.format_pred(
+        birdvoxclassify.predict(pcen_clip, classifier=classifier),
+        taxonomy=taxonomy)
+
+    # Extract three-digit tag of maximum probability
+    fine_tag = max({k: pred_dict["fine"][k]["probability"]
+            for k in pred_dict["fine"]}.items(),
+        key=operator.itemgetter(1))[0]
+
+    # Convert three-digit tag to fine taxonomy
+    event_4lettercode = pred_dict["fine"][fine_tag][
+        "taxonomy_level_aliases"]["species_4letter_code"]
+
+    return event_4lettercode
+
+
 def compute_pcen(audio, sr):
     # Load settings.
     pcen_settings = get_pcen_settings()
