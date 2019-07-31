@@ -587,7 +587,7 @@ def process_file(
         df = pd.read_csv(checklist_path)
         logger.info("\n".join([(k + " " + str(v).rjust(6)) for (k, v) in
             collections.Counter(df["Species (4-letter code)"]).most_common()]))
-        logger.info("TOTAL: {}.".format(str(len(df)).rjust(3)))
+        logger.info("TOTAL: {}.".format(str(len(df)).rjust(4)))
         timestamp_str = "Checklist is available at: {}"
         logger.info(timestamp_str.format(checklist_path))
     if export_clips:
