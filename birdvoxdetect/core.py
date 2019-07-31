@@ -443,7 +443,7 @@ def process_file(
         deque_context = np.percentile(
             chunk_pcen, percentiles, axis=1, overwrite_input=True)
         logging.warning(
-            "File duration (" + str(datetime.timedelta(seconds=full_length/sr)) +\
+            "\nFile duration (" + str(datetime.timedelta(seconds=full_length/sr)) +\
             ") shorter than 25% of context duration (" +\
             str(datetime.timedelta(seconds=context_duration)) + ").\n"
             "This may cause numerical instabilities in threshold adaptation.\n" +\
@@ -451,7 +451,7 @@ def process_file(
             "(i.e., setting \'detector\'=\'birdvoxdetect_pcen_cnn\') when\n" +\
             "running birdvoxdetect on short audio files.")
         has_sensor_fault = False
-        chunk_confidence_length = full_length*sr/frame_rate
+        chunk_confidence_length = int(full_length/(sr*frame_rate))
         chunk_confidence = np.full(chunk_confidence_length, np.nan)
 
     if not has_sensor_fault:
