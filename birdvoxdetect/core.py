@@ -506,15 +506,17 @@ def process_file(
                 for k in chunk_counter) + ")")
 
             # Export timestamps.
-            event_times = event_times + list(th_peak_timestamps)
+            chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
+            event_hhmmss = event_hhmmss + chunk_hhmmss
+            chunk_4lettercodes = list(th_peak_4lettercodes)
+            event_4lettercodes = event_4lettercodes + chunk_4lettercodes
             event_confidences = event_confidences + list(th_peak_confidences)
             df = pd.DataFrame({
-                "Time (s)": event_times,
+                "Time (hh:mm:ss)": event_hhmmss,
+                "Species (4-letter code)": event_4lettercodes,
                 "Confidence (%)": event_confidences
             })
-            df.to_csv(
-                timestamps_path,
-                columns=df_columns, float_format='%8.2f', index=True)
+            df.to_csv(checklist_path, columns=df_columns, index=False)
 
             # Export clips.
             if export_clips:
