@@ -40,6 +40,7 @@ def process_file(
         custom_objects=None):
 
     # Set logger level.
+    logging._warn_preinit_stderr = 0
     logging.basicConfig(level=logger_level)
 
     # Print new line and file name.
