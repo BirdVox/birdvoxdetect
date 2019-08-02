@@ -78,9 +78,6 @@ setup(
         'Tracker': 'https://github.com/BirdVox/birdvoxdetect/issues'
     },
     install_requires=[
-        'librosa==0.6.3',
-	'tensorflow==1.13.2',
-	'scikit-learn==0.21.2'
     ],
     extras_require={
         'docs': [
