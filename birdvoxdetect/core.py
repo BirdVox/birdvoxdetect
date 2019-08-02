@@ -303,7 +303,7 @@ def process_file(
                 clip_name = suffix + "{:08.2f}".format(t).replace(".", "-")
                 clip_path = get_output_path(
                     filepath, clip_name + ".wav", output_dir=clips_dir)
-                librosa.output.write_wav(clip_path, audio_clip, sr)
+                sf.write(clip_path, audio_clip, sr)
 
     # Loop over chunks.
     chunk_id = queue_length
@@ -418,7 +418,7 @@ def process_file(
                 clip_name = suffix + "{:08.2f}".format(t).replace(".", "-")
                 clip_path = get_output_path(
                     filepath, clip_name + ".wav", output_dir=clips_dir)
-                librosa.output.write_wav(clip_path, audio_clip, sr)
+                sf.write(clip_path, audio_clip, sr)
 
         # Go to next chunk.
         chunk_id = chunk_id + 1
@@ -538,8 +538,8 @@ def process_file(
                         suffix + clip_hhmmss_escaped + "_" + clip_4lettercode
                     clip_path = get_output_path(
                         filepath, clip_name + ".wav", output_dir=clips_dir)
-                    librosa.output.write_wav(clip_path, audio_clip, sr)
-
+                    sf.write(clip_path, audio_clip, sr)
+                    
     # Export confidence curve.
     if export_confidence:
 
