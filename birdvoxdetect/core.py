@@ -398,6 +398,7 @@ def process_file(
         logger.debug("Number of timestamps: {}".format(n_peaks))
 
         # Export timestamps.
+        # TODO update this (hhmmss)
         event_times = event_times + list(th_peak_timestamps)
         event_confidences = event_confidences + list(th_peak_confidences)
         df = pd.DataFrame({
