@@ -78,7 +78,7 @@ setup(
         'Tracker': 'https://github.com/BirdVox/birdvoxdetect/issues'
     },
     install_requires=[
-        'birdvoxclassify',
+        'birdvoxclassify',
     ],
     extras_require={
         'docs': [
