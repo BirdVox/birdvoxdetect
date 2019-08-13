@@ -600,6 +600,8 @@ def process_file(
         logger.info(event_str.format(confidence_path))
     logger.info("Done with file: {}.".format(filepath))
 
+    return df
+
 
 def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
     # Load settings
