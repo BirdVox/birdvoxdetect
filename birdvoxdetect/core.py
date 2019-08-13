@@ -44,7 +44,7 @@ def process_file(
         detector_name="birdvoxdetect_pcen_cnn",
         classifier_name="_".join([
             "birdvoxclassify-flat-multitask-convnet",
-            "tv1hierarchical-a112ec5506b67d95109894a7dbfd186e"]),
+            "tv1hierarchical-2e7e1bbd434a35b3961e315cfe3832fc"]),
         custom_objects=None):
 
     # Set logger level.
@@ -539,7 +539,7 @@ def process_file(
                     clip_path = get_output_path(
                         filepath, clip_name + ".wav", output_dir=clips_dir)
                     sf.write(clip_path, audio_clip, sr)
-                    
+
     # Export confidence curve.
     if export_confidence:
 
