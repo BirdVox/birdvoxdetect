@@ -160,7 +160,8 @@ def process_file(
         event_hhmmss = []
         event_4lettercodes = []
         event_confidences = []
-        df_columns = ["Time (hh:mm:ss)", "Species (4-letter code)", "Confidence (%)"]
+        df_columns = [
+            "Time (hh:mm:ss)", "Species (4-letter code)", "Confidence (%)"]
         df = pd.DataFrame({
             "Time (hh:mm:ss)": event_hhmmss,
             "Species (4-letter code)": event_4lettercodes,
@@ -235,8 +236,7 @@ def process_file(
         has_sensor_fault = False
 
     # Define frame rate.
-    frame_rate =\
-        pcen_settings["sr"] /\
+    frame_rate = pcen_settings["sr"] /\
         (pcen_settings["hop_length"] * pcen_settings["stride_length"])
 
     # Compute confidence on queue chunks.
@@ -276,8 +276,6 @@ def process_file(
         th_peak_locs = peak_locs[peak_vals > threshold]
         th_peak_confidences = chunk_confidence[th_peak_locs]
 
-        # Recenter
-        th_peak_locs = th_peak_locs + 2
         chunk_offset = chunk_duration * chunk_id
         th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
         n_peaks = len(th_peak_timestamps)
@@ -390,8 +388,6 @@ def process_file(
         th_peak_locs = peak_locs[peak_vals > threshold]
         th_peak_confidences = chunk_confidence[th_peak_locs]
 
-        # Recenter
-        th_peak_locs = th_peak_locs + 2
         chunk_offset = chunk_duration * chunk_id
         th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
         n_peaks = len(th_peak_timestamps)
@@ -402,7 +398,8 @@ def process_file(
         event_times = event_times + list(th_peak_timestamps)
         event_confidences = event_confidences + list(th_peak_confidences)
         df = pd.DataFrame({
-            "Time (s)": event_times,
+            "Time (hh:mm:ss)": event_times,
+            "Species (4-letter code)": event_4lettercodes,
             "Confidence (%)": event_confidences
         })
         df.to_csv(checklist_path, columns=df_columns, index=False)
@@ -487,9 +484,6 @@ def process_file(
             # Threshold peaks.
             th_peak_locs = peak_locs[peak_vals > threshold]
             th_peak_confidences = chunk_confidence[th_peak_locs]
-
-            # Recenter
-            th_peak_locs = th_peak_locs + 2
 
             chunk_offset = chunk_duration * (n_chunks-1)
             chunk_timestamps = chunk_offset + th_peak_locs/frame_rate
