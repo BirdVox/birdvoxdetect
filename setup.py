@@ -10,13 +10,13 @@ except ImportError:
     from urllib import urlretrieve
 
 model_dir = os.path.join('birdvoxdetect', 'models')
-suffixes = [
+model_names = [
     'birdvoxdetect-v03_T-1800_trial-37_network_epoch-023',
     'birdvoxdetect-v03_trial-12_network_epoch-068',
-    'empty'  # for unit tests
+    'birdvoxdetect_empty'  # for unit tests
 ]
 weight_files = ['birdvoxactivate.pkl'] + [
-    'birdvoxdetect_{}.h5'.format(suffix) for suffix in suffixes
+    '{}.h5'.format(model_name) for model_name in model_names
 ]
 base_url = 'https://github.com/BirdVox/birdvoxdetect/raw/models/'
 
