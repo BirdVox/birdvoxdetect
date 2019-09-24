@@ -32,6 +32,10 @@ import birdvoxdetect
 from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
 
 
+def map_tfr(x_tfr):
+    return (np.log1p(0.5 * x_tfr) - 0.8)
+
+
 def process_file(
         filepath,
         output_dir=None,
@@ -250,11 +254,11 @@ def process_file(
         chunk_pcen = deque[chunk_id]
         if has_context:
             chunk_confidence = predict_with_context(
-                chunk_pcen, deque_context, detector, logger_level,
+                map_tfr(chunk_pcen), deque_context, detector, logger_level,
                 padding=chunk_padding)
         else:
             chunk_confidence = predict(
-                chunk_pcen, detector, logger_level,
+                map_tfr(chunk_pcen), detector, logger_level,
                 padding=chunk_padding)
 
         # Map confidence to 0-100 range.
