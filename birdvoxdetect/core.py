@@ -861,8 +861,8 @@ def map_confidence(y, model_name):
         # This model encodes "1" resp. "0" as "event" resp. "no event"
         log1my = np.log1p(np.clip(-y, np.finfo(np.float32).eps - 1, None))
         logy = np.log(np.clip(y, np.finfo(np.float32).tiny, None))
-        y_inverse_sigmoid = logy - log1my
-        y_out = 6 * y_inverse_sigmoid
+        y_inverse_sigmoid = log1my - logy
+        y_out = y_inverse_sigmoid
     else:
         y_out = y
     return y_out
