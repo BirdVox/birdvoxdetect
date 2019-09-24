@@ -254,11 +254,11 @@ def process_file(
         chunk_pcen = deque[chunk_id]
         if has_context:
             chunk_confidence = predict_with_context(
-                map_tfr(chunk_pcen), deque_context, detector, logger_level,
+                chunk_pcen, deque_context, detector, logger_level,
                 padding=chunk_padding)
         else:
             chunk_confidence = predict(
-                map_tfr(chunk_pcen), detector, logger_level,
+                chunk_pcen, detector, logger_level,
                 padding=chunk_padding)
 
         # Map confidence to 0-100 range.
@@ -735,7 +735,7 @@ def predict(pcen, detector, logger_level, padding=0):
         X_shape = (n_strides, clip_length, n_freqs)
         X_stride = (itemsize*n_freqs*stride_length, itemsize*n_freqs, itemsize)
         X_pcen = np.lib.stride_tricks.as_strided(
-            np.ravel(np.copy(pcen).T),
+            np.ravel(map_tfr(pcen).T),
             shape=X_shape,
             strides=X_stride,
             writeable=False)
@@ -771,7 +771,7 @@ def predict_with_context(pcen, context, detector, logger_level, padding=0):
     X_shape = (n_strides, clip_length, n_freqs)
     X_stride = (itemsize*n_freqs*stride_length, itemsize*n_freqs, itemsize)
     X_pcen = np.lib.stride_tricks.as_strided(
-        np.ravel(np.copy(pcen).T),
+        np.ravel(map_tfr(pcen).T),
         shape=X_shape,
         strides=X_stride,
         writeable=False)
