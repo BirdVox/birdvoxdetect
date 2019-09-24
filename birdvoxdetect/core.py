@@ -846,23 +846,9 @@ def get_model_path(model_name):
 
 def map_confidence(y, model_name):
     if model_name == "birdvoxdetect-v03_T-1800_trial-37_network_epoch-023":
-        # Uncalibrated! (TODO)
-        # See repository: github.com/BirdVox/birdvox-full-season
-        # Notebook: detector/notebooks/BirdVoxDetect-v01_calibration.ipynb
-        # This model encodes "0" resp. "1" as "event" resp. "no event"
-        log1my = np.log1p(np.clip(-y, np.finfo(np.float32).eps - 1, None))
-        logy = np.log(np.clip(y, np.finfo(np.float32).tiny, None))
-        y_inverse_sigmoid = log1my - logy
-        y_out = 6 * y_inverse_sigmoid
+        y_out = 0.05/y
     elif model_name == "birdvoxdetect-v03_trial-12_network_epoch-068":
-        # Uncalibrated! (TODO)
-        # See repository: github.com/BirdVox/birdvox-full-season
-        # Notebook: detector/notebooks/BirdVoxDetect-v01_calibration-nocontext.ipynb
-        # This model encodes "1" resp. "0" as "event" resp. "no event"
-        log1my = np.log1p(np.clip(-y, np.finfo(np.float32).eps - 1, None))
-        logy = np.log(np.clip(y, np.finfo(np.float32).tiny, None))
-        y_inverse_sigmoid = log1my - logy
-        y_out = y_inverse_sigmoid
+        y_out = 0.05/y
     else:
         y_out = y
     return y_out
