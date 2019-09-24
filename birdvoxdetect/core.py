@@ -41,7 +41,7 @@ def process_file(
         suffix="",
         clip_duration=1.0,
         logger_level=logging.INFO,
-        detector_name="birdvoxdetect_pcen_cnn",
+        detector_name="birdvoxdetect-v03_trial-12_network_epoch-068",
         classifier_name="_".join([
             "birdvoxclassify-flat-multitask-convnet",
             "tv1hierarchical-2e7e1bbd434a35b3961e315cfe3832fc"]),

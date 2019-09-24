@@ -11,8 +11,8 @@ except ImportError:
 
 model_dir = os.path.join('birdvoxdetect', 'models')
 suffixes = [
-    'pcen_cnn',
-    'pcen_cnn_adaptive-threshold-T1800',
+    'birdvoxdetect-v03_T-1800_trial-37_network_epoch-023',
+    'birdvoxdetect-v03_trial-12_network_epoch-068',
     'empty'  # for unit tests
 ]
 weight_files = ['birdvoxactivate.pkl'] + [
