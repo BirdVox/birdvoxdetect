@@ -697,6 +697,8 @@ def compute_pcen(audio, sr):
 
 
 def predict(pcen, detector, logger_level, padding=0):
+    # Truncate frequency spectrum (from 128 to 120 bins)
+    pcen = pcen[:120, :]
     pcen_settings = get_pcen_settings()
 
     # PCEN-SNR
