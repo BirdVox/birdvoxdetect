@@ -25,7 +25,7 @@ with warnings.catch_warnings():
     import tensorflow as tf
     tf.logging.set_verbosity(tf.logging.ERROR)
     with redirect_stderr(open(os.devnull, "w")):
-        import keras
+        from tensorflow import keras
 
 
 import birdvoxdetect
