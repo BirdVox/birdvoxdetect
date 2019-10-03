@@ -52,7 +52,7 @@ def process_file(
         custom_objects=None):
 
     # Set logger level.
-    logger = logging.getLogger("logger_stream")
+    logger = logging.getLogger("logger_stream")
     logger.setLevel(logger_level)
 
     # Print new line and file name.
