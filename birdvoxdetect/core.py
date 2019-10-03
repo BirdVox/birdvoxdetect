@@ -280,11 +280,20 @@ def process_file(
         th_peak_locs = peak_locs[peak_vals > threshold]
         th_peak_confidences = chunk_confidence[th_peak_locs]
         chunk_offset = chunk_duration * chunk_id
-
         chunk_timestamps = chunk_offset + th_peak_locs/frame_rate
         n_peaks = len(chunk_timestamps)
+
+        # Classify species.
+        th_peak_4lettercodes = list(map(
+            lambda x: classify_species(classifier, chunk_pcen, x, taxonomy),
+            th_peak_locs))
+
+        # Count flight calls.
+        chunk_counter = collections.Counter(th_peak_4lettercodes)
         logger.debug(
             "Number of flight calls in current chunk: {}".format(n_peaks))
+        logger.debug("(" + ", ".join((str(v) + " " + k)
+            for (k, v) in chunk_counter.most_common()) + ")")
 
         # Export timestamps.
         chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
@@ -299,14 +308,22 @@ def process_file(
         })
         df.to_csv(checklist_path, columns=df_columns, index=False)
 
+        # Export clips.
         if export_clips:
-            for t in chunk_timestamps:
-                clip_start = max(0, int(np.round(sr*(t-0.5*clip_duration))))
+            chunk_zip = zip(
+                chunk_timestamps, chunk_hhmmss, chunk_4lettercodes)
+            for clip_timestamp, clip_hhmmss, clip_4lettercode in chunk_zip:
+                clip_start = max(0, int(np.round(
+                    sr*(clip_timestamp-0.5*clip_duration))))
                 clip_stop = min(
-                    len(sound_file), int(np.round(sr*(t+0.5*clip_duration))))
+                    len(sound_file), int(np.round(
+                    sr*(clip_timestamp+0.5*clip_duration))))
                 sound_file.seek(clip_start)
                 audio_clip = sound_file.read(clip_stop-clip_start)
-                clip_name = suffix + "{:08.2f}".format(t).replace(".", "-")
+                clip_hhmmss_escaped = clip_hhmmss.replace(
+                    ":", "_").replace(".", "-")
+                clip_name = \
+                    suffix + clip_hhmmss_escaped + "_" + clip_4lettercode
                 clip_path = get_output_path(
                     filepath, clip_name + ".wav", output_dir=clips_dir)
                 sf.write(clip_path, audio_clip, sr)
@@ -395,11 +412,21 @@ def process_file(
         # Threshold peaks.
         th_peak_locs = peak_locs[peak_vals > threshold]
         th_peak_confidences = chunk_confidence[th_peak_locs]
-
         chunk_offset = chunk_duration * chunk_id
         chunk_timestamps = chunk_offset + th_peak_locs/frame_rate
         n_peaks = len(chunk_timestamps)
-        logger.debug("Number of timestamps: {}".format(n_peaks))
+
+        # Classify species.
+        th_peak_4lettercodes = list(map(
+            lambda x: classify_species(classifier, chunk_pcen, x, taxonomy),
+            th_peak_locs))
+
+        # Count flight calls.
+        chunk_counter = collections.Counter(th_peak_4lettercodes)
+        logger.debug(
+            "Number of flight calls in current chunk: {}".format(n_peaks))
+        logger.debug("(" + ", ".join((str(v) + " " + k)
+            for (k, v) in chunk_counter.most_common()) + ")")
 
         # Export timestamps.
         chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
@@ -414,13 +441,20 @@ def process_file(
 
         # Export clips.
         if export_clips:
-            for t in chunk_timestamps:
-                clip_start = max(0, int(np.round(sr*(t-0.5*clip_duration))))
+            chunk_zip = zip(
+                chunk_timestamps, chunk_hhmmss, chunk_4lettercodes)
+            for clip_timestamp, clip_hhmmss, clip_4lettercode in chunk_zip:
+                clip_start = max(0, int(np.round(
+                    sr*(clip_timestamp-0.5*clip_duration))))
                 clip_stop = min(
-                    len(sound_file), int(np.round(sr*(t+0.5*clip_duration))))
+                    len(sound_file), int(np.round(
+                    sr*(clip_timestamp+0.5*clip_duration))))
                 sound_file.seek(clip_start)
                 audio_clip = sound_file.read(clip_stop-clip_start)
-                clip_name = suffix + "{:08.2f}".format(t).replace(".", "-")
+                clip_hhmmss_escaped = clip_hhmmss.replace(
+                    ":", "_").replace(".", "-")
+                clip_name = \
+                    suffix + clip_hhmmss_escaped + "_" + clip_4lettercode
                 clip_path = get_output_path(
                     filepath, clip_name + ".wav", output_dir=clips_dir)
                 sf.write(clip_path, audio_clip, sr)
