@@ -487,7 +487,7 @@ def process_file(
         context_duration = chunk_duration
         chunk_audio = sound_file.read(full_length - chunk_start)
         chunk_pcen = compute_pcen(chunk_audio, sr)
-        chunk_confidence_length = int(full_length/(sr*frame_rate))
+        chunk_confidence_length = int(frame_rate*full_length/sr)
         chunk_confidence = np.full(chunk_confidence_length, np.nan)
 
         if has_context:
