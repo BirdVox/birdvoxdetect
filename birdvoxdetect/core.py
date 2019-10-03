@@ -41,7 +41,7 @@ def process_file(
         output_dir=None,
         export_clips=False,
         export_confidence=False,
-        threshold=30.0,
+        threshold=20.0,
         suffix="",
         clip_duration=1.0,
         logger_level=logging.INFO,
@@ -141,6 +141,9 @@ def process_file(
     else:
         chunk_duration = 450
         queue_length = 1
+
+    # Define minimum peak height for BirdVoxDetect function.
+    min_peak_height = 10
 
     # Define number of chunks.
     sr = sound_file.samplerate
@@ -273,7 +276,8 @@ def process_file(
             continue
 
         # Find peaks.
-        peak_locs, _ = scipy.signal.find_peaks(chunk_confidence)
+        peak_locs, _ = scipy.signal.find_peaks(
+            chunk_confidence, height=min_peak_height)
         peak_vals = chunk_confidence[peak_locs]
 
         # Threshold peaks.
@@ -406,7 +410,8 @@ def process_file(
             continue
 
         # Find peaks.
-        peak_locs, _ = scipy.signal.find_peaks(chunk_confidence)
+        peak_locs, _ = scipy.signal.find_peaks(
+            chunk_confidence, height=min_peak_height)
         peak_vals = chunk_confidence[peak_locs]
 
         # Threshold peaks.
@@ -520,7 +525,8 @@ def process_file(
         if threshold is not None:
 
             # Find peaks.
-            peak_locs, _ = scipy.signal.find_peaks(chunk_confidence)
+            peak_locs, _ = scipy.signal.find_peaks(
+                chunk_confidence, height=min_peak_height)
             peak_vals = chunk_confidence[peak_locs]
 
             # Threshold peaks.
