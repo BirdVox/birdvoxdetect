@@ -279,24 +279,28 @@ def process_file(
         # Threshold peaks.
         th_peak_locs = peak_locs[peak_vals > threshold]
         th_peak_confidences = chunk_confidence[th_peak_locs]
-
         chunk_offset = chunk_duration * chunk_id
-        th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
-        n_peaks = len(th_peak_timestamps)
-        logger.debug("Number of flight calls in current chunk: {}".format(n_peaks))
+
+        chunk_timestamps = chunk_offset + th_peak_locs/frame_rate
+        n_peaks = len(chunk_timestamps)
+        logger.debug(
+            "Number of flight calls in current chunk: {}".format(n_peaks))
 
         # Export timestamps.
-        # TODO update this (event_hhmmss)
-        event_times = event_times + list(th_peak_timestamps)
+        chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
+        event_hhmmss = event_hhmmss + chunk_hhmmss
+        chunk_4lettercodes = list(th_peak_4lettercodes)
+        event_4lettercodes = event_4lettercodes + chunk_4lettercodes
         event_confidences = event_confidences + list(th_peak_confidences)
         df = pd.DataFrame({
-            "Time (s)": event_times,
+            "Time (hh:mm:ss)": event_hhmmss,
+            "Species (4-letter code)": event_4lettercodes,
             "Confidence (%)": event_confidences
         })
         df.to_csv(checklist_path, columns=df_columns, index=False)
 
         if export_clips:
-            for t in th_peak_timestamps:
+            for t in chunk_timestamps:
                 clip_start = max(0, int(np.round(sr*(t-0.5*clip_duration))))
                 clip_stop = min(
                     len(sound_file), int(np.round(sr*(t+0.5*clip_duration))))
@@ -393,16 +397,16 @@ def process_file(
         th_peak_confidences = chunk_confidence[th_peak_locs]
 
         chunk_offset = chunk_duration * chunk_id
-        th_peak_timestamps = chunk_offset + th_peak_locs/frame_rate
-        n_peaks = len(th_peak_timestamps)
+        chunk_timestamps = chunk_offset + th_peak_locs/frame_rate
+        n_peaks = len(chunk_timestamps)
         logger.debug("Number of timestamps: {}".format(n_peaks))
 
         # Export timestamps.
-        # TODO update this (hhmmss)
-        event_times = event_times + list(th_peak_timestamps)
+        chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
+        event_hhmmss = event_hhmmss + chunk_hhmmss
         event_confidences = event_confidences + list(th_peak_confidences)
         df = pd.DataFrame({
-            "Time (hh:mm:ss)": event_times,
+            "Time (hh:mm:ss)": event_hhmmss,
             "Species (4-letter code)": event_4lettercodes,
             "Confidence (%)": event_confidences
         })
@@ -410,7 +414,7 @@ def process_file(
 
         # Export clips.
         if export_clips:
-            for t in th_peak_timestamps:
+            for t in chunk_timestamps:
                 clip_start = max(0, int(np.round(sr*(t-0.5*clip_duration))))
                 clip_stop = min(
                     len(sound_file), int(np.round(sr*(t+0.5*clip_duration))))
