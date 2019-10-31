@@ -80,7 +80,7 @@ setup(
         'Documentation': 'https://readthedocs.org/projects/birdvoxdetect/'
     },
     install_requires=[
-        'keras==2.0.0',
+        'keras==2.0.6',
         'librosa==0.6.2',
         'numpy==1.13.1',
         'scipy==1.0.0',
