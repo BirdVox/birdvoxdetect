@@ -86,7 +86,8 @@ setup(
         'scipy==1.0.0',
         'SoundFile==0.9.0',
         'h5py==2.6.0',
-        'pandas==0.20.3'
+        'pandas==0.20.3',
+        'tensorflow==1.2.1'
     ],
     extras_require={
         'docs': [
