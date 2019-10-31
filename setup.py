@@ -76,10 +76,11 @@ setup(
     keywords='tfrecord',
     project_urls={
         'Source': 'https://github.com/BirdVox/birdvoxdetect',
-        'Tracker': 'https://github.com/BirdVox/birdvoxdetect/issues'
+        'Tracker': 'https://github.com/BirdVox/birdvoxdetect/issues',
+        'Documentation': 'https://readthedocs.org/projects/birdvoxdetect/'
     },
     install_requires=[
-        'keras>=2.2',
+        'keras>=2.0.0',
         'librosa>=0.6.2',
         'numpy>=1.13.0',
         'scipy>=1.0.0',
