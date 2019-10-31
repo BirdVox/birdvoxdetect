@@ -24,7 +24,7 @@ def process_file(
         suffix="",
         clip_duration=1.0,
         logger_level=logging.INFO,
-        detector_name="birdvoxdetect_pcen_cnn_adaptive-threshold-T1800",
+        detector_name="birdvoxdetect_pcen_cnn",
         custom_objects=None):
 
     # Set logger level.
