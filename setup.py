@@ -84,6 +84,7 @@ setup(
         'librosa==0.6.2',
         'numpy==1.13.1',
         'scipy==1.0.0',
+        'SoundFile==0.9.0',
         'h5py==2.6.0',
         'pandas==0.20.3'
     ],
