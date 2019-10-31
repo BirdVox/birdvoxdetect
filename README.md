@@ -70,4 +70,4 @@ Please cite the following paper when using BirdVoxDetect in your work:
 
 [1] Robust Sound Event Detection in Bioacoustic Sensor Networks<br/>
 Vincent Lostanlen, Justin Salamon, Andrew Farnsworth, Steve Kelling, and Juan Pablo Bello<br/>
-Under review, 2019.
+PLoS ONE 14(10): e0214168. https://doi.org/10.1371/journal.pone.0214168
