@@ -112,3 +112,6 @@ birdvoxdetect/models/*
 # BirdVoxDetect demo and notebooks
 demo/
 notebooks/
+
+# PyCharm
+.idea/*
