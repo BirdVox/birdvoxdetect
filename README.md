@@ -14,9 +14,11 @@ It is made available both as a Python library and as a command-line tool for Win
 
 For details about the deep learning model in BirdVoxDetect and how it was trained, we refer the reader to:
 
-Robust Sound Event Detection in Bioacoustic Sensor Networks<br/>
+**[Robust Sound Event Detection in Bioacoustic Sensor Networks](https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0214168&type=printable)**<br/>
 Vincent Lostanlen, Justin Salamon, Andrew Farnsworth, Steve Kelling, and Juan Pablo Bello<br/>
-Under review, 2019.
+PLoS ONE 14(10): e0214168, 2019. DOI: https://doi.org/10.1371/journal.pone.0214168
+
+
 
 
 # Installation instructions
@@ -68,6 +70,6 @@ To install the latest version of BirdVoxDetect from source:
 Please cite the following paper when using BirdVoxDetect in your work:
 
 
-[1] Robust Sound Event Detection in Bioacoustic Sensor Networks<br/>
+**[Robust Sound Event Detection in Bioacoustic Sensor Networks](https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0214168&type=printable)**<br/>
 Vincent Lostanlen, Justin Salamon, Andrew Farnsworth, Steve Kelling, and Juan Pablo Bello<br/>
-Under review, 2019.
+PLoS ONE 14(10): e0214168, 2019. DOI: https://doi.org/10.1371/journal.pone.0214168
