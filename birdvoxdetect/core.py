@@ -134,7 +134,7 @@ def process_file(
 
     # Define percentiles.
     percentiles = [0.1, 1, 10, 25, 50, 75, 90, 99, 99.9]
-    
+
     # Define chunk size.
     has_context = (len(detector_name) > 6) and (detector_name[-6:-4] == "-T")
     if has_context:
@@ -427,6 +427,8 @@ def process_file(
         th_peak_4lettercodes = list(map(
             lambda x: classify_species(classifier, chunk_pcen, x, taxonomy),
             th_peak_locs))
+        chunk_4lettercodes = list(th_peak_4lettercodes)
+        event_4lettercodes = event_4lettercodes + chunk_4lettercodes
 
         # Count flight calls.
         chunk_counter = collections.Counter(th_peak_4lettercodes)
