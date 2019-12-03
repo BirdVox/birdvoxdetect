@@ -132,10 +132,12 @@ def process_file(
     with open(taxonomy_path) as f:
         taxonomy = json.load(f)
 
+    # Define percentiles.
+    percentiles = [0.1, 1, 10, 25, 50, 75, 90, 99, 99.9]
+    
     # Define chunk size.
     has_context = (len(detector_name) > 6) and (detector_name[-6:-4] == "-T")
     if has_context:
-        percentiles = [0.1, 1, 10, 25, 50, 75, 90, 99, 99.9]
         queue_length = 4
         chunk_duration = int(detector_name[-4:]) / queue_length
     else:
