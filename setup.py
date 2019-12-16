@@ -85,7 +85,7 @@ setup(
         'pandas==0.25.1',
         'python==3.6.7',
         'scikit-learn==0.21.2',
-        'tensorflow==1.12.2'
+        'tensorflow==1.15.0'
     ],
     extras_require={
         'docs': [
