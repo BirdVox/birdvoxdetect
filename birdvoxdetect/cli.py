@@ -147,6 +147,10 @@ def parse_args(args):
         '--version', '-V', action='store_true',
         help='Print version number.')
 
+    if args == []:
+        parser.print_help(sys.stdout)
+        return ""
+
     args = parser.parse_args(args)
 
     if args.quiet and args.verbose:
@@ -171,10 +175,12 @@ def main():
     """
     args = parse_args(sys.argv[1:])
 
-    if args.version == "-V" or args.version == "--version":
+    if args == "":
+        return
+
+    if args.version:
         print(birdvoxdetect.version.version)
-    elif not args.inputs:
-        print("BirdVoxDetect")
+        return
 
     if args.quiet:
         logger_level = 30
