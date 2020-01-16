@@ -3,6 +3,7 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter,\
     ArgumentTypeError
 from collections import Iterable
 import logging
+import numpy as np
 import os
 from six import string_types
 import sys
@@ -178,7 +179,7 @@ def main():
     if args.quiet:
         logger_level = 30
     elif args.verbose:
-        logger_level = 20
+        logger_level = 10
     else:
         logger_level = 25
 
@@ -200,7 +201,7 @@ def positive_float(value):
     except (ValueError, TypeError) as e:
         raise ArgumentTypeError(
             'Expected a positive float, error message: {}'.format(e))
-    if fvalue <= 0:
+    if np.isnan(fvalue) or fvalue <= 0:
         raise ArgumentTypeError('Expected a positive number')
     return fvalue
 
@@ -212,6 +213,6 @@ def valid_threshold(value):
     except (ValueError, TypeError) as e:
         raise ArgumentTypeError(
             'Expected a positive float, error message: {}'.format(e))
-    if fvalue < 0 or fvalue > 100:
+    if np.isnan(fvalue) or fvalue < 0 or fvalue > 100:
         raise ArgumentTypeError('Expected a number between 0 and 100')
     return fvalue

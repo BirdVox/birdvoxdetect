@@ -21,40 +21,33 @@ TEST_DIR = os.path.dirname(__file__)
 TEST_AUDIO_DIR = os.path.join(TEST_DIR, 'data', 'audio')
 
 # Test audio file paths
-NOISY_1MIN_24K_PATH = os.path.join(TEST_AUDIO_DIR,
-    'BirdVox-full-night_unit03_00-19-45_01min.wav')
-BG_10SEC_PATH = os.path.join(TEST_AUDIO_DIR,
-    'BirdVox-scaper_example_background.wav')
-FG_10SEC_PATH = os.path.join(TEST_AUDIO_DIR,
-    'BirdVox-scaper_example_foreground.wav')
-MIX_10SEC_PATH = os.path.join(TEST_AUDIO_DIR,
-    'BirdVox-scaper_example_mix.wav')
+NEGATIVE_PATH = os.path.join(TEST_AUDIO_DIR,
+    'ff3d3feb-3371-44ad-a3b3-85969c2cd5ab.wav')
+POSITIVE_PATH = os.path.join(TEST_AUDIO_DIR,
+    'fd79e55d-d3a3-4083-aba1-4f00b545c3d6.wav')
 
 def test_get_file_list():
 
     # test for invalid input (must be iterable, e.g. list)
     pytest.raises(ArgumentTypeError, get_file_list,
-        NOISY_1MIN_24K_PATH)
+        POSITIVE_PATH)
 
     # test for valid list of file paths
-    flist = get_file_list(
-        [BG_10SEC_PATH, NOISY_1MIN_24K_PATH])
+    flist = get_file_list([NEGATIVE_PATH, POSITIVE_PATH])
     assert len(flist) == 2
-    assert flist[0] == BG_10SEC_PATH
-    assert flist[1] == NOISY_1MIN_24K_PATH
+    assert flist[0] == NEGATIVE_PATH
+    assert flist[1] == POSITIVE_PATH
 
     # test for valid folder
     flist = get_file_list([TEST_AUDIO_DIR])
-    assert len(flist) == 4
+    assert len(flist) == 2
     flist = sorted(flist)
-    assert flist[0] == NOISY_1MIN_24K_PATH
-    assert flist[1] == BG_10SEC_PATH
-    assert flist[2] == FG_10SEC_PATH
-    assert flist[3] == MIX_10SEC_PATH
+    assert flist[0] == POSITIVE_PATH
+    assert flist[1] == NEGATIVE_PATH
 
     # combine list of files and folders
-    flist = get_file_list([TEST_AUDIO_DIR, BG_10SEC_PATH])
-    assert len(flist) == 5
+    flist = get_file_list([TEST_AUDIO_DIR, POSITIVE_PATH])
+    assert len(flist) == 3
 
     # nonexistent path
     pytest.raises(BirdVoxDetectError, get_file_list, ['/fake/path/to/file'])
@@ -63,7 +56,7 @@ def test_get_file_list():
 def test_parse_args():
 
     # test default values
-    args = [MIX_10SEC_PATH]
+    args = [POSITIVE_PATH]
     args = parse_args(args)
     assert args.output_dir is None
     assert args.export_clips == False
@@ -75,7 +68,7 @@ def test_parse_args():
     assert args.verbose is False
 
     # test custom values
-    args = [MIX_10SEC_PATH,
+    args = [POSITIVE_PATH,
             '-o', '/output/dir',
             '-c',
             '-C',
@@ -93,14 +86,14 @@ def test_parse_args():
     assert args.quiet is True
 
     # test clash between quiet and verbose
-    args = [MIX_10SEC_PATH,
+    args = [POSITIVE_PATH,
            '-v',
            '-q']
     pytest.raises(BirdVoxDetectError, parse_args, args)
 
     # test clash between absence of export_clips
     # and presence of clip duration
-    args = [MIX_10SEC_PATH,
+    args = [POSITIVE_PATH,
             '-d', '0.5']
     pytest.raises(BirdVoxDetectError, parse_args, args)
 
@@ -118,7 +111,7 @@ def test_positive_float():
     assert type(f) is float
 
     # make sure error raised for all invalid values:
-    invalid = [-5, -1.0, None, 'hello']
+    invalid = [-5, -1.0, None, 'nan']
     for i in invalid:
         pytest.raises(ArgumentTypeError, positive_float, i)
 
@@ -136,7 +129,7 @@ def test_valid_threshold():
     assert type(f) is float
 
     # make sure error raised for all invalid values:
-    invalid = [-5, -1.0, -0.01, None, 100.01, 'hello']
+    invalid = [-5, -1.0, -0.01, None, 100.01, 'nan']
     for i in invalid:
         pytest.raises(ArgumentTypeError, valid_threshold, i)
 
@@ -165,11 +158,11 @@ def test_run(capsys):
     assert captured.out == expected_message
 
     # test string input
-    string_input = FG_10SEC_PATH
+    string_input = POSITIVE_PATH
     tempdir = tempfile.mkdtemp()
     run(string_input, output_dir=tempdir)
     csv_path = os.path.join(
-        tempdir, 'BirdVox-scaper_example_foreground_timestamps.csv')
+        tempdir, 'fd79e55d-d3a3-4083-aba1-4f00b545c3d6_checklist.csv')
     assert os.path.exists(csv_path)
     shutil.rmtree(tempdir)
 
@@ -180,11 +173,11 @@ def test_script_main(capsys):
     tempdir = tempfile.mkdtemp()
     with patch(
             'sys.argv',
-            ['birdvoxdetect', FG_10SEC_PATH, '--output-dir', tempdir]):
+            ['birdvoxdetect', POSITIVE_PATH, '--output-dir', tempdir]):
         import birdvoxdetect.__main__
 
     # Check output file created
     outfile = os.path.join(
-        tempdir, 'BirdVox-scaper_example_foreground_timestamps.csv')
+        tempdir, 'fd79e55d-d3a3-4083-aba1-4f00b545c3d6_checklist.csv')
     assert os.path.isfile(outfile)
     shutil.rmtree(tempdir)
