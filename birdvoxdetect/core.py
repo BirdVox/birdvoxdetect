@@ -23,7 +23,7 @@ with warnings.catch_warnings():
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
     warnings.simplefilter("ignore")
     import tensorflow as tf
-    tf.logging.set_verbosity(tf.logging.ERROR)
+    tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
     with redirect_stderr(open(os.devnull, "w")):
         from tensorflow import keras
 
@@ -41,7 +41,7 @@ def process_file(
         output_dir=None,
         export_clips=False,
         export_confidence=False,
-        threshold=20.0,
+        threshold=30.0,
         suffix="",
         clip_duration=1.0,
         logger_level=logging.INFO,
@@ -80,7 +80,7 @@ def process_file(
 
     # Load the detector of sensor faults.
     sensorfault_detector_name = 'birdvoxactivate.pkl'
-    logger.debug("Loading sensor fault detector: {}".format(
+    logger.info("Sensor fault detector: {}".format(
         sensorfault_detector_name))
     sensorfault_model_path = get_model_path(sensorfault_detector_name)
     if not os.path.exists(sensorfault_model_path):
@@ -89,7 +89,7 @@ def process_file(
     sensorfault_model = joblib.load(sensorfault_model_path)
 
     # Load the detector of flight calls.
-    logger.debug("Loading flight call detector: {}".format(detector_name))
+    logger.info("Flight call detector: {}".format(detector_name))
     if detector_name == "pcen_snr":
         detector = "pcen_snr"
     else:
@@ -110,7 +110,7 @@ def process_file(
             raise BirdVoxDetectError(exc_formatted_str)
 
     # Load the species classifier.
-    logger.debug("Loading species classifier: {}".format(classifier_name))
+    logger.info("Species classifier: {}".format(classifier_name))
     classifier_model_path = birdvoxclassify.get_model_path(classifier_name)
     if not os.path.exists(classifier_model_path):
         raise BirdVoxDetectError(
@@ -132,12 +132,15 @@ def process_file(
     with open(taxonomy_path) as f:
         taxonomy = json.load(f)
 
+    # Define percentiles.
+    percentiles = [0.1, 1, 10, 25, 50, 75, 90, 99, 99.9]
+
     # Define chunk size.
-    has_context = (len(detector_name) > 6) and (detector_name[-6:-4] == "-T")
+    has_context = "T-" in detector_name
     if has_context:
-        percentiles = [0.1, 1, 10, 25, 50, 75, 90, 99, 99.9]
         queue_length = 4
-        chunk_duration = int(detector_name[-4:]) / queue_length
+        T_str = detector_name.split("T-")[1].split("_")[0]
+        chunk_duration = int(T_str) / queue_length
     else:
         chunk_duration = 450
         queue_length = 1
@@ -209,7 +212,7 @@ def process_file(
         deque.append(chunk_pcen)
 
     # Compute context.
-    if has_context and (n_chunks>1):
+    if (n_chunks>1):
         concat_deque = np.concatenate(deque, axis=1)
         deque_context = np.percentile(
             concat_deque, percentiles, axis=1, overwrite_input=True)
@@ -315,8 +318,9 @@ def process_file(
         # Export clips.
         if export_clips:
             chunk_zip = zip(
-                chunk_timestamps, chunk_hhmmss, chunk_4lettercodes)
-            for clip_timestamp, clip_hhmmss, clip_4lettercode in chunk_zip:
+                chunk_timestamps, chunk_hhmmss,
+                list(th_peak_confidences), chunk_4lettercodes)
+            for clip_timestamp, clip_hhmmss, clip_confidence, clip_4lettercode in chunk_zip:
                 clip_start = max(0, int(np.round(
                     sr*(clip_timestamp-0.5*clip_duration))))
                 clip_stop = min(
@@ -326,8 +330,9 @@ def process_file(
                 audio_clip = sound_file.read(clip_stop-clip_start)
                 clip_hhmmss_escaped = clip_hhmmss.replace(
                     ":", "_").replace(".", "-")
-                clip_name = \
-                    suffix + clip_hhmmss_escaped + "_" + clip_4lettercode
+                clip_name = suffix + "_".join([
+                    clip_hhmmss_escaped,
+                    str(int(clip_confidence)), clip_4lettercode])
                 clip_path = get_output_path(
                     filepath, clip_name + ".wav", output_dir=clips_dir)
                 sf.write(clip_path, audio_clip, sr)
@@ -383,8 +388,8 @@ def process_file(
             if export_confidence:
                 chunk_confidence_length =\
                     int(queue_length * chunk_duration * frame_rate)
-                chunk_confidence = np.full(chunk_confidence_length, np.nan)
-                chunk_confidences.append(chunk_confidence)
+                chunk_confidences.append(np.full(
+                    chunk_confidence_length, np.nan))
             chunk_id = chunk_id + 1
             continue
 
@@ -425,6 +430,8 @@ def process_file(
         th_peak_4lettercodes = list(map(
             lambda x: classify_species(classifier, chunk_pcen, x, taxonomy),
             th_peak_locs))
+        chunk_4lettercodes = list(th_peak_4lettercodes)
+        event_4lettercodes = event_4lettercodes + chunk_4lettercodes
 
         # Count flight calls.
         chunk_counter = collections.Counter(th_peak_4lettercodes)
@@ -447,8 +454,9 @@ def process_file(
         # Export clips.
         if export_clips:
             chunk_zip = zip(
-                chunk_timestamps, chunk_hhmmss, chunk_4lettercodes)
-            for clip_timestamp, clip_hhmmss, clip_4lettercode in chunk_zip:
+                chunk_timestamps, chunk_hhmmss,
+                list(th_peak_confidences), chunk_4lettercodes)
+            for clip_timestamp, clip_hhmmss, clip_confidence, clip_4lettercode in chunk_zip:
                 clip_start = max(0, int(np.round(
                     sr*(clip_timestamp-0.5*clip_duration))))
                 clip_stop = min(
@@ -458,8 +466,9 @@ def process_file(
                 audio_clip = sound_file.read(clip_stop-clip_start)
                 clip_hhmmss_escaped = clip_hhmmss.replace(
                     ":", "_").replace(".", "-")
-                clip_name = \
-                    suffix + clip_hhmmss_escaped + "_" + clip_4lettercode
+                clip_name = suffix + "_".join([
+                    clip_hhmmss_escaped,
+                    str(int(clip_confidence)), clip_4lettercode])
                 clip_path = get_output_path(
                     filepath, clip_name + ".wav", output_dir=clips_dir)
                 sf.write(clip_path, audio_clip, sr)
@@ -504,7 +513,7 @@ def process_file(
                 str(datetime.timedelta(seconds=context_duration)) + ").\n"
                 "This may cause numerical instabilities in threshold adaptation.\n" +\
                 "We recommend disabling the context-adaptive threshold\n" +\
-                "(i.e., setting \'detector_name\'=\'birdvoxdetect_pcen_cnn\') when\n" +\
+                "(i.e., setting 'detector_name'='birdvoxdetect-v03_trial-12_network_epoch-06') when\n" +\
                 "running birdvoxdetect on short audio files.")
             has_sensor_fault = False
 
@@ -565,8 +574,9 @@ def process_file(
             # Export clips.
             if export_clips:
                 chunk_zip = zip(
-                    chunk_timestamps, chunk_hhmmss, chunk_4lettercodes)
-                for clip_timestamp, clip_hhmmss, clip_4lettercode in chunk_zip:
+                    chunk_timestamps, chunk_hhmmss,
+                    list(th_peak_confidences), chunk_4lettercodes)
+                for clip_timestamp, clip_hhmmss, clip_confidence, clip_4lettercode in chunk_zip:
                     clip_start = max(0, int(np.round(
                         sr*(clip_timestamp-0.5*clip_duration))))
                     clip_stop = min(
@@ -576,8 +586,9 @@ def process_file(
                     audio_clip = sound_file.read(clip_stop-clip_start)
                     clip_hhmmss_escaped = clip_hhmmss.replace(
                         ":", "_").replace(".", "-")
-                    clip_name = \
-                        suffix + clip_hhmmss_escaped + "_" + clip_4lettercode
+                    clip_name = suffix + "_".join([
+                        clip_hhmmss_escaped,
+                        str(int(clip_confidence)), clip_4lettercode])
                     clip_path = get_output_path(
                         filepath, clip_name + ".wav", output_dir=clips_dir)
                     sf.write(clip_path, audio_clip, sr)
@@ -689,7 +700,7 @@ def compute_pcen(audio, sr):
     # Map to the range [-2**31, 2**31[
     audio = (audio * (2**31)).astype('float32')
 
-    # Resample to 22,050 kHz
+    # Resample to 22,050 Hz
     if not sr == pcen_settings["sr"]:
         audio = librosa.resample(audio, sr, pcen_settings["sr"])
         sr = pcen_settings["sr"]
@@ -893,7 +904,7 @@ def map_confidence(y, model_name):
     logy = np.log(np.clip(y, np.finfo(np.float32).tiny, None))
     y_inverse_sigmoid = log1my - logy
     y_out = y_inverse_sigmoid - np.log(np.finfo(np.float32).eps)
-    return np.clip(y_out, 0, 100)
+    return np.clip(y_out, 0, 100 - np.finfo(np.float32).eps)
 
 
 def seconds_to_hhmmss(total_seconds):
