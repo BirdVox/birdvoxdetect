@@ -63,12 +63,12 @@ def test_process_file():
 
     # standard call
     # this example has one flight call (SWTH) at 8.79 seconds
-    tempdir = tempfile.mkdtemp()
+    tmpdir = tempfile.mkdtemp()
     process_file(
         os.path.join(TEST_AUDIO_DIR, POSITIVE_MD5 + '.wav'),
-        output_dir=os.path.join(tempdir, "subfolder"))
+        output_dir=os.path.join(tmpdir, "subfolder"))
     csv_path = os.path.join(
-        tempdir, "subfolder",
+        tmpdir, "subfolder",
         POSITIVE_MD5 + '_checklist.csv')
     assert os.path.exists(csv_path)
     df = pd.read_csv(csv_path)
@@ -84,56 +84,56 @@ def test_process_file():
     assert np.allclose(
         np.array([df_timedelta.total_seconds()]), np.array([8.79]), atol=0.1)
     assert list(df["Species (4-letter code)"])[0] == "SWTH"
-    shutil.rmtree(tempdir
+    shutil.rmtree(tmpdir)
 
     # standard call on clip without any flight call
-    tempdir = tempfile.mkdtemp()
+    tmpdir = tempfile.mkdtemp()
     process_file(
         os.path.join(TEST_AUDIO_DIR, NEGATIVE_MD5 + '.wav'),
-        output_dir=os.path.join(tempdir, "subfolder"))
+        output_dir=os.path.join(tmpdir, "subfolder"))
     csv_path = os.path.join(
-        tempdir, "subfolder",
+        tmpdir, "subfolder",
         NEGATIVE_MD5 + '_checklist.csv')
     df = pd.read_csv(csv_path)
     assert len(df) == 0
 
     # export clips
-    tempdir = tempfile.mkdtemp()
+    tmpdir = tempfile.mkdtemp()
     process_file(
         os.path.join(TEST_AUDIO_DIR, POSITIVE_MD5 + '.wav'),
-        output_dir=tempdir,
+        output_dir=tmpdir,
         export_clips=True)
     clips_dir = os.path.join(
-        tempdir, POSITIVE_MD5 + '_clips')
+        tmpdir, POSITIVE_MD5 + '_clips')
     assert os.path.exists(clips_dir)
     clips_list = sorted(os.listdir(clips_dir))
     assert len(clips_list) == 1
     assert clips_list[0].startswith(POSITIVE_MD5 + '_00_00_08-78')
     assert clips_list[0].endswith('SWTH.wav')
     assert np.all([c.endswith(".wav") for c in clips_list])
-    shutil.rmtree(tempdir)
+    shutil.rmtree(tmpdir)
 
     # export confidence
-    tempdir = tempfile.mkdtemp()
+    tmpdir = tempfile.mkdtemp()
     process_file(
         os.path.join(TEST_AUDIO_DIR, POSITIVE_MD5 + '.wav'),
-        output_dir=tempdir,
+        output_dir=tmpdir,
         export_confidence=True)
     confidence_path = os.path.join(
-        tempdir, POSITIVE_MD5 + '_confidence.hdf5')
+        tmpdir, POSITIVE_MD5 + '_confidence.hdf5')
     with h5py.File(confidence_path, "r") as f:
         confidence = f["confidence"][()]
     assert confidence.shape == (199,)
-    shutil.rmtree(tempdir)
+    shutil.rmtree(tmpdir)
 
     # suffix
-    tempdir = tempfile.mkdtemp()
+    tmpdir = tempfile.mkdtemp()
     process_file(
         os.path.join(TEST_AUDIO_DIR, POSITIVE_MD5 + '.wav'),
-        output_dir=tempdir,
+        output_dir=tmpdir,
         suffix="mysuffix")
     csv_path = os.path.join(
-        tempdir,
+        tmpdir,
         POSITIVE_MD5 + '_mysuffix_checklist.csv')
     assert os.path.exists(csv_path)
-    shutil.rmtree(tempdir)
+    shutil.rmtree(tmpdir)
