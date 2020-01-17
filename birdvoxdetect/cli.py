@@ -40,7 +40,7 @@ def run(inputs,
         output_dir=None,
         export_clips=False,
         export_confidence=False,
-        threshold=30.0,
+        threshold=50.0,
         suffix="",
         clip_duration=1.0,
         logger_level=logging.INFO):
@@ -118,9 +118,9 @@ def parse_args(args):
              'in HDF5 format.')
 
     parser.add_argument(
-        '--threshold', '-t', type=valid_threshold, default=30,
+        '--threshold', '-t', type=valid_threshold, default=50,
         help='Detection threshold, between 10 and 90. '
-             'The default value is 30. '
+             'The default value is 50. '
              'Greater values lead to higher precision at the expense '
              'of a lower recall.')
 

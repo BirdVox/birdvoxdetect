@@ -45,7 +45,7 @@ def process_file(
         output_dir=None,
         export_clips=False,
         export_confidence=False,
-        threshold=30.0,
+        threshold=50.0,
         suffix="",
         clip_duration=1.0,
         logger_level=logging.INFO,
@@ -918,7 +918,7 @@ def map_confidence(y, model_name):
     logy = np.log(np.clip(y, np.finfo(np.float32).tiny, None))
     y_inverse_sigmoid = log1my - logy
     y_out = y_inverse_sigmoid - np.log(np.finfo(np.float32).eps)
-    return np.clip(y_out, 0, 99.9)
+    return np.clip(3*y_out, 0, 99.99)
 
 
 def seconds_to_hhmmss(total_seconds):
