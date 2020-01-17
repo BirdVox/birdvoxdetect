@@ -79,7 +79,7 @@ setup(
     },
     install_requires=[
         'birdvoxclassify',
-        'h5py==2.9.0',
+        'h5py>=2.7.0',
         'librosa==0.7.0',
         'numpy==1.16.4',
         'pandas==0.25.1',

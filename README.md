@@ -15,34 +15,34 @@ The simplest way to install BirdVoxDetect is by using the ``pip`` package manage
 if needed.
 
     pip install birdvoxdetect
-    
+
  Note that birdvoxdetect requires:
 * Python (==3.6)
 * birdvoxclassify
-* h5py (==2.9)
+* h5py (>=2.9)
 * librosa (==0.7.0)
 * numpy (==1.16.4)
 * pandas (==0.25.1)
 * scikit-learn (==0.21.2)
 * tensorflow (==1.15)
 
- 
+
 ## Usage
 
 ### From the command line
 
 To analyze one file:
 
-    python -m birdvoxdetect /path/to/file.wav 
-    
+    python -m birdvoxdetect /path/to/file.wav
+
 To analyze multiple files:
 
     python -m birdvoxdetect /path/to/file1.wav /path/to/file2.wav
-   
+
 To analyze one folder:
-  
+
    python -m birdvoxdetect /path/to/folder
-   
+
 Optional arguments:
 
     --output-dir OUTPUT_DIR, -o OUTPUT_DIR
@@ -66,8 +66,8 @@ Optional arguments:
     --quiet, -q           Print less messages on screen.
     --verbose, -v         Print timestamps of detected events.
     --version, -V         Print version number.
-    
-    
+
+
 ### From Python
 
 Call syntax:
@@ -81,7 +81,7 @@ Below is a typical output from the test suite (file `fd79e55d-d3a3-4083-aba1-4f0
 
        Time (hh:mm:ss) Species (4-letter code)  Confidence (%)
     0     00:00:08.78                    SWTH           100.0
-    
+
 
 ## Contact
 
