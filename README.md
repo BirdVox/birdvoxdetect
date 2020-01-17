@@ -17,15 +17,15 @@ if needed.
     pip install birdvoxdetect
     
  Note that birdvoxdetect requires:
-    * Python (==3.6)
-    * birdvoxclassify
-    * h5py (==2.9)
-    * librosa (==0.7.0)
-    * numpy (==1.16.4)
-    * pandas (==0.25.1)
-    * scikit-learn (==0.21.2)
-    * tensorflow (==1.15)
- 
+* Python (==3.6)
+* birdvoxclassify
+* h5py (==2.9)
+* librosa (==0.7.0)
+* numpy (==1.16.4)
+* pandas (==0.25.1)
+* scikit-learn (==0.21.2)
+* tensorflow (==1.15)
+
  
 ## Usage
 
