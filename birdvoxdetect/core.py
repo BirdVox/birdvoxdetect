@@ -903,7 +903,7 @@ def map_confidence(y, model_name):
     logy = np.log(np.clip(y, np.finfo(np.float32).tiny, None))
     y_inverse_sigmoid = log1my - logy
     y_out = y_inverse_sigmoid - np.log(np.finfo(np.float32).eps)
-    return np.clip(y_out, 0, 100 - np.finfo(np.float32).eps)
+    return np.clip(y_out, 0, 99.9)
 
 
 def seconds_to_hhmmss(total_seconds):
