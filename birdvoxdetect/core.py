@@ -49,7 +49,8 @@ def process_file(
         classifier_name="_".join([
             "birdvoxclassify-flat-multitask-convnet",
             "tv1hierarchical-2e7e1bbd434a35b3961e315cfe3832fc"]),
-        custom_objects=None):
+        custom_objects=None,
+        bva_threshold=0.5):
 
     # Set logger level.
     logger = logging.getLogger("logger_stream")
@@ -227,8 +228,9 @@ def process_file(
         sensor_fault_probability = sensorfault_model.predict(
             sensorfault_features)
 
-        # If probability of sensor fault is above 50%, exclude start of recording
-        if sensor_fault_probability > 0.5:
+        # If probability of sensor fault is above 50%,
+        # exclude start of recording
+        if sensor_fault_probability > bva_threshold:
             logger.debug("Probability of sensor fault: {:5.2f}%".format(
                 100*sensor_fault_probability))
             chunk_id_start = min(n_chunks-1, queue_length)
@@ -370,8 +372,9 @@ def process_file(
         sensor_fault_probability =\
             sensorfault_model.predict(sensorfault_features)
 
-        # If probability of sensor fault is above 50%, exclude start of recording
-        has_sensor_fault = (sensor_fault_probability > 0.5)
+        # If probability of sensor fault is above threshold,
+        # exclude start of recording
+        has_sensor_fault = (sensor_fault_probability > bva_threshold)
         if has_sensor_fault:
             logger.debug("Probability of sensor fault: {:5.2f}%".format(
                 100*sensor_fault_probability))
