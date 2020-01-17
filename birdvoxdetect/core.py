@@ -18,6 +18,10 @@ import soundfile as sf
 import traceback
 import warnings
 
+# Width of the spectrogram matrix as input to the convnets
+BVD_CLIP_LENGTH = 104
+
+
 with warnings.catch_warnings():
     # Suppress TF and Keras warnings when importing
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -79,8 +83,7 @@ def process_file(
 
     # Load the detector of sensor faults.
     sensorfault_detector_name = 'birdvoxactivate.pkl'
-    logger.info("Sensor fault detector: {}".format(
-        sensorfault_detector_name))
+    logger.info("Sensor fault detector: {}".format(sensorfault_detector_name))
     sensorfault_model_path = get_model_path(sensorfault_detector_name)
     if not os.path.exists(sensorfault_model_path):
         raise BirdVoxDetectError(
@@ -517,14 +520,23 @@ def process_file(
             has_sensor_fault = False
 
     if not has_sensor_fault:
+        # Define trimming length for last chunk.
+        # This one is not equal to one second but to the duration
+        # of a BVD/BVC clip, i.e. about 150 milliseconds.
+        # Note that this trimming is not compensated by the presence of
+        # the next chunk because we are already at the last chunk.
+        # In other words, if a flight call happens at the last 150 milliseconds
+        # of an audio recording, it is ignored.
+        lastchunk_trimming = BVD_CLIP_LENGTH * pcen_settings["hop_length"]
         if has_context:
             # Predict.
             chunk_confidence = predict_with_context(
-                chunk_pcen, deque_context, detector, logger_level, padding=0)
+                chunk_pcen, deque_context, detector, logger_level,
+                padding=lastchunk_trimming)
         else:
             # Predict.
             chunk_confidence = predict(
-                chunk_pcen, detector, logger_level, padding=0)
+                chunk_pcen, detector, logger_level, padding=lastchunk_trimming)
 
         # Map confidence to 0-100 range.
         chunk_confidence = map_confidence(chunk_confidence, detector_name)
@@ -658,7 +670,7 @@ def process_file(
 def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
     # Load settings
     pcen_settings = get_pcen_settings()
-    clip_length = 104
+    clip_length = BVD_CLIP_LENGTH
 
     # Convert birdvoxdetect hops to PCEN hops
     th_peak_hop = th_peak_loc * pcen_settings["stride_length"]
@@ -774,7 +786,7 @@ def predict(pcen, detector, logger_level, padding=0):
     # PCEN-CNN. (no context adaptation)
     else:
         # Compute number of hops.
-        clip_length = 104
+        clip_length = BVD_CLIP_LENGTH
         pcen_settings = get_pcen_settings()
         stride_length = pcen_settings["stride_length"]
         n_freqs, n_padded_hops = pcen.shape
@@ -810,7 +822,7 @@ def predict_with_context(pcen, context, detector, logger_level, padding=0):
     context = context[:, :120]
 
     # Compute number of hops.
-    clip_length = 104
+    clip_length = BVD_CLIP_LENGTH
     pcen_settings = get_pcen_settings()
     stride_length = pcen_settings["stride_length"]
     n_freqs, n_padded_hops = pcen.shape
