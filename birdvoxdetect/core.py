@@ -145,7 +145,7 @@ def process_file(
         queue_length = 1
 
     # Define minimum peak height for BirdVoxDetect function.
-    min_peak_height = 10
+    min_peak_height = min(10, threshold)
 
     # Define number of chunks.
     sr = sound_file.samplerate
