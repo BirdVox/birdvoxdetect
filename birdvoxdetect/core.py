@@ -388,8 +388,8 @@ def process_file(
                 seconds=(chunk_id+1)*chunk_duration))
             logger.debug(
                 "Ignoring segment between " +\
-                segment_start_str + " and " +\
-                segment_stop_str + " (1 chunk)")
+                ignored_start_str + " and " +\
+                ignored_stop_str + " (1 chunk)")
             if export_confidence:
                 chunk_confidence_length =\
                     int(queue_length * chunk_duration * frame_rate)
