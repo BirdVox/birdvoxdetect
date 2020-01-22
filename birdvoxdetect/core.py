@@ -229,7 +229,7 @@ def process_file(
 
         # Compute probability of sensor fault.
         sensor_fault_probability = sensorfault_model.predict(
-            sensorfault_features)
+            sensorfault_features)[0]
 
         # If probability of sensor fault is above 50%,
         # exclude start of recording
@@ -373,7 +373,7 @@ def process_file(
 
         # Compute probability of sensor fault.
         sensor_fault_probability =\
-            sensorfault_model.predict(sensorfault_features)
+            sensorfault_model.predict(sensorfault_features)[0]
 
         # If probability of sensor fault is above threshold,
         # exclude start of recording
