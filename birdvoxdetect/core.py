@@ -916,9 +916,16 @@ def get_model_path(model_name):
 def map_confidence(y, model_name):
     log1my = np.log1p(np.clip(-y, np.finfo(np.float32).eps - 1, None))
     logy = np.log(np.clip(y, np.finfo(np.float32).tiny, None))
-    y_inverse_sigmoid = log1my - logy
-    y_out = y_inverse_sigmoid - np.log(np.finfo(np.float32).eps)
-    return np.clip(0.09*y_out*y_out, 0, 99.99)
+    y_inverse_sigmoid = log1my - logy - np.log(np.finfo(np.float32).eps)
+    if model_name == "birdvoxdetect-v03_trial-12_network_epoch-068":
+        # See birdvox-full-season/detector-v03/notebooks/07_measure-precision-300h.ipynb
+        y_in = np.maximum(0, y_inverse_sigmoid-18)**2 / 100
+        y_out = 14.76561354 * (y_in**3) - 68.54604756 * (y_in**2) +\
+            111.89379155 * (y_in) - 0.13061346
+    else:
+        y_in = y_inverse_sigmoid**2
+        y_out = 0.09*y_in
+    return np.clip(y_out, 0.0, 99.99)
 
 
 def seconds_to_hhmmss(total_seconds):
