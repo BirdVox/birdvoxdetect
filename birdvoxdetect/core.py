@@ -242,7 +242,8 @@ def process_file(
                 seconds=context_duration))
             logger.debug(
                 "Ignoring segment between 00:00:00 and " +\
-                context_duration_str + " (" + chunk_id_start + " chunks)")
+                context_duration_str + " (" + str(chunk_id_start) +\
+                " chunks)")
         else:
             chunk_id_start = 0
     else:
