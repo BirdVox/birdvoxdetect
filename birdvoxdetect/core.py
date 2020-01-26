@@ -244,6 +244,11 @@ def process_file(
                 "Ignoring segment between 00:00:00 and " +\
                 context_duration_str + " (" + str(chunk_id_start) +\
                 " chunks)")
+            # If continuous confidence is required, store it in memory.
+            if export_confidence:
+                chunk_confidence = np.full(
+                    int(chunk_id_start * chunk_duration * frame_rate), np.nan)
+                chunk_confidences.append(chunk_confidence)
         else:
             chunk_id_start = 0
     else:
