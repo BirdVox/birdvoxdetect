@@ -937,6 +937,11 @@ def map_confidence(y, model_name):
         y_in = np.maximum(0, y_inverse_sigmoid-18)**2 / 100
         y_out = 14.76561354 * (y_in**3) - 68.54604756 * (y_in**2) +\
             111.89379155 * (y_in) - 0.13061346
+    elif model_name == "birdvoxdetect-v03_T-1800_trial-37_network_epoch-023":
+        # See birdvox-full-season/detector-v03/notebooks/10_measure-precision-300h-ca.ipynb
+        y_in = np.maximum(0, y_inverse_sigmoid-18)**2 / 100
+        y_out = 4.28734484 * (y_in**3) - 25.97219728 * (y_in**2) +\
+            62.66749547 * (y_in) + 4.8942351
     else:
         y_in = y_inverse_sigmoid**2
         y_out = 0.09*y_in
