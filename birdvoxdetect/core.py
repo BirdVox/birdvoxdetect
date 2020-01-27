@@ -242,7 +242,13 @@ def process_file(
                 seconds=context_duration))
             logger.debug(
                 "Ignoring segment between 00:00:00 and " +\
-                context_duration_str + " (" + chunk_id_start + " chunks)")
+                context_duration_str + " (" + str(chunk_id_start) +\
+                " chunks)")
+            # If continuous confidence is required, store it in memory.
+            if export_confidence:
+                chunk_confidence = np.full(
+                    int(chunk_id_start * chunk_duration * frame_rate), np.nan)
+                chunk_confidences.append(chunk_confidence)
         else:
             chunk_id_start = 0
     else:
@@ -503,13 +509,13 @@ def process_file(
         logger.debug("Chunk ID: {}/{}".format(n_chunks, n_chunks))
         chunk_start = (n_chunks-1) * chunk_length
         sound_file.seek(chunk_start)
-        context_duration = chunk_duration
+        context_duration = queue_length * chunk_duration
         chunk_audio = sound_file.read(full_length - chunk_start)
         chunk_pcen = compute_pcen(chunk_audio, sr)
         chunk_confidence_length = int(frame_rate*full_length/sr)
         chunk_confidence = np.full(chunk_confidence_length, np.nan)
 
-        if has_context:
+        if has_context and (n_chunks==1):
             deque_context = np.percentile(
                 chunk_pcen, percentiles, axis=1, overwrite_input=True)
             logging.warning(
@@ -521,6 +527,15 @@ def process_file(
                 "(i.e., setting 'detector_name'='birdvoxdetect-v03_trial-12_network_epoch-06') when\n" +\
                 "running birdvoxdetect on short audio files.")
             has_sensor_fault = False
+        elif has_context:
+            # Compute percentiles
+            deque.popleft()
+            deque.append(chunk_pcen)
+            concat_deque = np.concatenate(deque, axis=1, out=concat_deque)
+            deque_context = np.percentile(
+                concat_deque, percentiles,
+                axis=1, out=deque_context, overwrite_input=True)
+
 
     if not has_sensor_fault:
         # Define trimming length for last chunk.
@@ -922,6 +937,11 @@ def map_confidence(y, model_name):
         y_in = np.maximum(0, y_inverse_sigmoid-18)**2 / 100
         y_out = 14.76561354 * (y_in**3) - 68.54604756 * (y_in**2) +\
             111.89379155 * (y_in) - 0.13061346
+    elif model_name == "birdvoxdetect-v03_T-1800_trial-37_network_epoch-023":
+        # See birdvox-full-season/detector-v03/notebooks/10_measure-precision-300h-ca.ipynb
+        y_in = np.maximum(0, y_inverse_sigmoid-18)**2 / 100
+        y_out = 4.28734484 * (y_in**3) - 25.97219728 * (y_in**2) +\
+            62.66749547 * (y_in) + 4.8942351
     else:
         y_in = y_inverse_sigmoid**2
         y_out = 0.09*y_in
