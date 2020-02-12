@@ -100,13 +100,20 @@ def process_file(
         if not os.path.exists(detector_model_path):
             raise BirdVoxDetectError(
                 'Model "{}" could not be found.'.format(detector_name))
-        try:
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                detector = keras.models.load_model(
-                    detector_model_path, custom_objects=custom_objects)
-        except Exception:
-            exc_str = 'Could not open model "{}":\n{}'
+        MAX_LOAD_ATTEMPTS = 10
+        load_attempt_id = 0
+        is_load_successful = False
+        while not is_load_successful and (load_attempt_id<MAX_LOAD_ATTEMPTS):
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    detector = keras.models.load_model(
+                        detector_model_path, custom_objects=custom_objects)
+                is_load_successful = True
+            except Exception:
+                load_attempt_id += 1
+        if not is_load_successful:
+            exc_str = 'Could not open detector model "{}":\n{}'
             formatted_trace = traceback.format_exc()
             exc_formatted_str = exc_str.format(
                 detector_model_path, formatted_trace)
@@ -118,13 +125,19 @@ def process_file(
     if not os.path.exists(classifier_model_path):
         raise BirdVoxDetectError(
             'Model "{}" could not be found.'.format(classifier_name))
-    try:
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            classifier = keras.models.load_model(
-                classifier_model_path, custom_objects=custom_objects)
-    except Exception:
-        exc_str = 'Could not open model "{}":\n{}'
+    load_attempt_id = 0
+    is_load_successful = False
+    while not is_load_successful and (load_attempt_id<MAX_LOAD_ATTEMPTS):
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                classifier = keras.models.load_model(
+                    classifier_model_path, custom_objects=custom_objects)
+            is_load_successful = True
+        except Exception:
+            load_attempt_id += 1
+    if not is_load_successful:
+        exc_str = 'Could not open classifier model "{}":\n{}'
         formatted_trace = traceback.format_exc()
         exc_formatted_str = exc_str.format(
             classifier_model_path, formatted_trace)
