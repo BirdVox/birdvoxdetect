@@ -544,7 +544,7 @@ def process_file(
             # Compute percentiles
             deque.popleft()
             deque.append(chunk_pcen)
-            concat_deque = np.concatenate(deque, axis=1, out=concat_deque)
+            concat_deque = np.concatenate(deque, axis=1)
             deque_context = np.percentile(
                 concat_deque, percentiles,
                 axis=1, out=deque_context, overwrite_input=True)
