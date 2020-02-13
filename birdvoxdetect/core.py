@@ -714,6 +714,10 @@ def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
     pcen_clip = chunk_pcen[:120,
         pcen_clip_start:pcen_clip_stop, np.newaxis]
 
+    # If PCEN clip is empty, return OTHE (other)
+    if pcen_clip.shape[1] == 0:
+        return "OTHE"
+
     # Call birdvoxclassify to extract rich prediction
     full_pred = birdvoxclassify.format_pred(
         birdvoxclassify.predict(pcen_clip, classifier=classifier),
