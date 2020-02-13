@@ -518,8 +518,8 @@ def process_file(
             seconds=full_length*sr))
         logger.debug(
             "Ignoring segment between " +\
-            segment_start_str + " and " +\
-            segment_stop_str + " (i.e., up to end of file)")
+            ignored_start_str + " and " +\
+            ignored_stop_str + " (i.e., up to end of file)")
     else:
         logger.debug("Chunk ID: {}/{}".format(n_chunks, n_chunks))
         chunk_start = (n_chunks-1) * chunk_length
