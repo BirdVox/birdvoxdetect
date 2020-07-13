@@ -539,9 +539,7 @@ def process_file(
     # unstable with files shorter than 30 minutes, which is why we issue a
     # warning. Also, we do not try to detect sensor faults in files shorter than
     # 30 minutes.
-    if n_chunks==1:
-        has_sensor_fault = False
-    if export_logfile:
+    if (n_chunks>1) and export_logfile:
         logfile_df = logfile_df.append({
             "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id*chunk_duration),
             "Stop (hh:mm:ss)": seconds_to_hhmmss(full_length/sr),
