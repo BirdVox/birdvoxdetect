@@ -51,10 +51,12 @@ Optional arguments:
     --export-clips, -c    Export detected events as audio clips in WAV format.
     --export-confidence, -C
                           Export the time series of model confidence values of
-                          eventsin HDF5 format.
+                          events in HDF5 format.
+    --export-logfile, -l
+                          Export log file of sensor faults in CSV format.
     --threshold THRESHOLD, -t THRESHOLD
                           Detection threshold, between 10 and 90. The default
-                          value is 30. Greater values lead to higher precision
+                          value is 50. Greater values lead to higher precision
                           at the expense of a lower recall.
     --suffix SUFFIX, -s SUFFIX
                           String to append to the output filenames.The default
