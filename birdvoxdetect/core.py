@@ -45,6 +45,7 @@ def process_file(
         output_dir=None,
         export_clips=False,
         export_confidence=False,
+        export_logfile=False,
         threshold=50.0,
         suffix="",
         clip_duration=1.0,
@@ -195,6 +196,15 @@ def process_file(
         })
         df.to_csv(checklist_path, columns=df_columns, index=False)
 
+    # Initialize fault log as a Pandas DataFrame.
+    if export_logfile:
+        logfile_path = get_output_path(
+            filepath, suffix + "logfile.csv", output_dir=output_dir)
+        logfile_df_columns = [
+            "Start (hh:mm:ss)", "Stop (hh:mm:ss)", "Fault?"]
+        logfile_df = pd.DataFrame(columns=logfile_df_columns)
+        logfile_df.to_csv(logfile_path, columns=logfile_df_columns, index=False)
+
     # Create directory of output clips.
     if export_clips:
         clips_dir = get_output_path(
@@ -266,9 +276,20 @@ def process_file(
         else:
             chunk_id_start = 0
             has_sensor_fault = False
+
     else:
         chunk_id_start = 0
         has_sensor_fault = False
+
+    # Add first row to sensor fault log.
+    if export_logfile:
+        logfile_df.append({
+            "Start (hh:mm:ss)": seconds_to_hhmmss(0.0),
+            "Stop (hh:mm:ss)": seconds_to_hhmmss(
+                min(chunk_duration, full_length/sr)),
+            "Fault?": int(has_sensor_fault)},
+            ignore_index=True)
+        logfile_df.to_csv(logfile_path, columns=logfile_df_columns, index=False)
 
     # Define frame rate.
     frame_rate = pcen_settings["sr"] /\
@@ -396,9 +417,18 @@ def process_file(
         sensor_fault_probability =\
             sensorfault_model.predict(sensorfault_features)[0]
 
-        # If probability of sensor fault is above threshold,
-        # exclude start of recording
+        # Add row to sensor fault log.
         has_sensor_fault = (sensor_fault_probability > bva_threshold)
+        if export_logfile:
+            logfile_df.append({
+                "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id*chunk_duration),
+                "Stop (hh:mm:ss)": seconds_to_hhmmss((chunk_id+1)*chunk_duration),
+                "Fault?": int(has_sensor_fault)},
+                ignore_index=True)
+            logfile_df.to_csv(
+                logfile_path, columns=logfile_df_columns, index=False)
+
+        # If probability of sensor fault is above threshold, exclude chunk.
         if has_sensor_fault:
             logger.debug("Probability of sensor fault: {:5.2f}%".format(
                 100*sensor_fault_probability))
@@ -509,13 +539,24 @@ def process_file(
     # unstable with files shorter than 30 minutes, which is why we issue a
     # warning. Also, we do not try to detect sensor faults in files shorter than
     # 30 minutes.
+    if n_chunks==1:
+        has_sensor_fault = False
+    if export_logfile:
+        logfile_df.append({
+            "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id*chunk_duration),
+            "Stop (hh:mm:ss)": seconds_to_hhmmss(full_length/sr),
+            "Fault?": int(has_sensor_fault)},
+            ignore_index=True)
+        logfile_df.to_csv(
+            logfile_path, columns=logfile_df_columns, index=False)
+
     if (n_chunks>1) and has_sensor_fault:
         logger.debug("Probability of sensor fault: {:5.2f}%".format(
             100*sensor_fault_probability))
         ignored_start_str = str(datetime.timedelta(
             seconds=chunk_id*chunk_duration))
         ignored_stop_str = str(datetime.timedelta(
-            seconds=full_length*sr))
+            seconds=full_length/sr))
         logger.debug(
             "Ignoring segment between " +\
             ignored_start_str + " and " +\
@@ -695,6 +736,9 @@ def process_file(
     if export_confidence:
         event_str = "Event detection curve is available at: {}"
         logger.info(event_str.format(confidence_path))
+    if export_logfile:
+        event_str = "Log file of sensor faults is available at: {}"
+        logger.info(event_str.format(logfile_path))
     logger.info("Done with file: {}.".format(filepath))
 
     return df

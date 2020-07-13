@@ -40,6 +40,7 @@ def run(inputs,
         output_dir=None,
         export_clips=False,
         export_confidence=False,
+        export_logfile=False,
         threshold=50.0,
         suffix="",
         clip_duration=1.0,
@@ -83,6 +84,7 @@ def run(inputs,
             output_dir=output_dir,
             export_clips=export_clips,
             export_confidence=export_confidence,
+            export_logfile=export_logfile,
             threshold=threshold,
             suffix=suffix,
             clip_duration=clip_duration,
@@ -116,6 +118,10 @@ def parse_args(args):
         '--export-confidence', '-C', action='store_true',
         help='Export the time series of model confidence values of events'
              'in HDF5 format.')
+
+    parser.add_argument(
+        '--export-logfile', '-l', action='store_true',
+        help='Export log file of sensor faults in CSV format.')
 
     parser.add_argument(
         '--threshold', '-t', type=valid_threshold, default=50,
@@ -194,6 +200,7 @@ def main():
         output_dir=args.output_dir,
         export_clips=args.export_clips,
         export_confidence=args.export_confidence,
+        export_logfile=args.export_logfile,
         threshold=args.threshold,
         suffix=args.suffix,
         clip_duration=args.clip_duration,
