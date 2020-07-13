@@ -282,13 +282,13 @@ def process_file(
         has_sensor_fault = False
 
     # Add first row to sensor fault log.
-    logfile_df.append({
-        "Start (hh:mm:ss)": seconds_to_hhmmss(0.0),
-        "Stop (hh:mm:ss)": seconds_to_hhmmss(
-            min(chunk_duration, full_length/sr)),
-        "Fault?": int(has_sensor_fault)
-    })
     if export_logfile:
+        logfile_df.append({
+            "Start (hh:mm:ss)": seconds_to_hhmmss(0.0),
+            "Stop (hh:mm:ss)": seconds_to_hhmmss(
+                min(chunk_duration, full_length/sr)),
+            "Fault?": int(has_sensor_fault)
+        })
         logfile_df.to_csv(logfile_path, columns=logfile_df_columns, index=False)
 
     # Define frame rate.
@@ -419,12 +419,12 @@ def process_file(
 
         # Add row to sensor fault log.
         has_sensor_fault = (sensor_fault_probability > bva_threshold)
-        logfile_df.append({
-            "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id*chunk_duration),
-            "Stop (hh:mm:ss)": seconds_to_hhmmss((chunk_id+1)*chunk_duration),
-            "Fault?": int(has_sensor_fault)
-        })
         if export_logfile:
+            logfile_df.append({
+                "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id*chunk_duration),
+                "Stop (hh:mm:ss)": seconds_to_hhmmss((chunk_id+1)*chunk_duration),
+                "Fault?": int(has_sensor_fault)
+            })
             logfile_df.to_csv(
                 logfile_path, columns=logfile_df_columns, index=False)
 
@@ -541,11 +541,11 @@ def process_file(
     # 30 minutes.
     if n_chunks==1:
         has_sensor_fault = False
-    logfile_df.append({
-        "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id*chunk_duration),
-        "Stop (hh:mm:ss)": seconds_to_hhmmss(full_length/sr),
-        "Fault?": int(has_sensor_fault)})
     if export_logfile:
+        logfile_df.append({
+            "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id*chunk_duration),
+            "Stop (hh:mm:ss)": seconds_to_hhmmss(full_length/sr),
+            "Fault?": int(has_sensor_fault)})
         logfile_df.to_csv(
             logfile_path, columns=logfile_df_columns, index=False)
 
