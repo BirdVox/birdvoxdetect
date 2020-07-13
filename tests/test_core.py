@@ -137,7 +137,8 @@ def test_process_file():
     assert os.path.exists(logfile_path)
     logfile_df = pd.read_csv(logfile_path)
     columns = logfile_df.columns
-    assert columns == ["Start (hh:mm:ss)", "Stop (hh:mm:ss)", "Fault?"]
+    assert np.all(
+        columns == np.array(["Start (hh:mm:ss)", "Stop (hh:mm:ss)", "Fault?"]))
     shutil.rmtree(tmpdir)
 
     # suffix
