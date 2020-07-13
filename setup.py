@@ -81,6 +81,7 @@ setup(
         'birdvoxclassify',
         'h5py>=2.7.0',
         'librosa==0.7.0',
+        'numba==0.48',
         'numpy==1.16.4',
         'pandas==0.25.1',
         'scikit-learn==0.21.2',

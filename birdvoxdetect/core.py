@@ -79,8 +79,8 @@ def process_file(
     try:
         sound_file = sf.SoundFile(filepath)
     except Exception:
-        logger.warn('Could not open file: {}'.format(filepath))
-        return
+        raise BirdVoxDetectError(
+            'Could not open file: {}'.format(filepath))
 
     # Load the detector of sensor faults.
     sensorfault_detector_name = 'birdvoxactivate.pkl'
