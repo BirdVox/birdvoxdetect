@@ -126,6 +126,20 @@ def test_process_file():
     assert confidence.shape == (199,)
     shutil.rmtree(tmpdir)
 
+    # export logfile
+    tmpdir = tempfile.mkdtemp()
+    process_file(
+        os.path.join(TEST_AUDIO_DIR, POSITIVE_MD5 + '.wav'),
+        output_dir=tmpdir,
+        export_logfile=True)
+    logfile_path = os.path.join(
+        tmpdir, POSITIVE_MD5 + '_logfile.csv')
+    assert os.path.exists(logfile_path)
+    logfile_df = pd.read_csv(logfile_path)
+    columns = logfile_df.columns
+    assert columns == ["Start (hh:mm:ss)", "Stop (hh:mm:ss)", "Fault?"]
+    shutil.rmtree(tmpdir)
+
     # suffix
     tmpdir = tempfile.mkdtemp()
     process_file(
