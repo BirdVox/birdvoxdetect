@@ -283,7 +283,7 @@ def process_file(
 
     # Add first row to sensor fault log.
     if export_logfile:
-        logfile_df.append({
+        logfile_df = logfile_df.append({
             "Start (hh:mm:ss)": seconds_to_hhmmss(0.0),
             "Stop (hh:mm:ss)": seconds_to_hhmmss(
                 min(chunk_duration, full_length/sr)),
@@ -420,7 +420,7 @@ def process_file(
         # Add row to sensor fault log.
         has_sensor_fault = (sensor_fault_probability > bva_threshold)
         if export_logfile:
-            logfile_df.append({
+            logfile_df = logfile_df.append({
                 "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id*chunk_duration),
                 "Stop (hh:mm:ss)": seconds_to_hhmmss((chunk_id+1)*chunk_duration),
                 "Fault?": int(has_sensor_fault)},
@@ -542,7 +542,7 @@ def process_file(
     if n_chunks==1:
         has_sensor_fault = False
     if export_logfile:
-        logfile_df.append({
+        logfile_df = logfile_df.append({
             "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id*chunk_duration),
             "Stop (hh:mm:ss)": seconds_to_hhmmss(full_length/sr),
             "Fault?": int(has_sensor_fault)},
