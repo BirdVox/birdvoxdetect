@@ -283,19 +283,19 @@ def process_file(
             chunk_id_start = 0
             has_sensor_fault = False
 
+        # Add first row to sensor fault log.
+        if export_faults:
+            faultlist_df = faultlist_df.append({
+                "Start (hh:mm:ss)": seconds_to_hhmmss(0.0),
+                "Stop (hh:mm:ss)": seconds_to_hhmmss(
+                    queue_length*chunk_duration),
+                "Fault?": int(has_sensor_fault)},
+                ignore_index=True)
+            faultlist_df.to_csv(
+                faultlist_path, columns=faultlist_df_columns, index=False)
     else:
         chunk_id_start = 0
         has_sensor_fault = False
-
-    # Add first row to sensor fault log.
-    if export_faults:
-        faultlist_df = faultlist_df.append({
-            "Start (hh:mm:ss)": seconds_to_hhmmss(0.0),
-            "Stop (hh:mm:ss)": seconds_to_hhmmss(
-                min(chunk_duration, full_length/sr)),
-            "Fault?": int(has_sensor_fault)},
-            ignore_index=True)
-        faultlist_df.to_csv(faultlist_path, columns=faultlist_df_columns, index=False)
 
     # Define frame rate.
     frame_rate = pcen_settings["sr"] /\
