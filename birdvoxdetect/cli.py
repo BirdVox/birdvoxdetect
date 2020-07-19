@@ -40,7 +40,8 @@ def run(inputs,
         output_dir=None,
         export_clips=False,
         export_confidence=False,
-        export_logfile=False,
+        export_faults=False,
+        export_logger=False,
         threshold=50.0,
         suffix="",
         clip_duration=1.0,
@@ -84,7 +85,8 @@ def run(inputs,
             output_dir=output_dir,
             export_clips=export_clips,
             export_confidence=export_confidence,
-            export_logfile=export_logfile,
+            export_faults=export_faults,
+            export_logger=export_logger,
             threshold=threshold,
             suffix=suffix,
             clip_duration=clip_duration,
@@ -120,8 +122,12 @@ def parse_args(args):
              'in HDF5 format.')
 
     parser.add_argument(
-        '--export-logfile', '-l', action='store_true',
-        help='Export log file of sensor faults in CSV format.')
+        '--export-faults', '-f', action='store_true',
+        help='Export list of sensor faults in CSV format.')
+
+    parser.add_argument(
+        '--export-logger', '-l', action='store_true',
+        help='Export output of Python logger in TXT format.')
 
     parser.add_argument(
         '--threshold', '-t', type=valid_threshold, default=50,
@@ -200,7 +206,8 @@ def main():
         output_dir=args.output_dir,
         export_clips=args.export_clips,
         export_confidence=args.export_confidence,
-        export_logfile=args.export_logfile,
+        export_faults=args.export_faults,
+        export_logger=args.export_logger,
         threshold=args.threshold,
         suffix=args.suffix,
         clip_duration=args.clip_duration,
