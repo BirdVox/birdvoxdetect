@@ -52,8 +52,8 @@ Optional arguments:
     --export-confidence, -C
                           Export the time series of model confidence values of
                           events in HDF5 format.
-    --export-logfile, -l
-                          Export log file of sensor faults in CSV format.
+    --export-faults, -f   Export list of sensor faults in CSV format.
+    --export-logger, -l   Export output of Python logger in TXT format.
     --threshold THRESHOLD, -t THRESHOLD
                           Detection threshold, between 10 and 90. The default
                           value is 50. Greater values lead to higher precision
