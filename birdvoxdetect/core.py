@@ -45,7 +45,8 @@ def process_file(
         output_dir=None,
         export_clips=False,
         export_confidence=False,
-        export_logfile=False,
+        export_faults=False,
+        export_logger=False,
         threshold=50.0,
         suffix="",
         clip_duration=1.0,
@@ -58,8 +59,13 @@ def process_file(
         bva_threshold=0.5):
 
     # Set logger level.
-    logger = logging.getLogger("logger_stream")
+    logger = logging.getLogger("BirdVoxDetect")
     logger.setLevel(logger_level)
+    if export_logger:
+        logger_path = get_output_path(
+            filepath, suffix + "logger.txt", output_dir=output_dir)
+        logger.basicConfig(
+            filename=logger_path, filemode='w', level=logger_level)
 
     # Print new line and file name.
     logger.info("-" * 80)
@@ -197,13 +203,13 @@ def process_file(
         df.to_csv(checklist_path, columns=df_columns, index=False)
 
     # Initialize fault log as a Pandas DataFrame.
-    if export_logfile:
-        logfile_path = get_output_path(
-            filepath, suffix + "logfile.csv", output_dir=output_dir)
-        logfile_df_columns = [
+    if export_faults:
+        faultlist_path = get_output_path(
+            filepath, suffix + "faults.csv", output_dir=output_dir)
+        faultlist_df_columns = [
             "Start (hh:mm:ss)", "Stop (hh:mm:ss)", "Fault?"]
-        logfile_df = pd.DataFrame(columns=logfile_df_columns)
-        logfile_df.to_csv(logfile_path, columns=logfile_df_columns, index=False)
+        faultlist_df = pd.DataFrame(columns=faultlist_df_columns)
+        faultlist_df.to_csv(faultlist_path, columns=faultlist_df_columns, index=False)
 
     # Create directory of output clips.
     if export_clips:
@@ -282,14 +288,14 @@ def process_file(
         has_sensor_fault = False
 
     # Add first row to sensor fault log.
-    if export_logfile:
-        logfile_df = logfile_df.append({
+    if export_faults:
+        faultlist_df = faultlist_df.append({
             "Start (hh:mm:ss)": seconds_to_hhmmss(0.0),
             "Stop (hh:mm:ss)": seconds_to_hhmmss(
                 min(chunk_duration, full_length/sr)),
             "Fault?": int(has_sensor_fault)},
             ignore_index=True)
-        logfile_df.to_csv(logfile_path, columns=logfile_df_columns, index=False)
+        faultlist_df.to_csv(faultlist_path, columns=faultlist_df_columns, index=False)
 
     # Define frame rate.
     frame_rate = pcen_settings["sr"] /\
@@ -419,14 +425,14 @@ def process_file(
 
         # Add row to sensor fault log.
         has_sensor_fault = (sensor_fault_probability > bva_threshold)
-        if export_logfile:
-            logfile_df = logfile_df.append({
+        if export_faults:
+            faultlist_df = faultlist_df.append({
                 "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id*chunk_duration),
                 "Stop (hh:mm:ss)": seconds_to_hhmmss((chunk_id+1)*chunk_duration),
                 "Fault?": int(has_sensor_fault)},
                 ignore_index=True)
-            logfile_df.to_csv(
-                logfile_path, columns=logfile_df_columns, index=False)
+            faultlist_df.to_csv(
+                faultlist_path, columns=faultlist_df_columns, index=False)
 
         # If probability of sensor fault is above threshold, exclude chunk.
         if has_sensor_fault:
@@ -539,14 +545,14 @@ def process_file(
     # unstable with files shorter than 30 minutes, which is why we issue a
     # warning. Also, we do not try to detect sensor faults in files shorter than
     # 30 minutes.
-    if (n_chunks>1) and export_logfile:
-        logfile_df = logfile_df.append({
+    if (n_chunks>1) and export_faults:
+        faultlist_df = faultlist_df.append({
             "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id*chunk_duration),
             "Stop (hh:mm:ss)": seconds_to_hhmmss(full_length/sr),
             "Fault?": int(has_sensor_fault)},
             ignore_index=True)
-        logfile_df.to_csv(
-            logfile_path, columns=logfile_df_columns, index=False)
+        faultlist_df.to_csv(
+            faultlist_path, columns=faultlist_df_columns, index=False)
 
     if (n_chunks>1) and has_sensor_fault:
         logger.debug("Probability of sensor fault: {:5.2f}%".format(
@@ -732,11 +738,11 @@ def process_file(
     if export_clips:
         logger.info("Clips are available at: {}".format(clips_dir))
     if export_confidence:
-        event_str = "Event detection curve is available at: {}"
+        event_str = "The event detection curve is available at: {}"
         logger.info(event_str.format(confidence_path))
-    if export_logfile:
-        event_str = "Log file of sensor faults is available at: {}"
-        logger.info(event_str.format(logfile_path))
+    if export_faults:
+        event_str = "The list of sensor faults is available at: {}"
+        logger.info(event_str.format(faultlist_path))
     logger.info("Done with file: {}.".format(filepath))
 
     return df
