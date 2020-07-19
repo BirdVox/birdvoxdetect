@@ -58,6 +58,11 @@ def process_file(
         custom_objects=None,
         bva_threshold=0.5):
 
+    # Create output_dir if necessary.
+    if output_dir is not None:
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
     # Set logger level.
     logger = logging.getLogger("BirdVoxDetect")
     logger.setLevel(logger_level)
@@ -180,11 +185,6 @@ def process_file(
     # Append underscore to suffix if it is not empty.
     if len(suffix) > 0 and not suffix[-1] == "_":
         suffix = suffix + "_"
-
-    # Create output_dir if necessary.
-    if output_dir is not None:
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
 
     # Initialize checklist as a Pandas DataFrame.
     if threshold is not None:
