@@ -78,7 +78,7 @@ def process_file(
         birdvoxdetect, birdvoxclassify, h5py, joblib, json,
         librosa, logging, np, pd, tf, scipy, sf, sklearn]
     for module in modules:
-        logger.debug(module.__name__.ljust(15) + " v" + module.__version__)
+        logger.info(module.__name__.ljust(15) + " v" + module.__version__)
     logger.info("")
     logger.info("Loading file: {}".format(filepath))
 
@@ -223,7 +223,7 @@ def process_file(
         chunk_confidences = []
 
     # Print chunk duration.
-    logger.debug("Chunk duration: {} seconds".format(chunk_duration))
+    logger.info("Chunk duration: {} seconds".format(chunk_duration))
 
     # Define padding. Set to one second, i.e. 750 hops @ 24 kHz.
     # Any value above clip duration (150 ms) would work.
@@ -263,13 +263,13 @@ def process_file(
         # If probability of sensor fault is above 50%,
         # exclude start of recording
         if sensor_fault_probability > bva_threshold:
-            logger.debug("Probability of sensor fault: {:5.2f}%".format(
+            logger.info("Probability of sensor fault: {:5.2f}%".format(
                 100*sensor_fault_probability))
             chunk_id_start = min(n_chunks-1, queue_length)
             context_duration = chunk_duration
             context_duration_str = str(datetime.timedelta(
                 seconds=context_duration))
-            logger.debug(
+            logger.info(
                 "Ignoring segment between 00:00:00 and " +\
                 context_duration_str + " (" + str(chunk_id_start) +\
                 " chunks)")
@@ -305,7 +305,7 @@ def process_file(
     # NB: the following loop is skipped if there is a single chunk.
     for chunk_id in range(chunk_id_start, min(queue_length, n_chunks-1)):
         # Print chunk ID and number of chunks.
-        logger.debug("Chunk ID: {}/{}".format(
+        logger.info("Chunk ID: {}/{}".format(
             str(1+chunk_id).zfill(len(str(n_chunks))), n_chunks))
 
         # Predict.
@@ -349,9 +349,9 @@ def process_file(
 
         # Count flight calls.
         chunk_counter = collections.Counter(th_peak_4lettercodes)
-        logger.debug(
+        logger.info(
             "Number of flight calls in current chunk: {}".format(n_peaks))
-        logger.debug("(" + ", ".join((str(v) + " " + k)
+        logger.info("(" + ", ".join((str(v) + " " + k)
             for (k, v) in chunk_counter.most_common()) + ")")
 
         # Export timestamps.
@@ -393,7 +393,7 @@ def process_file(
     chunk_id = queue_length
     while chunk_id < (n_chunks-1):
         # Print chunk ID and number of chunks.
-        logger.debug("Chunk ID: {}/{}".format(
+        logger.info("Chunk ID: {}/{}".format(
             str(1+chunk_id).zfill(len(str(n_chunks))), n_chunks))
 
         # Read chunk.
@@ -436,14 +436,14 @@ def process_file(
 
         # If probability of sensor fault is above threshold, exclude chunk.
         if has_sensor_fault:
-            logger.debug("Probability of sensor fault: {:5.2f}%".format(
+            logger.info("Probability of sensor fault: {:5.2f}%".format(
                 100*sensor_fault_probability))
             context_duration = queue_length * chunk_duration
             ignored_start_str = str(datetime.timedelta(
                 seconds=chunk_id*chunk_duration))
             ignored_stop_str = str(datetime.timedelta(
                 seconds=(chunk_id+1)*chunk_duration))
-            logger.debug(
+            logger.info(
                 "Ignoring segment between " +\
                 ignored_start_str + " and " +\
                 ignored_stop_str + " (1 chunk)")
@@ -497,9 +497,9 @@ def process_file(
 
         # Count flight calls.
         chunk_counter = collections.Counter(th_peak_4lettercodes)
-        logger.debug(
+        logger.info(
             "Number of flight calls in current chunk: {}".format(n_peaks))
-        logger.debug("(" + ", ".join((str(v) + " " + k)
+        logger.info("(" + ", ".join((str(v) + " " + k)
             for (k, v) in chunk_counter.most_common()) + ")")
 
         # Export timestamps.
@@ -555,18 +555,18 @@ def process_file(
             faultlist_path, columns=faultlist_df_columns, index=False)
 
     if (n_chunks>1) and has_sensor_fault:
-        logger.debug("Probability of sensor fault: {:5.2f}%".format(
+        logger.info("Probability of sensor fault: {:5.2f}%".format(
             100*sensor_fault_probability))
         ignored_start_str = str(datetime.timedelta(
             seconds=chunk_id*chunk_duration))
         ignored_stop_str = str(datetime.timedelta(
             seconds=full_length/sr))
-        logger.debug(
+        logger.info(
             "Ignoring segment between " +\
             ignored_start_str + " and " +\
             ignored_stop_str + " (i.e., up to end of file)")
     else:
-        logger.debug("Chunk ID: {}/{}".format(n_chunks, n_chunks))
+        logger.info("Chunk ID: {}/{}".format(n_chunks, n_chunks))
         chunk_start = (n_chunks-1) * chunk_length
         sound_file.seek(chunk_start)
         context_duration = queue_length * chunk_duration
@@ -642,9 +642,9 @@ def process_file(
 
             # Count flight calls.
             chunk_counter = collections.Counter(th_peak_4lettercodes)
-            logger.debug(
+            logger.info(
                 "Number of flight calls in current chunk: {}".format(n_peaks))
-            logger.debug("(" + ", ".join((str(v) + " " + k)
+            logger.info("(" + ", ".join((str(v) + " " + k)
                 for (k, v) in chunk_counter.most_common()) + ")")
 
             # Export timestamps.
