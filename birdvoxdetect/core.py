@@ -64,7 +64,7 @@ def process_file(
     if export_logger:
         logger_path = get_output_path(
             filepath, suffix + "logger.txt", output_dir=output_dir)
-        logger.basicConfig(
+        logging.basicConfig(
             filename=logger_path, filemode='w', level=logger_level)
 
     # Print new line and file name.
