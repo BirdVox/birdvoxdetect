@@ -126,17 +126,17 @@ def test_process_file():
     assert confidence.shape == (199,)
     shutil.rmtree(tmpdir)
 
-    # export logfile
+    # export list of sensor faults
     tmpdir = tempfile.mkdtemp()
     process_file(
         os.path.join(TEST_AUDIO_DIR, POSITIVE_MD5 + '.wav'),
         output_dir=tmpdir,
-        export_logfile=True)
-    logfile_path = os.path.join(
-        tmpdir, POSITIVE_MD5 + '_logfile.csv')
-    assert os.path.exists(logfile_path)
-    logfile_df = pd.read_csv(logfile_path)
-    columns = logfile_df.columns
+        export_faults=True)
+    faultlist_path = os.path.join(
+        tmpdir, POSITIVE_MD5 + '_faults.csv')
+    assert os.path.exists(faultlist_path)
+    faultlist_df = pd.read_csv(faultlist_path)
+    columns = faultlist_df.columns
     assert np.all(
         columns == np.array(["Start (hh:mm:ss)", "Stop (hh:mm:ss)", "Fault?"]))
     shutil.rmtree(tmpdir)
