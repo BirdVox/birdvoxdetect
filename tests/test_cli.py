@@ -61,6 +61,8 @@ def test_parse_args():
     assert args.output_dir is None
     assert args.export_clips == False
     assert args.export_confidence == False
+    assert args.export_faults == False
+    assert args.export_logger == False
     assert args.threshold == 50.0
     assert args.suffix == ""
     assert args.clip_duration == 1.0
@@ -72,6 +74,8 @@ def test_parse_args():
             '-o', '/output/dir',
             '-c',
             '-C',
+            '-f',
+            '-l',
             '-t', '60',
             '-s', 'mysuffix',
             '-d', '0.5',
@@ -80,6 +84,8 @@ def test_parse_args():
     assert args.output_dir == '/output/dir'
     assert args.export_clips == True
     assert args.export_confidence == True
+    assert args.export_faults == True
+    assert args.export_logger == True
     assert args.threshold == 60.0
     assert args.suffix == 'mysuffix'
     assert args.clip_duration == 0.5
