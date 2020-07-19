@@ -224,6 +224,7 @@ def process_file(
 
     # Print chunk duration.
     logger.info("Chunk duration: {} seconds".format(chunk_duration))
+    logger.info("")
 
     # Define padding. Set to one second, i.e. 750 hops @ 24 kHz.
     # Any value above clip duration (150 ms) would work.
@@ -499,8 +500,9 @@ def process_file(
         chunk_counter = collections.Counter(th_peak_4lettercodes)
         logger.info(
             "Number of flight calls in current chunk: {}".format(n_peaks))
-        logger.info("(" + ", ".join((str(v) + " " + k)
+        logger.info(" (" + ", ".join((str(v) + " " + k)
             for (k, v) in chunk_counter.most_common()) + ")")
+        logger.info("")
 
         # Export timestamps.
         chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
