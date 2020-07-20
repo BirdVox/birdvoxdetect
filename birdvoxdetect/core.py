@@ -182,6 +182,11 @@ def process_file(
     full_length = len(sound_file)
     n_chunks = max(1, int(np.ceil(full_length) / chunk_length))
 
+    # Define frame rate.
+    pcen_settings = get_pcen_settings()
+    frame_rate = pcen_settings["sr"] /\
+        (pcen_settings["hop_length"] * pcen_settings["stride_length"])
+
     # Append underscore to suffix if it is not empty.
     if len(suffix) > 0 and not suffix[-1] == "_":
         suffix = suffix + "_"
@@ -228,7 +233,6 @@ def process_file(
 
     # Define padding. Set to one second, i.e. 750 hops @ 24 kHz.
     # Any value above clip duration (150 ms) would work.
-    pcen_settings = get_pcen_settings()
     chunk_padding = pcen_settings["hop_length"] *\
         int(pcen_settings["sr"] / pcen_settings["hop_length"])
 
@@ -297,10 +301,6 @@ def process_file(
     else:
         chunk_id_start = 0
         has_sensor_fault = False
-
-    # Define frame rate.
-    frame_rate = pcen_settings["sr"] /\
-        (pcen_settings["hop_length"] * pcen_settings["stride_length"])
 
     # Compute confidence on queue chunks.
     # NB: the following loop is skipped if there is a single chunk.
