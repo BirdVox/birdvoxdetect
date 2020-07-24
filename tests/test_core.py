@@ -126,6 +126,19 @@ def test_process_file():
     assert confidence.shape == (199,)
     shutil.rmtree(tmpdir)
 
+    # export context
+    tmpdir = tempfile.mkdtemp()
+    process_file(
+        os.path.join(TEST_AUDIO_DIR, POSITIVE_MD5 + '.wav'),
+        output_dir=tmpdir,
+        export_context=True)
+    context_path = os.path.join(
+        tmpdir, POSITIVE_MD5 + '_context.hdf5')
+    assert os.path.exists(context_path)
+    with h5py.File(context_path, "r") as f:
+        confidence = f["context"][()]
+    shutil.rmtree(tmpdir)
+
     # export list of sensor faults
     tmpdir = tempfile.mkdtemp()
     process_file(
