@@ -753,7 +753,7 @@ def process_file(
     # Export context.
     if export_context:
         # Define output path for context.
-        confidence_path = get_output_path(
+        context_path = get_output_path(
             filepath, suffix + "context.hdf5", output_dir=output_dir)
 
         # Stack context over time.
