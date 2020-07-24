@@ -1,2 +1,2 @@
 short_version = '0.2'
-version = '0.3.0a3'
+version = '0.3.0a4'
