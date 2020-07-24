@@ -45,6 +45,7 @@ def process_file(
         output_dir=None,
         export_clips=False,
         export_confidence=False,
+        export_context=False,
         export_faults=False,
         export_logger=False,
         threshold=50.0,
@@ -223,9 +224,13 @@ def process_file(
         if not os.path.exists(clips_dir):
             os.makedirs(clips_dir)
 
-    # Append confidence to list of per-chunk confidences.
+    # Initialize list of per-chunk confidences.
     if export_confidence:
         chunk_confidences = []
+
+    # Initialize list of context arrays.
+    if export_context:
+        contexts = []
 
     # Print chunk duration.
     logger.info("Chunk duration: {} seconds".format(chunk_duration))
@@ -253,6 +258,10 @@ def process_file(
         concat_deque = np.concatenate(deque, axis=1)
         deque_context = np.percentile(
             concat_deque, percentiles, axis=1, overwrite_input=True)
+
+        # Append context.
+        if export_context:
+            contexts.append(deque_context)
 
         # Compute sensor fault features.
         # Median is 4th order statistic. Restrict to lowest 120 mel-freq bins
@@ -414,6 +423,10 @@ def process_file(
         deque_context = np.percentile(
             concat_deque, percentiles,
             axis=1, out=deque_context, overwrite_input=True)
+
+        # Append context.
+        if export_context:
+            contexts.append(deque_context)
 
         # Compute sensor fault features.
         # Median is 4th order statistic. Restrict to lowest 120 mel-freq bins
@@ -580,7 +593,7 @@ def process_file(
         chunk_confidence_length = int(frame_rate*full_length/sr)
         chunk_confidence = np.full(chunk_confidence_length, np.nan)
 
-        if has_context and (n_chunks==1):
+        if (export_context or has_context) and (n_chunks==1):
             deque_context = np.percentile(
                 chunk_pcen, percentiles, axis=1, overwrite_input=True)
             logging.warning(
@@ -601,6 +614,9 @@ def process_file(
                 concat_deque, percentiles,
                 axis=1, out=deque_context, overwrite_input=True)
 
+        # Append context.
+        if export_context:
+            contexts.append(deque_context)
 
     if not has_sensor_fault:
         # Define trimming length for last chunk.
@@ -734,6 +750,21 @@ def process_file(
             # Increment pointer.
             chunk_pointer = next_chunk_pointer
 
+    # Export context.
+    if export_context:
+        # Define output path for context.
+        confidence_path = get_output_path(
+            filepath, suffix + "context.hdf5", output_dir=output_dir)
+
+        # Stack context over time.
+        context_array = np.stack(contexts, axis=0)
+
+        # Export context.
+        with h5py.File(context_path, "w") as f:
+            f["context"] = context_array
+            f["chunk_duration"] = chunk_duration
+            f["frame_rate"] = frame_rate
+
     # Print final messages.
     if threshold is not None:
         df = pd.read_csv(checklist_path)
@@ -747,6 +778,9 @@ def process_file(
     if export_confidence:
         event_str = "The event detection curve is available at: {}"
         logger.info(event_str.format(confidence_path))
+    if export_context:
+        event_str = "The context array is available at: {}"
+        logger.info(event_str.format(context_path))
     if export_faults:
         event_str = "The list of sensor faults is available at: {}"
         logger.info(event_str.format(faultlist_path))
