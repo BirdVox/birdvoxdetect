@@ -272,8 +272,7 @@ def process_file(
 
         # Compute probability of sensor fault.
         sensor_fault_probability = sensorfault_model.predict_proba(
-            sensorfault_features)[0][0]
-        print(sensor_fault_probability)
+            sensorfault_features)[0][1]
 
         # If probability of sensor fault is above 50%,
         # exclude start of recording
@@ -438,7 +437,7 @@ def process_file(
 
         # Compute probability of sensor fault.
         sensor_fault_probability = sensorfault_model.predict_proba(
-            sensorfault_features)[0][0]
+            sensorfault_features)[0][1]
 
         # Add row to sensor fault log.
         has_sensor_fault = (sensor_fault_probability > bva_threshold)
