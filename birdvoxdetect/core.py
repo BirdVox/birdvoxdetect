@@ -271,7 +271,7 @@ def process_file(
         sensorfault_features = context_median_medfilt[::12].reshape(1, -1)
 
         # Compute probability of sensor fault.
-        sensor_fault_probability = sensorfault_model.predict(
+        sensor_fault_probability = sensorfault_model.predict_proba(
             sensorfault_features)[0]
 
         # If probability of sensor fault is above 50%,
