@@ -64,6 +64,10 @@ def process_file(
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
+    # Append underscore to suffix if it is not empty.
+    if len(suffix) > 0 and not suffix[-1] == "_":
+        suffix = suffix + "_"
+
     # Set logger level.
     logger = logging.getLogger("BirdVoxDetect")
     logger.setLevel(logger_level)
@@ -187,10 +191,6 @@ def process_file(
     pcen_settings = get_pcen_settings()
     frame_rate = pcen_settings["sr"] /\
         (pcen_settings["hop_length"] * pcen_settings["stride_length"])
-
-    # Append underscore to suffix if it is not empty.
-    if len(suffix) > 0 and not suffix[-1] == "_":
-        suffix = suffix + "_"
 
     # Initialize checklist as a Pandas DataFrame.
     if threshold is not None:
