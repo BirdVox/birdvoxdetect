@@ -757,7 +757,7 @@ def process_file(
             filepath, suffix + "context.hdf5", output_dir=output_dir)
 
         # Stack context over time.
-        context_array = np.stack(contexts, axis=0)
+        context_array = np.stack(contexts, axis=-1)
 
         # Export context.
         with h5py.File(context_path, "w") as f:
