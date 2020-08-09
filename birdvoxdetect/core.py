@@ -213,7 +213,7 @@ def process_file(
         faultlist_path = get_output_path(
             filepath, suffix + "faults.csv", output_dir=output_dir)
         faultlist_df_columns = [
-            "Start (hh:mm:ss)", "Stop (hh:mm:ss)", "Fault?"]
+            "Start (hh:mm:ss)", "Stop (hh:mm:ss)", "Fault confidence (%)"]
         faultlist_df = pd.DataFrame(columns=faultlist_df_columns)
         faultlist_df.to_csv(faultlist_path, columns=faultlist_df_columns, index=False)
 
@@ -303,7 +303,7 @@ def process_file(
                 "Start (hh:mm:ss)": seconds_to_hhmmss(0.0),
                 "Stop (hh:mm:ss)": seconds_to_hhmmss(
                     queue_length*chunk_duration),
-                "Fault?": int(has_sensor_fault)},
+                "Fault confidence (%)": int(sensor_fault_probability*100)},
                 ignore_index=True)
             faultlist_df.to_csv(
                 faultlist_path, columns=faultlist_df_columns, index=False)
@@ -445,7 +445,7 @@ def process_file(
             faultlist_df = faultlist_df.append({
                 "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id*chunk_duration),
                 "Stop (hh:mm:ss)": seconds_to_hhmmss((chunk_id+1)*chunk_duration),
-                "Fault?": int(has_sensor_fault)},
+                "Fault confidence (%)": int(sensor_fault_probability*100)},
                 ignore_index=True)
             faultlist_df.to_csv(
                 faultlist_path, columns=faultlist_df_columns, index=False)
@@ -567,7 +567,7 @@ def process_file(
         faultlist_df = faultlist_df.append({
             "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id*chunk_duration),
             "Stop (hh:mm:ss)": seconds_to_hhmmss(full_length/sr),
-            "Fault?": int(has_sensor_fault)},
+            "Fault confidence (%)": int(sensor_fault_probability*100)},
             ignore_index=True)
         faultlist_df.to_csv(
             faultlist_path, columns=faultlist_df_columns, index=False)
