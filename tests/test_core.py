@@ -151,7 +151,8 @@ def test_process_file():
     faultlist_df = pd.read_csv(faultlist_path)
     columns = faultlist_df.columns
     assert np.all(
-        columns == np.array(["Start (hh:mm:ss)", "Stop (hh:mm:ss)", "Fault?"]))
+        columns == np.array([
+            "Start (hh:mm:ss)", "Stop (hh:mm:ss)", "Fault confidence (%)"]))
     shutil.rmtree(tmpdir)
 
     # suffix
