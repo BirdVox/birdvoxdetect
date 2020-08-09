@@ -64,6 +64,10 @@ def process_file(
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
+    # Append underscore to suffix if it is not empty.
+    if len(suffix) > 0 and not suffix[-1] == "_":
+        suffix = suffix + "_"
+
     # Set logger level.
     logger = logging.getLogger("BirdVoxDetect")
     logger.setLevel(logger_level)
@@ -188,10 +192,6 @@ def process_file(
     frame_rate = pcen_settings["sr"] /\
         (pcen_settings["hop_length"] * pcen_settings["stride_length"])
 
-    # Append underscore to suffix if it is not empty.
-    if len(suffix) > 0 and not suffix[-1] == "_":
-        suffix = suffix + "_"
-
     # Initialize checklist as a Pandas DataFrame.
     if threshold is not None:
         checklist_path = get_output_path(
@@ -213,7 +213,7 @@ def process_file(
         faultlist_path = get_output_path(
             filepath, suffix + "faults.csv", output_dir=output_dir)
         faultlist_df_columns = [
-            "Start (hh:mm:ss)", "Stop (hh:mm:ss)", "Fault?"]
+            "Start (hh:mm:ss)", "Stop (hh:mm:ss)", "Fault confidence (%)"]
         faultlist_df = pd.DataFrame(columns=faultlist_df_columns)
         faultlist_df.to_csv(faultlist_path, columns=faultlist_df_columns, index=False)
 
@@ -271,8 +271,8 @@ def process_file(
         sensorfault_features = context_median_medfilt[::12].reshape(1, -1)
 
         # Compute probability of sensor fault.
-        sensor_fault_probability = sensorfault_model.predict(
-            sensorfault_features)[0]
+        sensor_fault_probability = sensorfault_model.predict_proba(
+            sensorfault_features)[0][1]
 
         # If probability of sensor fault is above 50%,
         # exclude start of recording
@@ -303,7 +303,7 @@ def process_file(
                 "Start (hh:mm:ss)": seconds_to_hhmmss(0.0),
                 "Stop (hh:mm:ss)": seconds_to_hhmmss(
                     queue_length*chunk_duration),
-                "Fault?": int(has_sensor_fault)},
+                "Fault confidence (%)": int(sensor_fault_probability*100)},
                 ignore_index=True)
             faultlist_df.to_csv(
                 faultlist_path, columns=faultlist_df_columns, index=False)
@@ -436,8 +436,8 @@ def process_file(
         sensorfault_features = context_median_medfilt[::12].reshape(1, -1)
 
         # Compute probability of sensor fault.
-        sensor_fault_probability =\
-            sensorfault_model.predict(sensorfault_features)[0]
+        sensor_fault_probability = sensorfault_model.predict_proba(
+            sensorfault_features)[0][1]
 
         # Add row to sensor fault log.
         has_sensor_fault = (sensor_fault_probability > bva_threshold)
@@ -445,7 +445,7 @@ def process_file(
             faultlist_df = faultlist_df.append({
                 "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id*chunk_duration),
                 "Stop (hh:mm:ss)": seconds_to_hhmmss((chunk_id+1)*chunk_duration),
-                "Fault?": int(has_sensor_fault)},
+                "Fault confidence (%)": int(sensor_fault_probability*100)},
                 ignore_index=True)
             faultlist_df.to_csv(
                 faultlist_path, columns=faultlist_df_columns, index=False)
@@ -567,7 +567,7 @@ def process_file(
         faultlist_df = faultlist_df.append({
             "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id*chunk_duration),
             "Stop (hh:mm:ss)": seconds_to_hhmmss(full_length/sr),
-            "Fault?": int(has_sensor_fault)},
+            "Fault confidence (%)": int(sensor_fault_probability*100)},
             ignore_index=True)
         faultlist_df.to_csv(
             faultlist_path, columns=faultlist_df_columns, index=False)
@@ -757,7 +757,7 @@ def process_file(
             filepath, suffix + "context.hdf5", output_dir=output_dir)
 
         # Stack context over time.
-        context_array = np.stack(contexts, axis=0)
+        context_array = np.stack(contexts, axis=-1)
 
         # Export context.
         with h5py.File(context_path, "w") as f:
