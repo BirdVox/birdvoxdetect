@@ -26,6 +26,7 @@ NEGATIVE_PATH = os.path.join(TEST_AUDIO_DIR,
 POSITIVE_PATH = os.path.join(TEST_AUDIO_DIR,
     'fd79e55d-d3a3-4083-aba1-4f00b545c3d6.wav')
 
+
 def test_get_file_list():
 
     # test for invalid input (must be iterable, e.g. list)
@@ -177,6 +178,7 @@ def test_main():
     # No arguments
     assert main() == None
 
+
 def test_script_main(capsys):
     # Duplicate regression test from test_run just to hit coverage
     tempdir = tempfile.mkdtemp()
@@ -190,3 +192,9 @@ def test_script_main(capsys):
         tempdir, 'fd79e55d-d3a3-4083-aba1-4f00b545c3d6_checklist.csv')
     assert os.path.isfile(outfile)
     shutil.rmtree(tempdir)
+
+    # Print version number
+    with patch(
+            'sys.argv',
+            ['birdvoxdetect', '--version']):
+        import birdvoxdetect.__main__
