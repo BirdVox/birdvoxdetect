@@ -173,6 +173,9 @@ def test_run(capsys):
     shutil.rmtree(tempdir)
 
 
+def test_main():
+    # No arguments
+    assert main() == None
 
 def test_script_main(capsys):
     # Duplicate regression test from test_run just to hit coverage
