@@ -117,7 +117,7 @@ def process_file(
     sensorfault_model_path = get_model_path(sensorfault_detector_name)
     if not os.path.exists(sensorfault_model_path):
         raise BirdVoxDetectError(
-            'Model "{}" could not be found.'.format(sensorfault_model_name)
+            'Model "{}" could not be found.'.format(sensorfault_detector_name)
         )
     sensorfault_model = joblib.load(sensorfault_model_path)
 
