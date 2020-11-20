@@ -126,7 +126,6 @@ def process_file(
                     warnings.simplefilter("ignore")
                     detector = keras.models.load_model(
                         detector_model_path,
-                        compile=False,
                         custom_objects=custom_objects)
                 is_load_successful = True
             except Exception:
@@ -151,7 +150,9 @@ def process_file(
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 classifier = keras.models.load_model(
-                    classifier_model_path, custom_objects=custom_objects)
+                    classifier_model_path,
+                    compile=False,
+                    custom_objects=custom_objects)
             is_load_successful = True
         except Exception:
             load_attempt_id += 1
