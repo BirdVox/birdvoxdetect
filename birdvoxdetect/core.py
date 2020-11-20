@@ -24,9 +24,10 @@ BVD_CLIP_LENGTH = 104
 
 with warnings.catch_warnings():
     # Suppress TF and Keras warnings when importing
-    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+    os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
     warnings.simplefilter("ignore")
     import tensorflow as tf
+
     tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
     with redirect_stderr(open(os.devnull, "w")):
         from tensorflow import keras
@@ -37,27 +38,28 @@ from birdvoxdetect.birdvoxdetect_exceptions import BirdVoxDetectError
 
 
 def map_tfr(x_tfr):
-    return (np.log1p(0.5 * x_tfr) - 0.8)
+    return np.log1p(0.5 * x_tfr) - 0.8
 
 
 def process_file(
-        filepath,
-        output_dir=None,
-        export_clips=False,
-        export_confidence=False,
-        export_context=False,
-        export_faults=False,
-        export_logger=False,
-        threshold=50.0,
-        suffix="",
-        clip_duration=1.0,
-        logger_level=logging.INFO,
-        detector_name="birdvoxdetect-v03_trial-12_network_epoch-068",
-        classifier_name="_".join([
-            "birdvoxclassify-taxonet",
-            "tv1hierarchical-2e7e1bbd434a35b3961e315cfe3832fc"]),
-        custom_objects=None,
-        bva_threshold=0.5):
+    filepath,
+    output_dir=None,
+    export_clips=False,
+    export_confidence=False,
+    export_context=False,
+    export_faults=False,
+    export_logger=False,
+    threshold=50.0,
+    suffix="",
+    clip_duration=1.0,
+    logger_level=logging.INFO,
+    detector_name="birdvoxdetect-v03_trial-12_network_epoch-068",
+    classifier_name="_".join(
+        ["birdvoxclassify-taxonet", "tv1hierarchical-2e7e1bbd434a35b3961e315cfe3832fc"]
+    ),
+    custom_objects=None,
+    bva_threshold=0.5,
+):
 
     # Create output_dir if necessary.
     if output_dir is not None:
@@ -73,15 +75,27 @@ def process_file(
     logger.setLevel(logger_level)
     if export_logger:
         logger_path = get_output_path(
-            filepath, suffix + "logger.txt", output_dir=output_dir)
-        logging.basicConfig(
-            filename=logger_path, filemode='w', level=logger_level)
+            filepath, suffix + "logger.txt", output_dir=output_dir
+        )
+        logging.basicConfig(filename=logger_path, filemode="w", level=logger_level)
 
     # Print new line and file name.
     logger.info("-" * 80)
     modules = [
-        birdvoxdetect, birdvoxclassify, h5py, joblib, json,
-        librosa, logging, np, pd, tf, scipy, sf, sklearn]
+        birdvoxdetect,
+        birdvoxclassify,
+        h5py,
+        joblib,
+        json,
+        librosa,
+        logging,
+        np,
+        pd,
+        tf,
+        scipy,
+        sf,
+        sklearn,
+    ]
     for module in modules:
         logger.info(module.__name__.ljust(15) + " v" + module.__version__)
     logger.info("")
@@ -89,23 +103,22 @@ def process_file(
 
     # Check for existence of the input file.
     if not os.path.exists(filepath):
-        raise BirdVoxDetectError(
-            'File "{}" could not be found.'.format(filepath))
+        raise BirdVoxDetectError('File "{}" could not be found.'.format(filepath))
 
     # Load the file.
     try:
         sound_file = sf.SoundFile(filepath)
     except Exception:
-        raise BirdVoxDetectError(
-            'Could not open file: {}'.format(filepath))
+        raise BirdVoxDetectError("Could not open file: {}".format(filepath))
 
     # Load the detector of sensor faults.
-    sensorfault_detector_name = 'birdvoxactivate.pkl'
+    sensorfault_detector_name = "birdvoxactivate.pkl"
     logger.info("Sensor fault detector: {}".format(sensorfault_detector_name))
     sensorfault_model_path = get_model_path(sensorfault_detector_name)
     if not os.path.exists(sensorfault_model_path):
         raise BirdVoxDetectError(
-            'Model "{}" could not be found.'.format(sensorfault_model_name))
+            'Model "{}" could not be found.'.format(sensorfault_model_name)
+        )
     sensorfault_model = joblib.load(sensorfault_model_path)
 
     # Load the detector of flight calls.
@@ -113,28 +126,28 @@ def process_file(
     if detector_name == "pcen_snr":
         detector = "pcen_snr"
     else:
-        detector_model_path = get_model_path(detector_name + '.h5')
+        detector_model_path = get_model_path(detector_name + ".h5")
         if not os.path.exists(detector_model_path):
             raise BirdVoxDetectError(
-                'Model "{}" could not be found.'.format(detector_name))
+                'Model "{}" could not be found.'.format(detector_name)
+            )
         MAX_LOAD_ATTEMPTS = 10
         load_attempt_id = 0
         is_load_successful = False
-        while not is_load_successful and (load_attempt_id<MAX_LOAD_ATTEMPTS):
+        while not is_load_successful and (load_attempt_id < MAX_LOAD_ATTEMPTS):
             try:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
                     detector = keras.models.load_model(
-                        detector_model_path,
-                        custom_objects=custom_objects)
+                        detector_model_path, custom_objects=custom_objects
+                    )
                 is_load_successful = True
             except Exception:
                 load_attempt_id += 1
         if not is_load_successful:
             exc_str = 'Could not open detector model "{}":\n{}'
             formatted_trace = traceback.format_exc()
-            exc_formatted_str = exc_str.format(
-                detector_model_path, formatted_trace)
+            exc_formatted_str = exc_str.format(detector_model_path, formatted_trace)
             raise BirdVoxDetectError(exc_formatted_str)
 
     # Load the species classifier.
@@ -142,25 +155,24 @@ def process_file(
     classifier_model_path = birdvoxclassify.get_model_path(classifier_name)
     if not os.path.exists(classifier_model_path):
         raise BirdVoxDetectError(
-            'Model "{}" could not be found.'.format(classifier_name))
+            'Model "{}" could not be found.'.format(classifier_name)
+        )
     load_attempt_id = 0
     is_load_successful = False
-    while not is_load_successful and (load_attempt_id<MAX_LOAD_ATTEMPTS):
+    while not is_load_successful and (load_attempt_id < MAX_LOAD_ATTEMPTS):
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 classifier = keras.models.load_model(
-                    classifier_model_path,
-                    compile=False,
-                    custom_objects=custom_objects)
+                    classifier_model_path, compile=False, custom_objects=custom_objects
+                )
             is_load_successful = True
         except Exception:
             load_attempt_id += 1
     if not is_load_successful:
         exc_str = 'Could not open classifier model "{}":\n{}'
         formatted_trace = traceback.format_exc()
-        exc_formatted_str = exc_str.format(
-            classifier_model_path, formatted_trace)
+        exc_formatted_str = exc_str.format(classifier_model_path, formatted_trace)
         raise BirdVoxDetectError(exc_formatted_str)
 
     # Load the taxonomy.
@@ -192,38 +204,44 @@ def process_file(
 
     # Define frame rate.
     pcen_settings = get_pcen_settings()
-    frame_rate = pcen_settings["sr"] /\
-        (pcen_settings["hop_length"] * pcen_settings["stride_length"])
+    frame_rate = pcen_settings["sr"] / (
+        pcen_settings["hop_length"] * pcen_settings["stride_length"]
+    )
 
     # Initialize checklist as a Pandas DataFrame.
     if threshold is not None:
         checklist_path = get_output_path(
-            filepath, suffix + "checklist.csv", output_dir=output_dir)
+            filepath, suffix + "checklist.csv", output_dir=output_dir
+        )
         event_hhmmss = []
         event_4lettercodes = []
         event_confidences = []
-        df_columns = [
-            "Time (hh:mm:ss)", "Species (4-letter code)", "Confidence (%)"]
-        df = pd.DataFrame({
-            "Time (hh:mm:ss)": event_hhmmss,
-            "Species (4-letter code)": event_4lettercodes,
-            "Confidence (%)": event_confidences
-        })
+        df_columns = ["Time (hh:mm:ss)", "Species (4-letter code)", "Confidence (%)"]
+        df = pd.DataFrame(
+            {
+                "Time (hh:mm:ss)": event_hhmmss,
+                "Species (4-letter code)": event_4lettercodes,
+                "Confidence (%)": event_confidences,
+            }
+        )
         df.to_csv(checklist_path, columns=df_columns, index=False)
 
     # Initialize fault log as a Pandas DataFrame.
     if export_faults:
         faultlist_path = get_output_path(
-            filepath, suffix + "faults.csv", output_dir=output_dir)
+            filepath, suffix + "faults.csv", output_dir=output_dir
+        )
         faultlist_df_columns = [
-            "Start (hh:mm:ss)", "Stop (hh:mm:ss)", "Fault confidence (%)"]
+            "Start (hh:mm:ss)",
+            "Stop (hh:mm:ss)",
+            "Fault confidence (%)",
+        ]
         faultlist_df = pd.DataFrame(columns=faultlist_df_columns)
         faultlist_df.to_csv(faultlist_path, columns=faultlist_df_columns, index=False)
 
     # Create directory of output clips.
     if export_clips:
-        clips_dir = get_output_path(
-            filepath, suffix + "clips", output_dir=output_dir)
+        clips_dir = get_output_path(filepath, suffix + "clips", output_dir=output_dir)
         if not os.path.exists(clips_dir):
             os.makedirs(clips_dir)
 
@@ -241,26 +259,28 @@ def process_file(
 
     # Define padding. Set to one second, i.e. 750 hops @ 24 kHz.
     # Any value above clip duration (150 ms) would work.
-    chunk_padding = pcen_settings["hop_length"] *\
-        int(pcen_settings["sr"] / pcen_settings["hop_length"])
+    chunk_padding = pcen_settings["hop_length"] * int(
+        pcen_settings["sr"] / pcen_settings["hop_length"]
+    )
 
     # Pre-load double-ended queue.
     deque = collections.deque()
-    for chunk_id in range(min(n_chunks-1, queue_length)):
+    for chunk_id in range(min(n_chunks - 1, queue_length)):
         # Read audio chunk.
         chunk_start = chunk_id * chunk_length
         sound_file.seek(chunk_start)
-        chunk_audio = sound_file.read(chunk_length+chunk_padding)
+        chunk_audio = sound_file.read(chunk_length + chunk_padding)
 
         # Compute PCEN.
         chunk_pcen = compute_pcen(chunk_audio, sr)
         deque.append(chunk_pcen)
 
     # Compute context.
-    if (n_chunks>1):
+    if n_chunks > 1:
         concat_deque = np.concatenate(deque, axis=1)
         deque_context = np.percentile(
-            concat_deque, percentiles, axis=1, overwrite_input=True)
+            concat_deque, percentiles, axis=1, overwrite_input=True
+        )
 
         # Append context.
         if export_context:
@@ -269,32 +289,38 @@ def process_file(
         # Compute sensor fault features.
         # Median is 4th order statistic. Restrict to lowest 120 mel-freq bins
         context_median = deque_context[4, :120]
-        context_median_medfilt = scipy.signal.medfilt(
-            context_median, kernel_size=(13,))
+        context_median_medfilt = scipy.signal.medfilt(context_median, kernel_size=(13,))
         sensorfault_features = context_median_medfilt[::12].reshape(1, -1)
 
         # Compute probability of sensor fault.
         sensor_fault_probability = sensorfault_model.predict_proba(
-            sensorfault_features)[0][1]
+            sensorfault_features
+        )[0][1]
 
         # If probability of sensor fault is above 50%,
         # exclude start of recording
         if sensor_fault_probability > bva_threshold:
-            logger.info("Probability of sensor fault: {:5.2f}%".format(
-                100*sensor_fault_probability))
-            chunk_id_start = min(n_chunks-1, queue_length)
-            context_duration = chunk_duration
-            context_duration_str = str(datetime.timedelta(
-                seconds=context_duration))
             logger.info(
-                "Ignoring segment between 00:00:00 and " +\
-                context_duration_str + " (" + str(chunk_id_start) +\
-                " chunks)")
+                "Probability of sensor fault: {:5.2f}%".format(
+                    100 * sensor_fault_probability
+                )
+            )
+            chunk_id_start = min(n_chunks - 1, queue_length)
+            context_duration = chunk_duration
+            context_duration_str = str(datetime.timedelta(seconds=context_duration))
+            logger.info(
+                "Ignoring segment between 00:00:00 and "
+                + context_duration_str
+                + " ("
+                + str(chunk_id_start)
+                + " chunks)"
+            )
             has_sensor_fault = True
             # If continuous confidence is required, store it in memory.
             if export_confidence:
                 chunk_confidence = np.full(
-                    int(chunk_id_start * chunk_duration * frame_rate), np.nan)
+                    int(chunk_id_start * chunk_duration * frame_rate), np.nan
+                )
                 chunk_confidences.append(chunk_confidence)
         else:
             chunk_id_start = 0
@@ -302,35 +328,41 @@ def process_file(
 
         # Add first row to sensor fault log.
         if export_faults:
-            faultlist_df = faultlist_df.append({
-                "Start (hh:mm:ss)": seconds_to_hhmmss(0.0),
-                "Stop (hh:mm:ss)": seconds_to_hhmmss(
-                    queue_length*chunk_duration),
-                "Fault confidence (%)": int(sensor_fault_probability*100)},
-                ignore_index=True)
+            faultlist_df = faultlist_df.append(
+                {
+                    "Start (hh:mm:ss)": seconds_to_hhmmss(0.0),
+                    "Stop (hh:mm:ss)": seconds_to_hhmmss(queue_length * chunk_duration),
+                    "Fault confidence (%)": int(sensor_fault_probability * 100),
+                },
+                ignore_index=True,
+            )
             faultlist_df.to_csv(
-                faultlist_path, columns=faultlist_df_columns, index=False)
+                faultlist_path, columns=faultlist_df_columns, index=False
+            )
     else:
         chunk_id_start = 0
         has_sensor_fault = False
 
     # Compute confidence on queue chunks.
     # NB: the following loop is skipped if there is a single chunk.
-    for chunk_id in range(chunk_id_start, min(queue_length, n_chunks-1)):
+    for chunk_id in range(chunk_id_start, min(queue_length, n_chunks - 1)):
         # Print chunk ID and number of chunks.
-        logger.info("Chunk ID: {}/{}".format(
-            str(1+chunk_id).zfill(len(str(n_chunks))), n_chunks))
+        logger.info(
+            "Chunk ID: {}/{}".format(
+                str(1 + chunk_id).zfill(len(str(n_chunks))), n_chunks
+            )
+        )
 
         # Predict.
         chunk_pcen = deque[chunk_id]
         if has_context:
             chunk_confidence = predict_with_context(
-                chunk_pcen, deque_context, detector, logger_level,
-                padding=chunk_padding)
+                chunk_pcen, deque_context, detector, logger_level, padding=chunk_padding
+            )
         else:
             chunk_confidence = predict(
-                chunk_pcen, detector, logger_level,
-                padding=chunk_padding)
+                chunk_pcen, detector, logger_level, padding=chunk_padding
+            )
 
         # Map confidence to 0-100 range.
         chunk_confidence = map_confidence(chunk_confidence, detector_name)
@@ -344,29 +376,35 @@ def process_file(
             continue
 
         # Find peaks.
-        peak_locs, _ = scipy.signal.find_peaks(
-            chunk_confidence, height=min_peak_height)
+        peak_locs, _ = scipy.signal.find_peaks(chunk_confidence, height=min_peak_height)
         peak_vals = chunk_confidence[peak_locs]
 
         # Threshold peaks.
         th_peak_locs = peak_locs[peak_vals > threshold]
         th_peak_confidences = chunk_confidence[th_peak_locs]
         chunk_offset = chunk_duration * chunk_id
-        chunk_timestamps = chunk_offset + th_peak_locs/frame_rate
+        chunk_timestamps = chunk_offset + th_peak_locs / frame_rate
         n_peaks = len(chunk_timestamps)
 
         # Classify species.
-        th_peak_4lettercodes = list(map(
-            lambda x: classify_species(classifier, chunk_pcen, x, taxonomy),
-            th_peak_locs))
+        th_peak_4lettercodes = list(
+            map(
+                lambda x: classify_species(classifier, chunk_pcen, x, taxonomy),
+                th_peak_locs,
+            )
+        )
 
         # Count flight calls.
         chunk_counter = collections.Counter(th_peak_4lettercodes)
-        logger.info(
-            "Number of flight calls in current chunk: {}".format(n_peaks))
+        logger.info("Number of flight calls in current chunk: {}".format(n_peaks))
         if n_peaks > 0:
-            logger.info("(" + ", ".join((str(v) + " " + k)
-                for (k, v) in chunk_counter.most_common()) + ")")
+            logger.info(
+                "("
+                + ", ".join(
+                    (str(v) + " " + k) for (k, v) in chunk_counter.most_common()
+                )
+                + ")"
+            )
         logger.info("")
 
         # Export timestamps.
@@ -375,46 +413,61 @@ def process_file(
         chunk_4lettercodes = list(th_peak_4lettercodes)
         event_4lettercodes = event_4lettercodes + chunk_4lettercodes
         event_confidences = event_confidences + list(th_peak_confidences)
-        df = pd.DataFrame({
-            "Time (hh:mm:ss)": event_hhmmss,
-            "Species (4-letter code)": event_4lettercodes,
-            "Confidence (%)": event_confidences
-        })
+        df = pd.DataFrame(
+            {
+                "Time (hh:mm:ss)": event_hhmmss,
+                "Species (4-letter code)": event_4lettercodes,
+                "Confidence (%)": event_confidences,
+            }
+        )
         df.to_csv(checklist_path, columns=df_columns, index=False)
 
         # Export clips.
         if export_clips:
             chunk_zip = zip(
-                chunk_timestamps, chunk_hhmmss,
-                list(th_peak_confidences), chunk_4lettercodes)
-            for clip_timestamp, clip_hhmmss, clip_confidence, clip_4lettercode in chunk_zip:
-                clip_start = max(0, int(np.round(
-                    sr*(clip_timestamp-0.5*clip_duration))))
+                chunk_timestamps,
+                chunk_hhmmss,
+                list(th_peak_confidences),
+                chunk_4lettercodes,
+            )
+            for (
+                clip_timestamp,
+                clip_hhmmss,
+                clip_confidence,
+                clip_4lettercode,
+            ) in chunk_zip:
+                clip_start = max(
+                    0, int(np.round(sr * (clip_timestamp - 0.5 * clip_duration)))
+                )
                 clip_stop = min(
-                    len(sound_file), int(np.round(
-                    sr*(clip_timestamp+0.5*clip_duration))))
+                    len(sound_file),
+                    int(np.round(sr * (clip_timestamp + 0.5 * clip_duration))),
+                )
                 sound_file.seek(clip_start)
-                audio_clip = sound_file.read(clip_stop-clip_start)
-                clip_hhmmss_escaped = clip_hhmmss.replace(
-                    ":", "_").replace(".", "-")
-                clip_name = suffix + "_".join([
-                    clip_hhmmss_escaped,
-                    str(int(clip_confidence)), clip_4lettercode])
+                audio_clip = sound_file.read(clip_stop - clip_start)
+                clip_hhmmss_escaped = clip_hhmmss.replace(":", "_").replace(".", "-")
+                clip_name = suffix + "_".join(
+                    [clip_hhmmss_escaped, str(int(clip_confidence)), clip_4lettercode]
+                )
                 clip_path = get_output_path(
-                    filepath, clip_name + ".wav", output_dir=clips_dir)
+                    filepath, clip_name + ".wav", output_dir=clips_dir
+                )
                 sf.write(clip_path, audio_clip, sr)
 
     # Loop over chunks.
     chunk_id = queue_length
-    while chunk_id < (n_chunks-1):
+    while chunk_id < (n_chunks - 1):
         # Print chunk ID and number of chunks.
-        logger.info("Chunk ID: {}/{}".format(
-            str(1+chunk_id).zfill(len(str(n_chunks))), n_chunks))
+        logger.info(
+            "Chunk ID: {}/{}".format(
+                str(1 + chunk_id).zfill(len(str(n_chunks))), n_chunks
+            )
+        )
 
         # Read chunk.
         chunk_start = chunk_id * chunk_length
         sound_file.seek(chunk_start)
-        chunk_audio = sound_file.read(chunk_length+chunk_padding)
+        chunk_audio = sound_file.read(chunk_length + chunk_padding)
 
         # Compute PCEN.
         deque.popleft()
@@ -424,8 +477,8 @@ def process_file(
         # Compute percentiles
         concat_deque = np.concatenate(deque, axis=1, out=concat_deque)
         deque_context = np.percentile(
-            concat_deque, percentiles,
-            axis=1, out=deque_context, overwrite_input=True)
+            concat_deque, percentiles, axis=1, out=deque_context, overwrite_input=True
+        )
 
         # Append context.
         if export_context:
@@ -434,55 +487,69 @@ def process_file(
         # Compute sensor fault features.
         # Median is 4th order statistic. Restrict to lowest 120 mel-freq bins
         context_median = deque_context[4, :120]
-        context_median_medfilt = scipy.signal.medfilt(
-        context_median, kernel_size=(13,))
+        context_median_medfilt = scipy.signal.medfilt(context_median, kernel_size=(13,))
         sensorfault_features = context_median_medfilt[::12].reshape(1, -1)
 
         # Compute probability of sensor fault.
         sensor_fault_probability = sensorfault_model.predict_proba(
-            sensorfault_features)[0][1]
+            sensorfault_features
+        )[0][1]
 
         # Add row to sensor fault log.
-        has_sensor_fault = (sensor_fault_probability > bva_threshold)
+        has_sensor_fault = sensor_fault_probability > bva_threshold
         if export_faults:
-            faultlist_df = faultlist_df.append({
-                "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id*chunk_duration),
-                "Stop (hh:mm:ss)": seconds_to_hhmmss((chunk_id+1)*chunk_duration),
-                "Fault confidence (%)": int(sensor_fault_probability*100)},
-                ignore_index=True)
+            faultlist_df = faultlist_df.append(
+                {
+                    "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id * chunk_duration),
+                    "Stop (hh:mm:ss)": seconds_to_hhmmss(
+                        (chunk_id + 1) * chunk_duration
+                    ),
+                    "Fault confidence (%)": int(sensor_fault_probability * 100),
+                },
+                ignore_index=True,
+            )
             faultlist_df.to_csv(
-                faultlist_path, columns=faultlist_df_columns, index=False)
+                faultlist_path, columns=faultlist_df_columns, index=False
+            )
 
         # If probability of sensor fault is above threshold, exclude chunk.
         if has_sensor_fault:
-            logger.info("Probability of sensor fault: {:5.2f}%".format(
-                100*sensor_fault_probability))
-            context_duration = queue_length * chunk_duration
-            ignored_start_str = str(datetime.timedelta(
-                seconds=chunk_id*chunk_duration))
-            ignored_stop_str = str(datetime.timedelta(
-                seconds=(chunk_id+1)*chunk_duration))
             logger.info(
-                "Ignoring segment between " +\
-                ignored_start_str + " and " +\
-                ignored_stop_str + " (1 chunk)")
+                "Probability of sensor fault: {:5.2f}%".format(
+                    100 * sensor_fault_probability
+                )
+            )
+            context_duration = queue_length * chunk_duration
+            ignored_start_str = str(
+                datetime.timedelta(seconds=chunk_id * chunk_duration)
+            )
+            ignored_stop_str = str(
+                datetime.timedelta(seconds=(chunk_id + 1) * chunk_duration)
+            )
+            logger.info(
+                "Ignoring segment between "
+                + ignored_start_str
+                + " and "
+                + ignored_stop_str
+                + " (1 chunk)"
+            )
             if export_confidence:
-                chunk_confidence_length =\
-                    int(queue_length * chunk_duration * frame_rate)
-                chunk_confidences.append(np.full(
-                    chunk_confidence_length, np.nan))
+                chunk_confidence_length = int(
+                    queue_length * chunk_duration * frame_rate
+                )
+                chunk_confidences.append(np.full(chunk_confidence_length, np.nan))
             chunk_id = chunk_id + 1
             continue
 
         # Otherwise, detect flight calls.
         if has_context:
             chunk_confidence = predict_with_context(
-                chunk_pcen, deque_context, detector, logger_level,
-                padding=chunk_padding)
+                chunk_pcen, deque_context, detector, logger_level, padding=chunk_padding
+            )
         else:
             chunk_confidence = predict(
-                chunk_pcen, detector, logger_level,
-                padding=chunk_padding)
+                chunk_pcen, detector, logger_level, padding=chunk_padding
+            )
 
         # Map confidence to 0-100 range.
         chunk_confidence = map_confidence(chunk_confidence, detector_name)
@@ -496,64 +563,82 @@ def process_file(
             continue
 
         # Find peaks.
-        peak_locs, _ = scipy.signal.find_peaks(
-            chunk_confidence, height=min_peak_height)
+        peak_locs, _ = scipy.signal.find_peaks(chunk_confidence, height=min_peak_height)
         peak_vals = chunk_confidence[peak_locs]
 
         # Threshold peaks.
         th_peak_locs = peak_locs[peak_vals > threshold]
         th_peak_confidences = chunk_confidence[th_peak_locs]
         chunk_offset = chunk_duration * chunk_id
-        chunk_timestamps = chunk_offset + th_peak_locs/frame_rate
+        chunk_timestamps = chunk_offset + th_peak_locs / frame_rate
         n_peaks = len(chunk_timestamps)
 
         # Classify species.
-        th_peak_4lettercodes = list(map(
-            lambda x: classify_species(classifier, chunk_pcen, x, taxonomy),
-            th_peak_locs))
+        th_peak_4lettercodes = list(
+            map(
+                lambda x: classify_species(classifier, chunk_pcen, x, taxonomy),
+                th_peak_locs,
+            )
+        )
         chunk_4lettercodes = list(th_peak_4lettercodes)
         event_4lettercodes = event_4lettercodes + chunk_4lettercodes
 
         # Count flight calls.
         chunk_counter = collections.Counter(th_peak_4lettercodes)
-        logger.info(
-            "Number of flight calls in current chunk: {}".format(n_peaks))
+        logger.info("Number of flight calls in current chunk: {}".format(n_peaks))
         if n_peaks > 0:
-            logger.info("(" + ", ".join((str(v) + " " + k)
-                for (k, v) in chunk_counter.most_common()) + ")")
+            logger.info(
+                "("
+                + ", ".join(
+                    (str(v) + " " + k) for (k, v) in chunk_counter.most_common()
+                )
+                + ")"
+            )
         logger.info("")
 
         # Export timestamps.
         chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
         event_hhmmss = event_hhmmss + chunk_hhmmss
         event_confidences = event_confidences + list(th_peak_confidences)
-        df = pd.DataFrame({
-            "Time (hh:mm:ss)": event_hhmmss,
-            "Species (4-letter code)": event_4lettercodes,
-            "Confidence (%)": event_confidences
-        })
+        df = pd.DataFrame(
+            {
+                "Time (hh:mm:ss)": event_hhmmss,
+                "Species (4-letter code)": event_4lettercodes,
+                "Confidence (%)": event_confidences,
+            }
+        )
         df.to_csv(checklist_path, columns=df_columns, index=False)
 
         # Export clips.
         if export_clips:
             chunk_zip = zip(
-                chunk_timestamps, chunk_hhmmss,
-                list(th_peak_confidences), chunk_4lettercodes)
-            for clip_timestamp, clip_hhmmss, clip_confidence, clip_4lettercode in chunk_zip:
-                clip_start = max(0, int(np.round(
-                    sr*(clip_timestamp-0.5*clip_duration))))
+                chunk_timestamps,
+                chunk_hhmmss,
+                list(th_peak_confidences),
+                chunk_4lettercodes,
+            )
+            for (
+                clip_timestamp,
+                clip_hhmmss,
+                clip_confidence,
+                clip_4lettercode,
+            ) in chunk_zip:
+                clip_start = max(
+                    0, int(np.round(sr * (clip_timestamp - 0.5 * clip_duration)))
+                )
                 clip_stop = min(
-                    len(sound_file), int(np.round(
-                    sr*(clip_timestamp+0.5*clip_duration))))
+                    len(sound_file),
+                    int(np.round(sr * (clip_timestamp + 0.5 * clip_duration))),
+                )
                 sound_file.seek(clip_start)
-                audio_clip = sound_file.read(clip_stop-clip_start)
-                clip_hhmmss_escaped = clip_hhmmss.replace(
-                    ":", "_").replace(".", "-")
-                clip_name = suffix + "_".join([
-                    clip_hhmmss_escaped,
-                    str(int(clip_confidence)), clip_4lettercode])
+                audio_clip = sound_file.read(clip_stop - clip_start)
+                clip_hhmmss_escaped = clip_hhmmss.replace(":", "_").replace(".", "-")
+                clip_name = suffix + "_".join(
+                    [clip_hhmmss_escaped, str(int(clip_confidence)), clip_4lettercode]
+                )
                 clip_path = get_output_path(
-                    filepath, clip_name + ".wav", output_dir=clips_dir)
+                    filepath, clip_name + ".wav", output_dir=clips_dir
+                )
                 sf.write(clip_path, audio_clip, sr)
 
         # Go to next chunk.
@@ -566,47 +651,57 @@ def process_file(
     # unstable with files shorter than 30 minutes, which is why we issue a
     # warning. Also, we do not try to detect sensor faults in files shorter than
     # 30 minutes.
-    if (n_chunks>1) and export_faults:
-        faultlist_df = faultlist_df.append({
-            "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id*chunk_duration),
-            "Stop (hh:mm:ss)": seconds_to_hhmmss(full_length/sr),
-            "Fault confidence (%)": int(sensor_fault_probability*100)},
-            ignore_index=True)
-        faultlist_df.to_csv(
-            faultlist_path, columns=faultlist_df_columns, index=False)
+    if (n_chunks > 1) and export_faults:
+        faultlist_df = faultlist_df.append(
+            {
+                "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id * chunk_duration),
+                "Stop (hh:mm:ss)": seconds_to_hhmmss(full_length / sr),
+                "Fault confidence (%)": int(sensor_fault_probability * 100),
+            },
+            ignore_index=True,
+        )
+        faultlist_df.to_csv(faultlist_path, columns=faultlist_df_columns, index=False)
 
-    if (n_chunks>1) and has_sensor_fault:
-        logger.info("Probability of sensor fault: {:5.2f}%".format(
-            100*sensor_fault_probability))
-        ignored_start_str = str(datetime.timedelta(
-            seconds=chunk_id*chunk_duration))
-        ignored_stop_str = str(datetime.timedelta(
-            seconds=full_length/sr))
+    if (n_chunks > 1) and has_sensor_fault:
         logger.info(
-            "Ignoring segment between " +\
-            ignored_start_str + " and " +\
-            ignored_stop_str + " (i.e., up to end of file)")
+            "Probability of sensor fault: {:5.2f}%".format(
+                100 * sensor_fault_probability
+            )
+        )
+        ignored_start_str = str(datetime.timedelta(seconds=chunk_id * chunk_duration))
+        ignored_stop_str = str(datetime.timedelta(seconds=full_length / sr))
+        logger.info(
+            "Ignoring segment between "
+            + ignored_start_str
+            + " and "
+            + ignored_stop_str
+            + " (i.e., up to end of file)"
+        )
     else:
         logger.info("Chunk ID: {}/{}".format(n_chunks, n_chunks))
-        chunk_start = (n_chunks-1) * chunk_length
+        chunk_start = (n_chunks - 1) * chunk_length
         sound_file.seek(chunk_start)
         context_duration = queue_length * chunk_duration
         chunk_audio = sound_file.read(full_length - chunk_start)
         chunk_pcen = compute_pcen(chunk_audio, sr)
-        chunk_confidence_length = int(frame_rate*full_length/sr)
+        chunk_confidence_length = int(frame_rate * full_length / sr)
         chunk_confidence = np.full(chunk_confidence_length, np.nan)
 
-        if (export_context or has_context) and (n_chunks==1):
+        if (export_context or has_context) and (n_chunks == 1):
             deque_context = np.percentile(
-                chunk_pcen, percentiles, axis=1, overwrite_input=True)
+                chunk_pcen, percentiles, axis=1, overwrite_input=True
+            )
             logging.warning(
-                "\nFile duration (" + str(datetime.timedelta(seconds=full_length/sr)) +\
-                ") shorter than 25% of context duration (" +\
-                str(datetime.timedelta(seconds=context_duration)) + ").\n"
-                "This may cause numerical instabilities in threshold adaptation.\n" +\
-                "We recommend disabling the context-adaptive threshold\n" +\
-                "(i.e., setting 'detector_name'='birdvoxdetect-v03_trial-12_network_epoch-06') when\n" +\
-                "running birdvoxdetect on short audio files.")
+                "\nFile duration ("
+                + str(datetime.timedelta(seconds=full_length / sr))
+                + ") shorter than 25% of context duration ("
+                + str(datetime.timedelta(seconds=context_duration))
+                + ").\n"
+                "This may cause numerical instabilities in threshold adaptation.\n"
+                + "We recommend disabling the context-adaptive threshold\n"
+                + "(i.e., setting 'detector_name'='birdvoxdetect-v03_trial-12_network_epoch-06') when\n"
+                + "running birdvoxdetect on short audio files."
+            )
             has_sensor_fault = False
         elif has_context:
             # Compute percentiles
@@ -614,8 +709,12 @@ def process_file(
             deque.append(chunk_pcen)
             concat_deque = np.concatenate(deque, axis=1)
             deque_context = np.percentile(
-                concat_deque, percentiles,
-                axis=1, out=deque_context, overwrite_input=True)
+                concat_deque,
+                percentiles,
+                axis=1,
+                out=deque_context,
+                overwrite_input=True,
+            )
 
         # Append context.
         if export_context:
@@ -633,12 +732,17 @@ def process_file(
         if has_context:
             # Predict.
             chunk_confidence = predict_with_context(
-                chunk_pcen, deque_context, detector, logger_level,
-                padding=lastchunk_trimming)
+                chunk_pcen,
+                deque_context,
+                detector,
+                logger_level,
+                padding=lastchunk_trimming,
+            )
         else:
             # Predict.
             chunk_confidence = predict(
-                chunk_pcen, detector, logger_level, padding=lastchunk_trimming)
+                chunk_pcen, detector, logger_level, padding=lastchunk_trimming
+            )
 
         # Map confidence to 0-100 range.
         chunk_confidence = map_confidence(chunk_confidence, detector_name)
@@ -648,29 +752,37 @@ def process_file(
 
             # Find peaks.
             peak_locs, _ = scipy.signal.find_peaks(
-                chunk_confidence, height=min_peak_height)
+                chunk_confidence, height=min_peak_height
+            )
             peak_vals = chunk_confidence[peak_locs]
 
             # Threshold peaks.
             th_peak_locs = peak_locs[peak_vals > threshold]
             th_peak_confidences = chunk_confidence[th_peak_locs]
 
-            chunk_offset = chunk_duration * (n_chunks-1)
-            chunk_timestamps = chunk_offset + th_peak_locs/frame_rate
+            chunk_offset = chunk_duration * (n_chunks - 1)
+            chunk_timestamps = chunk_offset + th_peak_locs / frame_rate
             n_peaks = len(chunk_timestamps)
 
             # Classify species.
-            th_peak_4lettercodes = list(map(
-                lambda x: classify_species(classifier, chunk_pcen, x, taxonomy),
-                th_peak_locs))
+            th_peak_4lettercodes = list(
+                map(
+                    lambda x: classify_species(classifier, chunk_pcen, x, taxonomy),
+                    th_peak_locs,
+                )
+            )
 
             # Count flight calls.
             chunk_counter = collections.Counter(th_peak_4lettercodes)
-            logger.info(
-                "Number of flight calls in current chunk: {}".format(n_peaks))
-            if n_peaks>0:
-                logger.info("(" + ", ".join((str(v) + " " + k)
-                    for (k, v) in chunk_counter.most_common()) + ")")
+            logger.info("Number of flight calls in current chunk: {}".format(n_peaks))
+            if n_peaks > 0:
+                logger.info(
+                    "("
+                    + ", ".join(
+                        (str(v) + " " + k) for (k, v) in chunk_counter.most_common()
+                    )
+                    + ")"
+                )
             logger.info("")
 
             # Export timestamps.
@@ -679,33 +791,51 @@ def process_file(
             chunk_4lettercodes = list(th_peak_4lettercodes)
             event_4lettercodes = event_4lettercodes + chunk_4lettercodes
             event_confidences = event_confidences + list(th_peak_confidences)
-            df = pd.DataFrame({
-                "Time (hh:mm:ss)": event_hhmmss,
-                "Species (4-letter code)": event_4lettercodes,
-                "Confidence (%)": event_confidences
-            })
+            df = pd.DataFrame(
+                {
+                    "Time (hh:mm:ss)": event_hhmmss,
+                    "Species (4-letter code)": event_4lettercodes,
+                    "Confidence (%)": event_confidences,
+                }
+            )
             df.to_csv(checklist_path, columns=df_columns, index=False)
 
             # Export clips.
             if export_clips:
                 chunk_zip = zip(
-                    chunk_timestamps, chunk_hhmmss,
-                    list(th_peak_confidences), chunk_4lettercodes)
-                for clip_timestamp, clip_hhmmss, clip_confidence, clip_4lettercode in chunk_zip:
-                    clip_start = max(0, int(np.round(
-                        sr*(clip_timestamp-0.5*clip_duration))))
+                    chunk_timestamps,
+                    chunk_hhmmss,
+                    list(th_peak_confidences),
+                    chunk_4lettercodes,
+                )
+                for (
+                    clip_timestamp,
+                    clip_hhmmss,
+                    clip_confidence,
+                    clip_4lettercode,
+                ) in chunk_zip:
+                    clip_start = max(
+                        0, int(np.round(sr * (clip_timestamp - 0.5 * clip_duration)))
+                    )
                     clip_stop = min(
-                        len(sound_file), int(np.round(
-                        sr*(clip_timestamp+0.5*clip_duration))))
+                        len(sound_file),
+                        int(np.round(sr * (clip_timestamp + 0.5 * clip_duration))),
+                    )
                     sound_file.seek(clip_start)
-                    audio_clip = sound_file.read(clip_stop-clip_start)
-                    clip_hhmmss_escaped = clip_hhmmss.replace(
-                        ":", "_").replace(".", "-")
-                    clip_name = suffix + "_".join([
-                        clip_hhmmss_escaped,
-                        str(int(clip_confidence)), clip_4lettercode])
+                    audio_clip = sound_file.read(clip_stop - clip_start)
+                    clip_hhmmss_escaped = clip_hhmmss.replace(":", "_").replace(
+                        ".", "-"
+                    )
+                    clip_name = suffix + "_".join(
+                        [
+                            clip_hhmmss_escaped,
+                            str(int(clip_confidence)),
+                            clip_4lettercode,
+                        ]
+                    )
                     clip_path = get_output_path(
-                        filepath, clip_name + ".wav", output_dir=clips_dir)
+                        filepath, clip_name + ".wav", output_dir=clips_dir
+                    )
                     sf.write(clip_path, audio_clip, sr)
 
     # Export confidence curve.
@@ -713,7 +843,8 @@ def process_file(
 
         # Define output path for confidence.
         confidence_path = get_output_path(
-            filepath, suffix + "confidence.hdf5", output_dir=output_dir)
+            filepath, suffix + "confidence.hdf5", output_dir=output_dir
+        )
 
         # Export confidence curve, chunk by chunk.
         # NB: looping over chunks, rather than concatenating them into a single
@@ -725,8 +856,8 @@ def process_file(
         chunk_confidences.append(chunk_confidence)
         total_length = sum(map(len, chunk_confidences))
         with h5py.File(confidence_path, "w") as f:
-            f.create_dataset('confidence', (total_length,), dtype="float32")
-            f.create_dataset('time', (total_length,), dtype="float32")
+            f.create_dataset("confidence", (total_length,), dtype="float32")
+            f.create_dataset("time", (total_length,), dtype="float32")
             f["chunk_duration"] = chunk_duration
             f["frame_rate"] = frame_rate
 
@@ -739,15 +870,18 @@ def process_file(
             chunk_length = len(chunk_confidence)
             next_chunk_pointer = chunk_pointer + chunk_length
             chunk_start = chunk_duration * chunk_id
-            chunk_stop = chunk_start + chunk_length/frame_rate
+            chunk_stop = chunk_start + chunk_length / frame_rate
             chunk_time = np.linspace(
-                chunk_start, chunk_stop,
-                num=chunk_length, endpoint=False, dtype=np.float32)
+                chunk_start,
+                chunk_stop,
+                num=chunk_length,
+                endpoint=False,
+                dtype=np.float32,
+            )
 
             # Export chunk as HDF5
             with h5py.File(confidence_path, "a") as f:
-                f["confidence"][chunk_pointer:next_chunk_pointer] =\
-                    chunk_confidence
+                f["confidence"][chunk_pointer:next_chunk_pointer] = chunk_confidence
                 f["time"][chunk_pointer:next_chunk_pointer] = chunk_time
 
             # Increment pointer.
@@ -757,7 +891,8 @@ def process_file(
     if export_context:
         # Define output path for context.
         context_path = get_output_path(
-            filepath, suffix + "context.hdf5", output_dir=output_dir)
+            filepath, suffix + "context.hdf5", output_dir=output_dir
+        )
 
         # Stack context over time.
         context_array = np.stack(contexts, axis=-1)
@@ -771,8 +906,16 @@ def process_file(
     # Print final messages.
     if threshold is not None:
         df = pd.read_csv(checklist_path)
-        logger.info("\n".join([(k + " " + str(v).rjust(6)) for (k, v) in
-            collections.Counter(df["Species (4-letter code)"]).most_common()]))
+        logger.info(
+            "\n".join(
+                [
+                    (k + " " + str(v).rjust(6))
+                    for (k, v) in collections.Counter(
+                        df["Species (4-letter code)"]
+                    ).most_common()
+                ]
+            )
+        )
         logger.info("TOTAL: {}.".format(str(len(df)).rjust(4)))
         timestamp_str = "Checklist is available at: {}"
         logger.info(timestamp_str.format(checklist_path))
@@ -801,10 +944,9 @@ def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
     th_peak_hop = th_peak_loc * pcen_settings["stride_length"]
 
     # Extract clip in PCEN domain
-    pcen_clip_start = th_peak_hop - clip_length//2
-    pcen_clip_stop = th_peak_hop + clip_length//2
-    pcen_clip = chunk_pcen[:120,
-        pcen_clip_start:pcen_clip_stop, np.newaxis]
+    pcen_clip_start = th_peak_hop - clip_length // 2
+    pcen_clip_stop = th_peak_hop + clip_length // 2
+    pcen_clip = chunk_pcen[:120, pcen_clip_start:pcen_clip_stop, np.newaxis]
 
     # If PCEN clip is empty, return OTHE (other)
     if pcen_clip.shape[1] == 0:
@@ -812,13 +954,14 @@ def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
 
     # Call birdvoxclassify to extract rich prediction
     full_pred = birdvoxclassify.format_pred(
-        birdvoxclassify.predict(pcen_clip, classifier=classifier),
-        taxonomy=taxonomy)
+        birdvoxclassify.predict(pcen_clip, classifier=classifier), taxonomy=taxonomy
+    )
 
     # Extract three-digit tag of maximum probability
-    fine_tag = max({k: full_pred["fine"][k]["probability"]
-            for k in full_pred["fine"]}.items(),
-        key=operator.itemgetter(1))[0]
+    fine_tag = max(
+        {k: full_pred["fine"][k]["probability"] for k in full_pred["fine"]}.items(),
+        key=operator.itemgetter(1),
+    )[0]
 
     # Convert three-digit tag to fine taxonomy
     aliases = full_pred["fine"][fine_tag]["taxonomy_level_aliases"]
@@ -838,7 +981,7 @@ def compute_pcen(audio, sr):
     librosa.util.valid_audio(audio, mono=True)
 
     # Map to the range [-2**31, 2**31[
-    audio = (audio * (2**31)).astype('float32')
+    audio = (audio * (2 ** 31)).astype("float32")
 
     # Resample to 22,050 Hz
     if not sr == pcen_settings["sr"]:
@@ -851,10 +994,11 @@ def compute_pcen(audio, sr):
         n_fft=pcen_settings["n_fft"],
         win_length=pcen_settings["win_length"],
         hop_length=pcen_settings["hop_length"],
-        window=pcen_settings["window"])
+        window=pcen_settings["window"],
+    )
 
     # Compute squared magnitude coefficients.
-    abs2_stft = (stft.real*stft.real) + (stft.imag*stft.imag)
+    abs2_stft = (stft.real * stft.real) + (stft.imag * stft.imag)
 
     # Gather frequency bins according to the Mel scale.
     # NB: as of librosa v0.6.2, melspectrogram is type-instable and thus
@@ -869,7 +1013,8 @@ def compute_pcen(audio, sr):
         n_mels=pcen_settings["n_mels"],
         htk=True,
         fmin=pcen_settings["fmin"],
-        fmax=pcen_settings["fmax"])
+        fmax=pcen_settings["fmax"],
+    )
 
     # Compute PCEN.
     pcen = librosa.pcen(
@@ -879,13 +1024,14 @@ def compute_pcen(audio, sr):
         gain=pcen_settings["pcen_norm_exponent"],
         bias=pcen_settings["pcen_delta"],
         power=pcen_settings["pcen_power"],
-        time_constant=pcen_settings["pcen_time_constant"])
+        time_constant=pcen_settings["pcen_time_constant"],
+    )
 
     # Convert to single floating-point precision.
-    pcen = pcen.astype('float32')
+    pcen = pcen.astype("float32")
 
     # Truncate spectrum to range 2-10 kHz.
-    pcen = pcen[:pcen_settings["top_freq_id"], :]
+    pcen = pcen[: pcen_settings["top_freq_id"], :]
 
     # Return.
     return pcen
@@ -901,15 +1047,13 @@ def predict(pcen, detector, logger_level, padding=0):
         frame_rate = 20.0
         pcen_snr = np.max(pcen, axis=0) - np.min(pcen, axis=0)
         pcen_confidence = pcen_snr / (0.001 + pcen_snr)
-        median_confidence = scipy.signal.medfilt(
-            pcen_confidence, kernel_size=127)
+        median_confidence = scipy.signal.medfilt(pcen_confidence, kernel_size=127)
         sr = pcen_settings["sr"]
         hop_length = pcen_settings["hop_length"]
-        audio_duration = pcen.shape[1]*hop_length/sr
+        audio_duration = pcen.shape[1] * hop_length / sr
         confidence_x = np.arange(
-            0.0,
-            audio_duration*sr/hop_length,
-            sr/(hop_length*frame_rate))[:-1].astype('int')
+            0.0, audio_duration * sr / hop_length, sr / (hop_length * frame_rate)
+        )[:-1].astype("int")
         y = 100 * np.clip(median_confidence[confidence_x], 0.0, 1.0)
 
     # PCEN-CNN. (no context adaptation)
@@ -930,16 +1074,14 @@ def predict(pcen, detector, logger_level, padding=0):
 
         # Stride and tile.
         X_shape = (n_strides, clip_length, n_freqs)
-        X_stride = (itemsize*n_freqs*stride_length, itemsize*n_freqs, itemsize)
+        X_stride = (itemsize * n_freqs * stride_length, itemsize * n_freqs, itemsize)
         X_pcen = np.lib.stride_tricks.as_strided(
-            np.ravel(map_tfr(pcen).T),
-            shape=X_shape,
-            strides=X_stride,
-            writeable=False)
+            np.ravel(map_tfr(pcen).T), shape=X_shape, strides=X_stride, writeable=False
+        )
         X_pcen = np.transpose(X_pcen, (0, 2, 1))[:, :, :, np.newaxis]
 
         # Predict.
-        verbose = (logger_level < 15)
+        verbose = logger_level < 15
         y = detector.predict(X_pcen, verbose=verbose)
 
     return np.squeeze(y)
@@ -966,22 +1108,18 @@ def predict_with_context(pcen, context, detector, logger_level, padding=0):
 
     # Stride and tile.
     X_shape = (n_strides, clip_length, n_freqs)
-    X_stride = (itemsize*n_freqs*stride_length, itemsize*n_freqs, itemsize)
+    X_stride = (itemsize * n_freqs * stride_length, itemsize * n_freqs, itemsize)
     X_pcen = np.lib.stride_tricks.as_strided(
-        np.ravel(map_tfr(pcen).T),
-        shape=X_shape,
-        strides=X_stride,
-        writeable=False)
+        np.ravel(map_tfr(pcen).T), shape=X_shape, strides=X_stride, writeable=False
+    )
     X_pcen = np.transpose(X_pcen, (0, 2, 1))[:, :, :, np.newaxis]
     X_bg = np.broadcast_to(
-        context.T[np.newaxis, :, :],
-        (n_strides, context.shape[1], context.shape[0]))
+        context.T[np.newaxis, :, :], (n_strides, context.shape[1], context.shape[0])
+    )
 
     # Predict.
-    verbose = (logger_level < 15)
-    y = detector.predict(
-        {"spec_input": X_pcen, "bg_input": X_bg},
-        verbose=verbose)
+    verbose = logger_level < 15
+    y = detector.predict({"spec_input": X_pcen, "bg_input": X_bg}, verbose=verbose)
 
     # Return confidence.
     return y.squeeze()
@@ -1007,7 +1145,7 @@ def get_output_path(filepath, suffix, output_dir=None):
     if not output_dir:
         output_dir = os.path.dirname(filepath)
 
-    if suffix[0] != '.':
+    if suffix[0] != ".":
         output_filename = "{}_{}".format(base_filename, suffix)
     else:
         output_filename = base_filename + suffix
@@ -1030,13 +1168,13 @@ def get_pcen_settings():
         "stride_length": 34,
         "top_freq_id": 128,
         "win_length": 256,
-        "window": "flattop"}
+        "window": "flattop",
+    }
     return pcen_settings
 
 
 def get_model_path(model_name):
-    return os.path.join(
-        os.path.dirname(__file__), "models", model_name)
+    return os.path.join(os.path.dirname(__file__), "models", model_name)
 
 
 def map_confidence(y, model_name):
@@ -1045,17 +1183,25 @@ def map_confidence(y, model_name):
     y_inverse_sigmoid = log1my - logy - np.log(np.finfo(np.float32).eps)
     if model_name == "birdvoxdetect-v03_trial-12_network_epoch-068":
         # See birdvox-full-season/detector-v03/notebooks/07_measure-precision-300h.ipynb
-        y_in = np.maximum(0, y_inverse_sigmoid-18)**2 / 100
-        y_out = 14.76561354 * (y_in**3) - 68.54604756 * (y_in**2) +\
-            111.89379155 * (y_in) - 0.13061346
+        y_in = np.maximum(0, y_inverse_sigmoid - 18) ** 2 / 100
+        y_out = (
+            14.76561354 * (y_in ** 3)
+            - 68.54604756 * (y_in ** 2)
+            + 111.89379155 * (y_in)
+            - 0.13061346
+        )
     elif model_name == "birdvoxdetect-v03_T-1800_trial-37_network_epoch-023":
         # See birdvox-full-season/detector-v03/notebooks/10_measure-precision-300h-ca.ipynb
-        y_in = np.maximum(0, y_inverse_sigmoid-18)**2 / 100
-        y_out = 4.28734484 * (y_in**3) - 25.97219728 * (y_in**2) +\
-            62.66749547 * (y_in) + 4.8942351
+        y_in = np.maximum(0, y_inverse_sigmoid - 18) ** 2 / 100
+        y_out = (
+            4.28734484 * (y_in ** 3)
+            - 25.97219728 * (y_in ** 2)
+            + 62.66749547 * (y_in)
+            + 4.8942351
+        )
     else:
-        y_in = y_inverse_sigmoid**2
-        y_out = 0.09*y_in
+        y_in = y_inverse_sigmoid ** 2
+        y_out = 0.09 * y_in
     return np.clip(y_out, 0.0, 99.99)
 
 
