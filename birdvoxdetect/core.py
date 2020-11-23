@@ -216,7 +216,7 @@ def process_file(
         event_hhmmss = []
         event_4lettercodes = []
         event_confidences = []
-        df_columns = ["Time (hh:mm:ss)", "Species (4-letter code)", "Confidence (%)"]
+        df_columns = ["Time (hh:mm:ss)", "Confidence (%)", "Species (4-letter code)"]
         df = pd.DataFrame(
             {
                 "Time (hh:mm:ss)": event_hhmmss,
@@ -387,7 +387,7 @@ def process_file(
         n_peaks = len(chunk_timestamps)
 
         # Classify species.
-        th_peak_4lettercodes = list(
+        chunk_df = pd.DataFrame(
             map(
                 lambda x: classify_species(classifier, chunk_pcen, x, taxonomy),
                 th_peak_locs,
@@ -395,7 +395,7 @@ def process_file(
         )
 
         # Count flight calls.
-        chunk_counter = collections.Counter(th_peak_4lettercodes)
+        chunk_counter = collections.Counter(chunk_df["Species (4-letter code)"])
         logger.info("Number of flight calls in current chunk: {}".format(n_peaks))
         if n_peaks > 0:
             logger.info(
@@ -409,17 +409,9 @@ def process_file(
 
         # Export timestamps.
         chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
-        event_hhmmss = event_hhmmss + chunk_hhmmss
-        chunk_4lettercodes = list(th_peak_4lettercodes)
-        event_4lettercodes = event_4lettercodes + chunk_4lettercodes
-        event_confidences = event_confidences + list(th_peak_confidences)
-        df = pd.DataFrame(
-            {
-                "Time (hh:mm:ss)": event_hhmmss,
-                "Species (4-letter code)": event_4lettercodes,
-                "Confidence (%)": event_confidences,
-            }
-        )
+        chunk_df["Time (hh:mm:ss)"] = event_hhmmss + chunk_hhmmss
+        chunk_df["Confidence (%)"] = th_peak_confidences
+        df.append(chunk_df)
         df.to_csv(checklist_path, columns=df_columns, index=False)
 
         # Export clips.
@@ -574,17 +566,15 @@ def process_file(
         n_peaks = len(chunk_timestamps)
 
         # Classify species.
-        th_peak_4lettercodes = list(
+        chunk_df = pd.DataFrame(
             map(
                 lambda x: classify_species(classifier, chunk_pcen, x, taxonomy),
                 th_peak_locs,
             )
         )
-        chunk_4lettercodes = list(th_peak_4lettercodes)
-        event_4lettercodes = event_4lettercodes + chunk_4lettercodes
 
         # Count flight calls.
-        chunk_counter = collections.Counter(th_peak_4lettercodes)
+        chunk_counter = collections.Counter(chunk_df["Species (4-letter code)"])
         logger.info("Number of flight calls in current chunk: {}".format(n_peaks))
         if n_peaks > 0:
             logger.info(
@@ -598,15 +588,9 @@ def process_file(
 
         # Export timestamps.
         chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
-        event_hhmmss = event_hhmmss + chunk_hhmmss
-        event_confidences = event_confidences + list(th_peak_confidences)
-        df = pd.DataFrame(
-            {
-                "Time (hh:mm:ss)": event_hhmmss,
-                "Species (4-letter code)": event_4lettercodes,
-                "Confidence (%)": event_confidences,
-            }
-        )
+        chunk_df["Time (hh:mm:ss)"] = event_hhmmss + chunk_hhmmss
+        chunk_df["Confidence (%)"] = th_peak_confidences
+        df.append(chunk_df)
         df.to_csv(checklist_path, columns=df_columns, index=False)
 
         # Export clips.
@@ -765,7 +749,7 @@ def process_file(
             n_peaks = len(chunk_timestamps)
 
             # Classify species.
-            th_peak_4lettercodes = list(
+            chunk_df = pd.DataFrame(
                 map(
                     lambda x: classify_species(classifier, chunk_pcen, x, taxonomy),
                     th_peak_locs,
@@ -773,7 +757,7 @@ def process_file(
             )
 
             # Count flight calls.
-            chunk_counter = collections.Counter(th_peak_4lettercodes)
+            chunk_counter = collections.Counter(chunk_df["Species (4-letter code)"])
             logger.info("Number of flight calls in current chunk: {}".format(n_peaks))
             if n_peaks > 0:
                 logger.info(
@@ -787,17 +771,9 @@ def process_file(
 
             # Export timestamps.
             chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
-            event_hhmmss = event_hhmmss + chunk_hhmmss
-            chunk_4lettercodes = list(th_peak_4lettercodes)
-            event_4lettercodes = event_4lettercodes + chunk_4lettercodes
-            event_confidences = event_confidences + list(th_peak_confidences)
-            df = pd.DataFrame(
-                {
-                    "Time (hh:mm:ss)": event_hhmmss,
-                    "Species (4-letter code)": event_4lettercodes,
-                    "Confidence (%)": event_confidences,
-                }
-            )
+            chunk_df["Time (hh:mm:ss)"] = event_hhmmss + chunk_hhmmss
+            chunk_df["Confidence (%)"] = th_peak_confidences
+            df.append(chunk_df)
             df.to_csv(checklist_path, columns=df_columns, index=False)
 
             # Export clips.
@@ -948,29 +924,46 @@ def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
     pcen_clip_stop = th_peak_hop + clip_length // 2
     pcen_clip = chunk_pcen[:120, pcen_clip_start:pcen_clip_stop, np.newaxis]
 
-    # If PCEN clip is empty, return OTHE (other)
+    # If PCEN clip is empty, return None
     if pcen_clip.shape[1] == 0:
-        return "OTHE"
+        return None
 
-    # Call birdvoxclassify to extract rich prediction
-    full_pred = birdvoxclassify.format_pred(
-        birdvoxclassify.predict(pcen_clip, classifier=classifier), taxonomy=taxonomy
-    )
+    # Run BirdVoxClassify.
+    bvc_prediction = birdvoxclassify.predict(pcen_clip, classifier=classifier)
 
-    # Extract three-digit tag of maximum probability
-    fine_tag = max(
-        {k: full_pred["fine"][k]["probability"] for k in full_pred["fine"]}.items(),
-        key=operator.itemgetter(1),
-    )[0]
+    # Format prediction
+    prediction = birdvoxclassify.format_pred(bvc_prediction, taxonomy=taxonomy)
 
-    # Convert three-digit tag to fine taxonomy
-    aliases = full_pred["fine"][fine_tag]["taxonomy_level_aliases"]
-    if "species_4letter_code" in aliases:
-        event_4lettercode = aliases["species_4letter_code"]
-    else:
-        event_4lettercode = "OTHE"
+    # Get prediction levels.
+    pred_levels = list(prediction.keys())
 
-    return event_4lettercode
+    # Loop over taxonomical levels.
+    argmax_prediction = {}
+    for pred_level in pred_levels:
+        # List probabilities
+        prob_dict = {
+            k: prediction[pred_level][k]["probability"]
+            for k in prediction[pred_level]
+        }
+
+        # Extract class of maximum probability
+        argmax_taxon = max(prob_dict.items(), key=operator.itemgetter(1))[0]
+        argmax_dict = prediction[pred_level][argmax_taxon]
+
+        if (pred_level=="coarse"):
+            argmax_prediction["Order"] = "other"
+            if (prob_dict[argmax_taxon]>0.5):
+                argmax_prediction["Order"] = argmax_dict["scientific_name"]
+        elif (pred_level=="medium"):
+            argmax_prediction["Family"] = argmax_dict["scientific_name"]
+        elif (pred_level=="fine"):
+            argmax_prediction["Species (4-letter code)"] = "OTHE"
+            aliases = argmax_dict["taxonomy_level_aliases"]
+            if "species_4letter_code" in aliases:
+                alias = aliases["species_4letter_code"]
+                argmax_prediction["Species (4-letter code)"] = alias
+
+    return argmax_prediction
 
 
 def compute_pcen(audio, sr):
