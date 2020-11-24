@@ -74,10 +74,12 @@ def test_process_file():
     assert os.path.exists(csv_path)
     df = pd.read_csv(csv_path)
     assert len(df) == 1
-    assert len(df.columns) == 3
+    assert len(df.columns) == 5
     assert df.columns[0] == "Time (hh:mm:ss)"
     assert df.columns[1] == "Species (4-letter code)"
-    assert df.columns[2] == "Confidence (%)"
+    assert df.columns[2] == "Family"
+    assert df.columns[3] == "Order"
+    assert df.columns[4] == "Confidence (%)"
     df_strptime = datetime.datetime.strptime(
         list(df["Time (hh:mm:ss)"])[0], "%H:%M:%S.%f"
     )
@@ -87,6 +89,8 @@ def test_process_file():
     assert np.allclose(
         np.array([df_timedelta.total_seconds()]), np.array([8.79]), atol=0.1
     )
+    assert list(df["Order"])[0] == "Passeriforme"
+    assert list(df["Family"])[0] == "Turdidae"
     assert list(df["Species (4-letter code)"])[0] == "SWTH"
     shutil.rmtree(tmpdir)
 
