@@ -12,11 +12,14 @@ import numpy as np
 import operator
 import os
 import pandas as pd
+import platform
 import scipy
 import scipy.signal
 import sklearn
 import socket
 import soundfile as sf
+import sys
+import time
 import traceback
 import warnings
 
@@ -224,17 +227,18 @@ def process_file(
         df.to_csv(checklist_path,index=False)
 
     # Initialize fault log as a Pandas DataFrame.
+    faultlist_path = get_output_path(
+        filepath, suffix + "faults.csv", output_dir=output_dir
+    )
+    faultlist_df_columns = [
+        "Start (hh:mm:ss)",
+        "Stop (hh:mm:ss)",
+        "Fault confidence (%)",
+    ]
+    faultlist_df = pd.DataFrame(columns=faultlist_df_columns)
     if export_faults:
-        faultlist_path = get_output_path(
-            filepath, suffix + "faults.csv", output_dir=output_dir
-        )
-        faultlist_df_columns = [
-            "Start (hh:mm:ss)",
-            "Stop (hh:mm:ss)",
-            "Fault confidence (%)",
-        ]
-        faultlist_df = pd.DataFrame(columns=faultlist_df_columns)
-        faultlist_df.to_csv(faultlist_path, columns=faultlist_df_columns, index=False)
+        faultlist_df.to_csv(
+            faultlist_path, columns=faultlist_df_columns, index=False)
 
     # Initialize JSON output.
     if predict_proba:
@@ -353,15 +357,15 @@ def process_file(
             has_sensor_fault = False
 
         # Add first row to sensor fault log.
+        faultlist_df = faultlist_df.append(
+            {
+                "Start (hh:mm:ss)": seconds_to_hhmmss(0.0),
+                "Stop (hh:mm:ss)": seconds_to_hhmmss(queue_length * chunk_duration),
+                "Fault confidence (%)": int(sensor_fault_probability * 100),
+            },
+            ignore_index=True,
+        )
         if export_faults:
-            faultlist_df = faultlist_df.append(
-                {
-                    "Start (hh:mm:ss)": seconds_to_hhmmss(0.0),
-                    "Stop (hh:mm:ss)": seconds_to_hhmmss(queue_length * chunk_duration),
-                    "Fault confidence (%)": int(sensor_fault_probability * 100),
-                },
-                ignore_index=True,
-            )
             faultlist_df.to_csv(
                 faultlist_path, columns=faultlist_df_columns, index=False
             )
@@ -534,23 +538,23 @@ def process_file(
         )[0][1]
 
         # Add row to sensor fault log.
-        has_sensor_fault = sensor_fault_probability > bva_threshold
+        faultlist_df = faultlist_df.append(
+            {
+                "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id * chunk_duration),
+                "Stop (hh:mm:ss)": seconds_to_hhmmss(
+                    (chunk_id + 1) * chunk_duration
+                ),
+                "Fault confidence (%)": int(sensor_fault_probability * 100),
+            },
+            ignore_index=True,
+        )
         if export_faults:
-            faultlist_df = faultlist_df.append(
-                {
-                    "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id * chunk_duration),
-                    "Stop (hh:mm:ss)": seconds_to_hhmmss(
-                        (chunk_id + 1) * chunk_duration
-                    ),
-                    "Fault confidence (%)": int(sensor_fault_probability * 100),
-                },
-                ignore_index=True,
-            )
             faultlist_df.to_csv(
                 faultlist_path, columns=faultlist_df_columns, index=False
             )
 
         # If probability of sensor fault is above threshold, exclude chunk.
+        has_sensor_fault = (sensor_fault_probability > bva_threshold)
         if has_sensor_fault:
             logger.info(
                 "Probability of sensor fault: {:5.2f}%".format(
@@ -701,7 +705,7 @@ def process_file(
     # unstable with files shorter than 30 minutes, which is why we issue a
     # warning. Also, we do not try to detect sensor faults in files shorter than
     # 30 minutes.
-    if (n_chunks > 1) and export_faults:
+    if (n_chunks > 1):
         faultlist_df = faultlist_df.append(
             {
                 "Start (hh:mm:ss)": seconds_to_hhmmss(chunk_id * chunk_duration),
@@ -710,7 +714,9 @@ def process_file(
             },
             ignore_index=True,
         )
-        faultlist_df.to_csv(faultlist_path, columns=faultlist_df_columns, index=False)
+        if export_faults:
+            faultlist_df.to_csv(
+                faultlist_path, columns=faultlist_df_columns, index=False)
 
     if (n_chunks > 1) and has_sensor_fault:
         logger.info(
