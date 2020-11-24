@@ -66,6 +66,8 @@ def process_file(
     custom_objects=None,
     bva_threshold=0.5,
 ):
+    # Record local time. This will eventually serve to measure elapsed time.
+    start_time = time.time()
 
     # Create output_dir if necessary.
     if output_dir is not None:
@@ -863,6 +865,7 @@ def process_file(
             if predict_proba:
                 with open(json_path, "w") as f:
                     json_faultlist = faultlist_df.to_json(orient="index")
+                    json_metadata["elapsed_time"] = time.time() - start_time
                     json.dump({
                         "events": json_dicts,
                         "metadata": json_metadata,
