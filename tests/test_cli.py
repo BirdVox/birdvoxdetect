@@ -183,12 +183,18 @@ def test_main():
 def test_script_main(capsys):
     # Duplicate regression test from test_run just to hit coverage
     tempdir = tempfile.mkdtemp()
-    with patch("sys.argv", ["birdvoxdetect", POSITIVE_PATH, "--output-dir", tempdir]):
+    with patch(
+        "sys.argv",
+        [
+            "birdvoxdetect", POSITIVE_PATH,
+            "--output-dir", tempdir,
+            "--suffix", "cli",
+            "--export-clips"]):
         import birdvoxdetect.__main__
 
     # Check output file created
     outfile = os.path.join(
-        tempdir, "fd79e55d-d3a3-4083-aba1-4f00b545c3d6_checklist.csv"
+        tempdir, "fd79e55d-d3a3-4083-aba1-4f00b545c3d6_cli_checklist.csv"
     )
     assert os.path.isfile(outfile)
     shutil.rmtree(tempdir)
