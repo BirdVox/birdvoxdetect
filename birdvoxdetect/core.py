@@ -248,7 +248,7 @@ def process_file(
                 hash_md5.update(chunk)
         json_header = {
             "absolute_path": os.path.abspath(filepath),
-            "audio_duration": librosa.get_duration(filepath),
+            "audio_duration": librosa.get_duration(filename=filepath),
             "birdvoxdetect_threshold": threshold,
             "birdvoxactivate_threshold": bva_threshold,
             "classifier_name": classifier_name,
