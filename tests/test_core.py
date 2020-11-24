@@ -171,7 +171,7 @@ def test_process_file():
         output_dir=tmpdir,
         predict_proba=True,
     )
-    json_path = os.path.join(tmpdir, POSITIVE_MD5 + "_proba.csv")
+    json_path = os.path.join(tmpdir, POSITIVE_MD5 + "_proba.json")
     assert os.path.exists(json_path)
     with open(json_path, "r") as json_file:
         json_dict = json.load(json_file)
