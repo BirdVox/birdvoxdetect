@@ -14,6 +14,7 @@ import pandas as pd
 import scipy
 import scipy.signal
 import sklearn
+import socket
 import soundfile as sf
 import traceback
 import warnings
@@ -48,8 +49,8 @@ def process_file(
     export_confidence=False,
     export_context=False,
     export_faults=False,
-    export_json=False,
     export_logger=False,
+    predict_proba=False,
     threshold=50.0,
     suffix="",
     clip_duration=1.0,
@@ -234,6 +235,33 @@ def process_file(
         faultlist_df = pd.DataFrame(columns=faultlist_df_columns)
         faultlist_df.to_csv(faultlist_path, columns=faultlist_df_columns, index=False)
 
+    # Initialize JSON output.
+    if predict_proba:
+        json_path = get_output_path(
+            filepath, suffix + "proba.json", output_dir
+        )
+        # Get MD5 hash.
+        hash_md5 = hashlib.md5()
+        with open(file_path, "rb") as fhandle:
+            for chunk in iter(lambda: fhandle.read(4096), b""):
+                hash_md5.update(chunk)
+        json_header = {
+            "absolute_path": os.path.abspath(filepath),
+            "audio_duration": librosa.get_duration(filepath),
+            "birdvoxdetect_threshold": threshold,
+            "birdvoxactivate_threshold": bva_threshold,
+            "classifier_name": classifier_name,
+            "detector_name": detector_name,
+            "filepath": filepath,
+            "hostname": socket.gethostname(),
+            "md5_checksum": hash_md5.hexdigest(),
+            "versions": {
+                module.__name__: module.__version__ for module in modules
+            }
+        }
+        with open(json_path, "w") as f:
+            json.dump({"header": json_header}, f)
+
     # Create directory of output clips.
     if export_clips:
         clips_dir = get_output_path(filepath, suffix + "clips", output_dir=output_dir)
@@ -247,10 +275,6 @@ def process_file(
     # Initialize list of context arrays.
     if export_context:
         contexts = []
-
-    # Initialize list of probabilistic predictions.
-    if export_json:
-        json_dicts = []
 
     # Print chunk duration.
     logger.info("Chunk duration: {} seconds".format(chunk_duration))
@@ -391,7 +415,7 @@ def process_file(
             row, json_dict = classify_species(
                 classifier, chunk_pcen, th_peak_loc, taxonomy)
             rows.append(row)
-            if export_json:
+            if predict_proba:
                 json_dicts.append(json_dict)
         chunk_df = pd.DataFrame(rows)
 
@@ -419,6 +443,13 @@ def process_file(
             if column in chunk_df]
         df = df.append(chunk_df)
         df.to_csv(checklist_path, columns=df_columns, index=False)
+
+        # Export probabilities as JSON file.
+        with open(json_path, "w") as f:
+            json.dump({
+                "header": json_header,
+                "events": json_dicts
+            }, f)
 
         # Export clips.
         if export_clips and len(df)>0:
@@ -577,7 +608,7 @@ def process_file(
             row, json_dict = classify_species(
                 classifier, chunk_pcen, th_peak_loc, taxonomy)
             rows.append(row)
-            if export_json:
+            if predict_proba:
                 json_dicts.append(json_dict)
         chunk_df = pd.DataFrame(rows)
 
@@ -605,6 +636,13 @@ def process_file(
             if column in chunk_df]
         df = df.append(chunk_df)
         df.to_csv(checklist_path, columns=df_columns, index=False)
+
+        # Export probabilities as JSON file.
+        with open(json_path, "w") as f:
+            json.dump({
+                "header": json_header,
+                "events": json_dicts
+            }, f)
 
         # Export clips.
         if export_clips and len(df)>0:
@@ -767,7 +805,7 @@ def process_file(
                 row, json_dict = classify_species(
                     classifier, chunk_pcen, th_peak_loc, taxonomy)
                 rows.append(row)
-                if export_json:
+                if predict_proba:
                     json_dicts.append(json_dict)
             chunk_df = pd.DataFrame(rows)
 
@@ -795,6 +833,13 @@ def process_file(
                 if column in chunk_df]
             df = df.append(chunk_df)
             df.to_csv(checklist_path, columns=df_columns, index=False)
+
+            # Export probabilities as JSON file.
+            with open(json_path, "w") as f:
+                json.dump({
+                    "header": json_header,
+                    "events": json_dicts
+                }, f)
 
             # Export clips.
             if export_clips and len(df)>0:
