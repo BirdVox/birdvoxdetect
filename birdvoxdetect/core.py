@@ -3,6 +3,7 @@ import collections
 from contextlib import redirect_stderr
 import datetime
 import h5py
+import hashlib
 import joblib
 import json
 import librosa
