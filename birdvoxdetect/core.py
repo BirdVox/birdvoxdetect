@@ -419,9 +419,9 @@ def process_file(
             rows.append(row)
             if predict_proba:
                 chunk_timestamp = chunk_timestamps[peak_id]
-                json_dict["Time (s)"] = chunk_timestamp
+                json_dict["Time (s)"] = float(chunk_timestamp)
                 json_dict["Time (hh:mm:ss)"] = seconds_to_hhmmss(chunk_timestamp)
-                json_dict["Confidence (%)"] = th_peak_confidences[peak_id]
+                json_dict["Confidence (%)"] = float(th_peak_confidences[peak_id])
                 json_dicts.append(json_dict)
         chunk_df = pd.DataFrame(rows)
 
@@ -616,9 +616,9 @@ def process_file(
             rows.append(row)
             if predict_proba:
                 chunk_timestamp = chunk_timestamps[peak_id]
-                json_dict["Time (s)"] = chunk_timestamp
+                json_dict["Time (s)"] = float(chunk_timestamp),
                 json_dict["Time (hh:mm:ss)"] = seconds_to_hhmmss(chunk_timestamp)
-                json_dict["Confidence (%)"] = th_peak_confidences[peak_id]
+                json_dict["Confidence (%)"] = float(th_peak_confidences[peak_id]),
                 json_dicts.append(json_dict)
         chunk_df = pd.DataFrame(rows)
 
@@ -817,9 +817,9 @@ def process_file(
                 rows.append(row)
                 if predict_proba:
                     chunk_timestamp = chunk_timestamps[peak_id]
-                    json_dict["Time (s)"] = chunk_timestamp
+                    json_dict["Time (s)"] = float(chunk_timestamp)
                     json_dict["Time (hh:mm:ss)"] = seconds_to_hhmmss(chunk_timestamp)
-                    json_dict["Confidence (%)"] = th_peak_confidences[peak_id]
+                    json_dict["Confidence (%)"] = float(th_peak_confidences[peak_id])
                     json_dicts.append(json_dict)
             chunk_df = pd.DataFrame(rows)
 
