@@ -1,5 +1,6 @@
 import datetime
 import h5py
+import json
 import numpy as np
 import os
 import pandas as pd
@@ -161,6 +162,22 @@ def test_process_file():
         columns
         == np.array(["Start (hh:mm:ss)", "Stop (hh:mm:ss)", "Fault confidence (%)"])
     )
+    shutil.rmtree(tmpdir)
+
+    # export probabilities as JSON file
+    tmpdir = tempfile.mkdtemp()
+    process_file(
+        os.path.join(TEST_AUDIO_DIR, POSITIVE_MD5 + ".wav"),
+        output_dir=tmpdir,
+        predict_proba=True,
+    )
+    json_path = os.path.join(tmpdir, POSITIVE_MD5 + "_proba.json")
+    assert os.path.exists(json_path)
+    with open(json_path, "r") as json_file:
+        json_dict = json.load(json_file)
+    assert "events" in json_dict.keys()
+    assert "metadata" in json_dict.keys()
+    assert "taxonomy" in json_dict.keys()
     shutil.rmtree(tmpdir)
 
     # suffix
