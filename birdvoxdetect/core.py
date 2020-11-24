@@ -262,7 +262,7 @@ def process_file(
             }
         }
         with open(json_path, "w") as f:
-            json.dump({"header": json_header}, f)
+            json.dump({"metadata": json_metadata, "taxonomy": taxonomy}, f)
         json_dicts = []
 
     # Create directory of output clips.
@@ -454,8 +454,9 @@ def process_file(
         # Export probabilities as JSON file.
         with open(json_path, "w") as f:
             json.dump({
-                "header": json_header,
-                "events": json_dicts
+                "events": json_dicts,
+                "metadata": json_metadata,
+                "taxonomy": taxonomy
             }, f)
 
         # Export clips.
@@ -651,8 +652,9 @@ def process_file(
         # Export probabilities as JSON file.
         with open(json_path, "w") as f:
             json.dump({
-                "header": json_header,
-                "events": json_dicts
+                "events": json_dicts,
+                "metadata": json_metadata,
+                "taxonomy": taxonomy
             }, f)
 
         # Export clips.
@@ -852,8 +854,9 @@ def process_file(
             # Export probabilities as JSON file.
             with open(json_path, "w") as f:
                 json.dump({
-                    "header": json_header,
-                    "events": json_dicts
+                    "events": json_dicts,
+                    "metadata": json_metadata,
+                    "taxonomy": taxonomy
                 }, f)
 
             # Export clips.
