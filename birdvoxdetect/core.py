@@ -387,6 +387,9 @@ def process_file(
                 th_peak_locs,
             )
         )
+        df_columns = [column for column in
+            ["Time (hh:mm:ss)", "Species (4-letter code)", "Family", "Order", "Confidence (%)"]
+            if column in chunk_df]
 
         # Count flight calls.
         chunk_counter = collections.Counter(chunk_df["Species (4-letter code)"])
@@ -566,6 +569,9 @@ def process_file(
                 th_peak_locs,
             )
         )
+        df_columns = [column for column in
+            ["Time (hh:mm:ss)", "Species (4-letter code)", "Family", "Order", "Confidence (%)"]
+            if column in chunk_df]
 
         # Count flight calls.
         chunk_counter = collections.Counter(chunk_df["Species (4-letter code)"])
@@ -749,6 +755,9 @@ def process_file(
                     th_peak_locs,
                 )
             )
+            df_columns = [column for column in
+                ["Time (hh:mm:ss)", "Species (4-letter code)", "Family", "Order", "Confidence (%)"]
+                if column in chunk_df]
 
             # Count flight calls.
             chunk_counter = collections.Counter(chunk_df["Species (4-letter code)"])
