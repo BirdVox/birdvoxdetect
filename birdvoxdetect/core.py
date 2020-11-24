@@ -217,14 +217,8 @@ def process_file(
         event_4lettercodes = []
         event_confidences = []
         df_columns = ["Time (hh:mm:ss)", "Confidence (%)", "Species (4-letter code)"]
-        df = pd.DataFrame(
-            {
-                "Time (hh:mm:ss)": event_hhmmss,
-                "Species (4-letter code)": event_4lettercodes,
-                "Confidence (%)": event_confidences,
-            }
-        )
-        df.to_csv(checklist_path, columns=df_columns, index=False)
+        df = pd.DataFrame()
+        df.to_csv(checklist_path,index=False)
 
     # Initialize fault log as a Pandas DataFrame.
     if export_faults:
