@@ -243,7 +243,7 @@ def process_file(
         )
         # Get MD5 hash.
         hash_md5 = hashlib.md5()
-        with open(file_path, "rb") as fhandle:
+        with open(filepath, "rb") as fhandle:
             for chunk in iter(lambda: fhandle.read(4096), b""):
                 hash_md5.update(chunk)
         json_header = {
