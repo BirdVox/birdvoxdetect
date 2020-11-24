@@ -48,6 +48,7 @@ def process_file(
     export_confidence=False,
     export_context=False,
     export_faults=False,
+    export_json=False,
     export_logger=False,
     threshold=50.0,
     suffix="",
@@ -247,6 +248,10 @@ def process_file(
     if export_context:
         contexts = []
 
+    # Initialize list of probabilistic predictions.
+    if export_json:
+        json_dicts = []
+
     # Print chunk duration.
     logger.info("Chunk duration: {} seconds".format(chunk_duration))
     logger.info("")
@@ -381,12 +386,14 @@ def process_file(
         n_peaks = len(chunk_timestamps)
 
         # Classify species.
-        chunk_df = pd.DataFrame(
-            map(
-                lambda x: classify_species(classifier, chunk_pcen, x, taxonomy),
-                th_peak_locs,
-            )
-        )
+        row = []
+        for th_peak_loc in th_peak_locs:
+            row, json_dict = classify_species(
+                classifier, chunk_pcen, x, taxonomy)
+            rows.append(row)
+            if export_json:
+                json_dicts.append(json_dict)
+        chunk_df = pd.DataFrame(rows)
 
         # Count flight calls.
         if n_peaks>0:
@@ -403,7 +410,7 @@ def process_file(
             logger.info("Number of flight calls in current chunk: 0")
         logger.info("")
 
-        # Export timestamps.
+        # Export checklist.
         chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
         chunk_df["Time (hh:mm:ss)"] = event_hhmmss + chunk_hhmmss
         chunk_df["Confidence (%)"] = th_peak_confidences
@@ -565,12 +572,14 @@ def process_file(
         n_peaks = len(chunk_timestamps)
 
         # Classify species.
-        chunk_df = pd.DataFrame(
-            map(
-                lambda x: classify_species(classifier, chunk_pcen, x, taxonomy),
-                th_peak_locs,
-            )
-        )
+        row = []
+        for th_peak_loc in th_peak_locs:
+            row, json_dict = classify_species(
+                classifier, chunk_pcen, x, taxonomy)
+            rows.append(row)
+            if export_json:
+                json_dicts.append(json_dict)
+        chunk_df = pd.DataFrame(rows)
 
         # Count flight calls.
         if n_peaks>0:
@@ -587,7 +596,7 @@ def process_file(
             logger.info("Number of flight calls in current chunk: 0")
         logger.info("")
 
-        # Export timestamps.
+        # Export checklist.
         chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
         chunk_df["Time (hh:mm:ss)"] = event_hhmmss + chunk_hhmmss
         chunk_df["Confidence (%)"] = th_peak_confidences
@@ -753,12 +762,14 @@ def process_file(
             n_peaks = len(chunk_timestamps)
 
             # Classify species.
-            chunk_df = pd.DataFrame(
-                map(
-                    lambda x: classify_species(classifier, chunk_pcen, x, taxonomy),
-                    th_peak_locs,
-                )
-            )
+            row = []
+            for th_peak_loc in th_peak_locs:
+                row, json_dict = classify_species(
+                    classifier, chunk_pcen, x, taxonomy)
+                rows.append(row)
+                if export_json:
+                    json_dicts.append(json_dict)
+            chunk_df = pd.DataFrame(rows)
 
             # Count flight calls.
             if n_peaks>0:
@@ -775,7 +786,7 @@ def process_file(
                 logger.info("Number of flight calls in current chunk: 0")
             logger.info("")
 
-            # Export timestamps.
+            # Export checklist.
             chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
             chunk_df["Time (hh:mm:ss)"] = event_hhmmss + chunk_hhmmss
             chunk_df["Confidence (%)"] = th_peak_confidences
@@ -944,7 +955,8 @@ def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
     bvc_prediction = birdvoxclassify.predict(pcen_clip, classifier=classifier)
 
     # Format prediction
-    prediction = birdvoxclassify.format_pred(bvc_prediction, taxonomy=taxonomy)
+    formatted_prediction = birdvoxclassify.format_pred(
+        bvc_prediction, taxonomy=taxonomy)
 
     # Get prediction levels.
     pred_levels = list(prediction.keys())
@@ -954,13 +966,13 @@ def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
     for pred_level in pred_levels:
         # List probabilities
         prob_dict = {
-            k: prediction[pred_level][k]["probability"]
-            for k in prediction[pred_level]
+            k: formatted_prediction[pred_level][k]["probability"]
+            for k in formatted_prediction[pred_level]
         }
 
         # Extract class of maximum probability
         argmax_taxon = max(prob_dict.items(), key=operator.itemgetter(1))[0]
-        argmax_dict = prediction[pred_level][argmax_taxon]
+        argmax_dict = formatted_prediction[pred_level][argmax_taxon]
 
         if (pred_level=="coarse"):
             argmax_prediction["Order"] = "other"
@@ -975,7 +987,7 @@ def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
                 alias = aliases["species_4letter_code"]
                 argmax_prediction["Species (4-letter code)"] = alias
 
-    return argmax_prediction
+    return argmax_prediction, formatted_prediction
 
 
 def compute_pcen(audio, sr):
