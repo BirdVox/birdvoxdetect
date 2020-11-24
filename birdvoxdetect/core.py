@@ -262,6 +262,7 @@ def process_file(
         }
         with open(json_path, "w") as f:
             json.dump({"header": json_header}, f)
+        json_dicts = []
 
     # Create directory of output clips.
     if export_clips:
