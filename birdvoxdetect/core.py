@@ -389,9 +389,9 @@ def process_file(
         )
 
         # Count flight calls.
-        chunk_counter = collections.Counter(chunk_df["Species (4-letter code)"])
-        logger.info("Number of flight calls in current chunk: {}".format(n_peaks))
-        if n_peaks > 0:
+        if n_peaks>0:
+            chunk_counter = collections.Counter(chunk_df["Species (4-letter code)"])
+            logger.info("Number of flight calls in current chunk: {}".format(n_peaks))
             logger.info(
                 "("
                 + ", ".join(
@@ -399,6 +399,8 @@ def process_file(
                 )
                 + ")"
             )
+        else:
+            logger.info("Number of flight calls in current chunk: 0")
         logger.info("")
 
         # Export timestamps.
@@ -412,12 +414,12 @@ def process_file(
         df.to_csv(checklist_path, columns=df_columns, index=False)
 
         # Export clips.
-        if export_clips:
+        if export_clips and len(df)>0:
             chunk_zip = zip(
                 chunk_timestamps,
                 chunk_hhmmss,
                 list(th_peak_confidences),
-                chunk_4lettercodes,
+                list(df["Species (4-letter code)"]),
             )
             for (
                 clip_timestamp,
@@ -571,9 +573,9 @@ def process_file(
         )
 
         # Count flight calls.
-        chunk_counter = collections.Counter(chunk_df["Species (4-letter code)"])
-        logger.info("Number of flight calls in current chunk: {}".format(n_peaks))
-        if n_peaks > 0:
+        if n_peaks>0:
+            chunk_counter = collections.Counter(chunk_df["Species (4-letter code)"])
+            logger.info("Number of flight calls in current chunk: {}".format(n_peaks))
             logger.info(
                 "("
                 + ", ".join(
@@ -581,6 +583,8 @@ def process_file(
                 )
                 + ")"
             )
+        else:
+            logger.info("Number of flight calls in current chunk: 0")
         logger.info("")
 
         # Export timestamps.
@@ -594,12 +598,12 @@ def process_file(
         df.to_csv(checklist_path, columns=df_columns, index=False)
 
         # Export clips.
-        if export_clips:
+        if export_clips and len(df)>0:
             chunk_zip = zip(
                 chunk_timestamps,
                 chunk_hhmmss,
                 list(th_peak_confidences),
-                chunk_4lettercodes,
+                list(df["Species (4-letter code)"]),
             )
             for (
                 clip_timestamp,
@@ -757,9 +761,9 @@ def process_file(
             )
 
             # Count flight calls.
-            chunk_counter = collections.Counter(chunk_df["Species (4-letter code)"])
-            logger.info("Number of flight calls in current chunk: {}".format(n_peaks))
-            if n_peaks > 0:
+            if n_peaks>0:
+                chunk_counter = collections.Counter(chunk_df["Species (4-letter code)"])
+                logger.info("Number of flight calls in current chunk: {}".format(n_peaks))
                 logger.info(
                     "("
                     + ", ".join(
@@ -767,6 +771,8 @@ def process_file(
                     )
                     + ")"
                 )
+            else:
+                logger.info("Number of flight calls in current chunk: 0")
             logger.info("")
 
             # Export timestamps.
@@ -780,12 +786,12 @@ def process_file(
             df.to_csv(checklist_path, columns=df_columns, index=False)
 
             # Export clips.
-            if export_clips:
+            if export_clips and len(df)>0:
                 chunk_zip = zip(
                     chunk_timestamps,
                     chunk_hhmmss,
                     list(th_peak_confidences),
-                    chunk_4lettercodes,
+                    list(df["Species (4-letter code)"]),
                 )
                 for (
                     clip_timestamp,
@@ -885,17 +891,20 @@ def process_file(
     # Print final messages.
     if threshold is not None:
         df = pd.read_csv(checklist_path)
-        logger.info(
-            "\n".join(
-                [
-                    (k + " " + str(v).rjust(6))
-                    for (k, v) in collections.Counter(
-                        df["Species (4-letter code)"]
-                    ).most_common()
-                ]
+        if len(df)>0:
+            logger.info(
+                "\n".join(
+                    [
+                        (k + " " + str(v).rjust(6))
+                        for (k, v) in collections.Counter(
+                            df["Species (4-letter code)"]
+                        ).most_common()
+                    ]
+                )
             )
-        )
-        logger.info("TOTAL: {}.".format(str(len(df)).rjust(4)))
+            logger.info("TOTAL: {}.".format(str(len(df)).rjust(4)))
+        else:
+            logger.info("TOTAL: 0. No flight calls were detected.")
         timestamp_str = "Checklist is available at: {}"
         logger.info(timestamp_str.format(checklist_path))
     if export_clips:
