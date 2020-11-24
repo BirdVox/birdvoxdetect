@@ -386,7 +386,7 @@ def process_file(
         n_peaks = len(chunk_timestamps)
 
         # Classify species.
-        row = []
+        rows = []
         for th_peak_loc in th_peak_locs:
             row, json_dict = classify_species(
                 classifier, chunk_pcen, th_peak_loc, taxonomy)
@@ -572,7 +572,7 @@ def process_file(
         n_peaks = len(chunk_timestamps)
 
         # Classify species.
-        row = []
+        rows = []
         for th_peak_loc in th_peak_locs:
             row, json_dict = classify_species(
                 classifier, chunk_pcen, th_peak_loc, taxonomy)
@@ -762,7 +762,7 @@ def process_file(
             n_peaks = len(chunk_timestamps)
 
             # Classify species.
-            row = []
+            rows = []
             for th_peak_loc in th_peak_locs:
                 row, json_dict = classify_species(
                     classifier, chunk_pcen, th_peak_loc, taxonomy)
