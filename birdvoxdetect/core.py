@@ -246,8 +246,9 @@ def process_file(
         with open(filepath, "rb") as fhandle:
             for chunk in iter(lambda: fhandle.read(4096), b""):
                 hash_md5.update(chunk)
-        json_header = {
-            "absolute_path": os.path.abspath(filepath),
+        json_metadata = {
+            "file_name": os.path.basename(filepath),
+            "file_path": os.path.abspath(filepath),
             "audio_duration": librosa.get_duration(filename=filepath),
             "birdvoxdetect_threshold": threshold,
             "birdvoxactivate_threshold": bva_threshold,
@@ -256,7 +257,7 @@ def process_file(
             "filepath": filepath,
             "hostname": socket.gethostname(),
             "md5_checksum": hash_md5.hexdigest(),
-            "versions": {
+            "package_versions": {
                 module.__name__: module.__version__ for module in modules
             }
         }
