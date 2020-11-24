@@ -250,13 +250,13 @@ def process_file(
             "file_name": os.path.basename(filepath),
             "file_path": os.path.abspath(filepath),
             "audio_duration": librosa.get_duration(filename=filepath),
+            "audio_md5_checksum": hash_md5.hexdigest(),
             "birdvoxdetect_threshold": threshold,
             "birdvoxactivate_threshold": bva_threshold,
             "classifier_name": classifier_name,
             "detector_name": detector_name,
             "filepath": filepath,
             "hostname": socket.gethostname(),
-            "md5_checksum": hash_md5.hexdigest(),
             "package_versions": {
                 module.__name__: module.__version__ for module in modules
             }
