@@ -959,7 +959,7 @@ def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
         bvc_prediction, taxonomy=taxonomy)
 
     # Get prediction levels.
-    pred_levels = list(prediction.keys())
+    pred_levels = list(formatted_prediction.keys())
 
     # Loop over taxonomical levels.
     argmax_prediction = {}
