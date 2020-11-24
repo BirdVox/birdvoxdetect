@@ -387,9 +387,6 @@ def process_file(
                 th_peak_locs,
             )
         )
-        df_columns = [column for column in
-            ["Time (hh:mm:ss)", "Species (4-letter code)", "Family", "Order", "Confidence (%)"]
-            if column in chunk_df]
 
         # Count flight calls.
         chunk_counter = collections.Counter(chunk_df["Species (4-letter code)"])
@@ -408,6 +405,9 @@ def process_file(
         chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
         chunk_df["Time (hh:mm:ss)"] = event_hhmmss + chunk_hhmmss
         chunk_df["Confidence (%)"] = th_peak_confidences
+        df_columns = [column for column in
+            ["Time (hh:mm:ss)", "Species (4-letter code)", "Family", "Order", "Confidence (%)"]
+            if column in chunk_df]
         df = df.append(chunk_df)
         df.to_csv(checklist_path, columns=df_columns, index=False)
 
@@ -569,9 +569,6 @@ def process_file(
                 th_peak_locs,
             )
         )
-        df_columns = [column for column in
-            ["Time (hh:mm:ss)", "Species (4-letter code)", "Family", "Order", "Confidence (%)"]
-            if column in chunk_df]
 
         # Count flight calls.
         chunk_counter = collections.Counter(chunk_df["Species (4-letter code)"])
@@ -590,6 +587,9 @@ def process_file(
         chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
         chunk_df["Time (hh:mm:ss)"] = event_hhmmss + chunk_hhmmss
         chunk_df["Confidence (%)"] = th_peak_confidences
+        df_columns = [column for column in
+            ["Time (hh:mm:ss)", "Species (4-letter code)", "Family", "Order", "Confidence (%)"]
+            if column in chunk_df]
         df = df.append(chunk_df)
         df.to_csv(checklist_path, columns=df_columns, index=False)
 
@@ -755,9 +755,6 @@ def process_file(
                     th_peak_locs,
                 )
             )
-            df_columns = [column for column in
-                ["Time (hh:mm:ss)", "Species (4-letter code)", "Family", "Order", "Confidence (%)"]
-                if column in chunk_df]
 
             # Count flight calls.
             chunk_counter = collections.Counter(chunk_df["Species (4-letter code)"])
@@ -776,6 +773,9 @@ def process_file(
             chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
             chunk_df["Time (hh:mm:ss)"] = event_hhmmss + chunk_hhmmss
             chunk_df["Confidence (%)"] = th_peak_confidences
+            df_columns = [column for column in
+                ["Time (hh:mm:ss)", "Species (4-letter code)", "Family", "Order", "Confidence (%)"]
+                if column in chunk_df]
             df = df.append(chunk_df)
             df.to_csv(checklist_path, columns=df_columns, index=False)
 
