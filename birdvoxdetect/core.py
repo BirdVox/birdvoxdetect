@@ -853,9 +853,11 @@ def process_file(
 
             # Export probabilities as JSON file.
             with open(json_path, "w") as f:
+                json_faultlist = faultlist_df.to_json(orient="index")
                 json.dump({
                     "events": json_dicts,
                     "metadata": json_metadata,
+                    "sensor_faults": json.loads(json_faultlist),
                     "taxonomy": taxonomy
                 }, f)
 
