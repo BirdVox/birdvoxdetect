@@ -411,7 +411,7 @@ def process_file(
         chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
         chunk_df["Time (hh:mm:ss)"] = event_hhmmss + chunk_hhmmss
         chunk_df["Confidence (%)"] = th_peak_confidences
-        df.append(chunk_df)
+        df = df.append(chunk_df)
         df.to_csv(checklist_path, columns=df_columns, index=False)
 
         # Export clips.
@@ -590,7 +590,7 @@ def process_file(
         chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
         chunk_df["Time (hh:mm:ss)"] = event_hhmmss + chunk_hhmmss
         chunk_df["Confidence (%)"] = th_peak_confidences
-        df.append(chunk_df)
+        df = df.append(chunk_df)
         df.to_csv(checklist_path, columns=df_columns, index=False)
 
         # Export clips.
@@ -773,7 +773,7 @@ def process_file(
             chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
             chunk_df["Time (hh:mm:ss)"] = event_hhmmss + chunk_hhmmss
             chunk_df["Confidence (%)"] = th_peak_confidences
-            df.append(chunk_df)
+            df = df.append(chunk_df)
             df.to_csv(checklist_path, columns=df_columns, index=False)
 
             # Export clips.
