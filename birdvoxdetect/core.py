@@ -261,11 +261,17 @@ def process_file(
             "birdvoxactivate_threshold": bva_threshold,
             "classifier_name": classifier_name,
             "detector_name": detector_name,
-            "filepath": filepath,
             "hostname": socket.gethostname(),
+            "machine_time": datetime.datetime.now().astimezone().isoformat(),
             "package_versions": {
                 module.__name__: module.__version__ for module in modules
-            }
+            },
+            "platform_machine": platform.machine(),
+            "platform_processor": platform.processor(),
+            "platform_release": platform.release(),
+            "platform_system": platform.system(),
+            "platform_version": platform.version(),
+            "sys_version": sys.version
         }
         with open(json_path, "w") as f:
             json.dump({"metadata": json_metadata, "taxonomy": taxonomy}, f)
