@@ -389,7 +389,7 @@ def process_file(
         row = []
         for th_peak_loc in th_peak_locs:
             row, json_dict = classify_species(
-                classifier, chunk_pcen, x, taxonomy)
+                classifier, chunk_pcen, th_peak_loc, taxonomy)
             rows.append(row)
             if export_json:
                 json_dicts.append(json_dict)
@@ -575,7 +575,7 @@ def process_file(
         row = []
         for th_peak_loc in th_peak_locs:
             row, json_dict = classify_species(
-                classifier, chunk_pcen, x, taxonomy)
+                classifier, chunk_pcen, th_peak_loc, taxonomy)
             rows.append(row)
             if export_json:
                 json_dicts.append(json_dict)
@@ -765,7 +765,7 @@ def process_file(
             row = []
             for th_peak_loc in th_peak_locs:
                 row, json_dict = classify_species(
-                    classifier, chunk_pcen, x, taxonomy)
+                    classifier, chunk_pcen, th_peak_loc, taxonomy)
                 rows.append(row)
                 if export_json:
                     json_dicts.append(json_dict)
