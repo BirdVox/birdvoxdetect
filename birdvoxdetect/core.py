@@ -452,12 +452,13 @@ def process_file(
         df.to_csv(checklist_path, columns=df_columns, index=False)
 
         # Export probabilities as JSON file.
-        with open(json_path, "w") as f:
-            json.dump({
-                "events": json_dicts,
-                "metadata": json_metadata,
-                "taxonomy": taxonomy
-            }, f)
+        if predict_proba:
+            with open(json_path, "w") as f:
+                json.dump({
+                    "events": json_dicts,
+                    "metadata": json_metadata,
+                    "taxonomy": taxonomy
+                }, f)
 
         # Export clips.
         if export_clips and len(df)>0:
@@ -650,12 +651,13 @@ def process_file(
         df.to_csv(checklist_path, columns=df_columns, index=False)
 
         # Export probabilities as JSON file.
-        with open(json_path, "w") as f:
-            json.dump({
-                "events": json_dicts,
-                "metadata": json_metadata,
-                "taxonomy": taxonomy
-            }, f)
+        if predict_proba:
+            with open(json_path, "w") as f:
+                json.dump({
+                    "events": json_dicts,
+                    "metadata": json_metadata,
+                    "taxonomy": taxonomy
+                }, f)
 
         # Export clips.
         if export_clips and len(df)>0:
@@ -852,14 +854,15 @@ def process_file(
             df.to_csv(checklist_path, columns=df_columns, index=False)
 
             # Export probabilities as JSON file.
-            with open(json_path, "w") as f:
-                json_faultlist = faultlist_df.to_json(orient="index")
-                json.dump({
-                    "events": json_dicts,
-                    "metadata": json_metadata,
-                    "sensor_faults": json.loads(json_faultlist),
-                    "taxonomy": taxonomy
-                }, f)
+            if predict_proba:
+                with open(json_path, "w") as f:
+                    json_faultlist = faultlist_df.to_json(orient="index")
+                    json.dump({
+                        "events": json_dicts,
+                        "metadata": json_metadata,
+                        "sensor_faults": json.loads(json_faultlist),
+                        "taxonomy": taxonomy
+                    }, f)
 
             # Export clips.
             if export_clips and len(df)>0:
