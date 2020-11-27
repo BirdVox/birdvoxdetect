@@ -31,39 +31,39 @@ if needed.
 
 To analyze one file:
 
-    python -m birdvoxdetect /path/to/file.wav
+    birdvoxdetect /path/to/file.wav
 
 To analyze multiple files:
 
-    python -m birdvoxdetect /path/to/file1.wav /path/to/file2.wav
+    birdvoxdetect /path/to/file1.wav /path/to/file2.wav
 
 To analyze one folder:
 
-   python -m birdvoxdetect /path/to/folder
+   birdvoxdetect /path/to/folder
 
 Optional arguments:
-
-    --output-dir OUTPUT_DIR, -o OUTPUT_DIR
-                          Directory to save the output file(s); The default
-                          value is the same directory as the input file(s).
+    --clip-duration CLIP_DURATION, -d CLIP_DURATION
+                          Duration of the exported clips, expressed in seconds
+                          (fps). The default value is 1.0, that is, one second.
+                          We recommend values of 0.5 or above.
     --export-clips, -c    Export detected events as audio clips in WAV format.
     --export-confidence, -C
                           Export the time series of model confidence values of
                           events in HDF5 format.
     --export-faults, -f   Export list of sensor faults in CSV format.
     --export-logger, -l   Export output of Python logger in TXT format.
+    --output-dir OUTPUT_DIR, -o OUTPUT_DIR
+                          Directory to save the output file(s); The default
+                          value is the same directory as the input file(s).
+    --predict-proba, -p   Export output probabilities in JSON format.
+    --quiet, -q           Print less messages on screen.
+    --suffix SUFFIX, -s SUFFIX
+                          String to append to the output filenames.The default
+                          value is the empty string.
     --threshold THRESHOLD, -t THRESHOLD
                           Detection threshold, between 10 and 90. The default
                           value is 50. Greater values lead to higher precision
                           at the expense of a lower recall.
-    --suffix SUFFIX, -s SUFFIX
-                          String to append to the output filenames.The default
-                          value is the empty string.
-    --clip-duration CLIP_DURATION, -d CLIP_DURATION
-                          Duration of the exported clips, expressed in seconds
-                          (fps). The default value is 1.0, that is, one second.
-                          We recommend values of 0.5 or above.
-    --quiet, -q           Print less messages on screen.
     --verbose, -v         Print timestamps of detected events.
     --version, -V         Print version number.
 
@@ -77,7 +77,7 @@ Call syntax:
 
 `df` is a Pandas DataFrame with three columns: time, detection confidence, and species.
 
-Below is a typical output from the test suite (file `fd79e55d-d3a3-4083-aba1-4f00b545c3d6.wav`):
+Below is a typical output from the test suite (file path `tests/data/audio/fd79e55d-d3a3-4083-aba1-4f00b545c3d6.wav`):
 
     Time (hh:mm:ss) Species (4-letter code) Family    Order         Confidence (%)
     00:00:08.78     SWTH                    Turdidae  Passeriforme  70.14839
