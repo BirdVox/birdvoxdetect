@@ -43,7 +43,7 @@ To analyze one folder:
 
 On Windows:
 
-    birdxodetect path\\to\\folder
+    birdxodetect path\to\folder
 
 Optional arguments:
 
