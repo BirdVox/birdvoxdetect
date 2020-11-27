@@ -56,15 +56,16 @@ def test_parse_args():
     # test default values
     args = [POSITIVE_PATH]
     args = parse_args(args)
-    assert args.output_dir is None
+    assert args.clip_duration == 1.0
     assert args.export_clips == False
     assert args.export_confidence == False
     assert args.export_faults == False
     assert args.export_logger == False
-    assert args.threshold == 50.0
-    assert args.suffix == ""
-    assert args.clip_duration == 1.0
+    assert args.output_dir is None
+    assert args.predict_proba == False
     assert args.quiet is False
+    assert args.suffix == ""
+    assert args.threshold == 50.0
     assert args.verbose is False
 
     # test custom values
@@ -82,18 +83,20 @@ def test_parse_args():
         "mysuffix",
         "-d",
         "0.5",
+        "-p",
         "-q",
     ]
     args = parse_args(args)
-    assert args.output_dir == "/output/dir"
+    assert args.clip_duration == 0.5
     assert args.export_clips == True
     assert args.export_confidence == True
     assert args.export_faults == True
     assert args.export_logger == True
-    assert args.threshold == 60.0
-    assert args.suffix == "mysuffix"
-    assert args.clip_duration == 0.5
+    assert args.output_dir == "/output/dir"
+    assert args.predict_proba == True
     assert args.quiet is True
+    assert args.suffix == "mysuffix"
+    assert args.threshold == 60.0
 
     # test clash between quiet and verbose
     args = [POSITIVE_PATH, "-v", "-q"]

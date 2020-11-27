@@ -1007,11 +1007,14 @@ def process_file(
         event_str = "The event detection curve is available at: {}"
         logger.info(event_str.format(confidence_path))
     if export_context:
-        event_str = "The context array is available at: {}"
-        logger.info(event_str.format(context_path))
+        context_str = "The context array is available at: {}"
+        logger.info(context_str.format(context_path))
     if export_faults:
-        event_str = "The list of sensor faults is available at: {}"
-        logger.info(event_str.format(faultlist_path))
+        faultlist_str = "The list of sensor faults is available at: {}"
+        logger.info(faultlist_str.format(faultlist_path))
+    if predict_proba:
+        proba_str = "The list of probabilistic outputs is available at: {}"
+        logger.info(proba_str.format(json_path))
     logger.info("Done with file: {}.".format(filepath))
 
     return df

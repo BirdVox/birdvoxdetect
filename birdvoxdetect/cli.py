@@ -40,6 +40,7 @@ def run(
     export_confidence=False,
     export_faults=False,
     export_logger=False,
+    predict_proba=False,
     threshold=50.0,
     suffix="",
     clip_duration=1.0,
@@ -83,15 +84,16 @@ def run(
             print("birdvoxdetect: Processing: {}".format(filepath))
         birdvoxdetect.process_file(
             filepath,
-            output_dir=output_dir,
+            clip_duration=clip_duration,
             export_clips=export_clips,
             export_confidence=export_confidence,
             export_faults=export_faults,
             export_logger=export_logger,
-            threshold=threshold,
-            suffix=suffix,
-            clip_duration=clip_duration,
             logger_level=logger_level,
+            output_dir=output_dir,
+            predict_proba=predict_proba,
+            suffix=suffix,
+            threshold=threshold,
         )
     if verbose:
         print("birdvoxdetect: Done.")
@@ -179,6 +181,13 @@ def parse_args(args):
     )
 
     parser.add_argument(
+        "--predict-proba",
+        "-p",
+        action="store_true",
+        help="Export output probabilities as a JSON container.",
+    )
+
+    parser.add_argument(
         "--quiet", "-q", action="store_true", help="Print less messages on screen."
     )
 
@@ -244,6 +253,7 @@ def main():
         export_confidence=args.export_confidence,
         export_faults=args.export_faults,
         export_logger=args.export_logger,
+        predict_proba=args.predict_proba,
         threshold=args.threshold,
         suffix=args.suffix,
         clip_duration=args.clip_duration,
