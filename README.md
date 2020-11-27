@@ -31,15 +31,19 @@ if needed.
 
 To analyze one file:
 
-    birdvoxdetect /path/to/file.wav
+    birdvoxdetect path/to/file.wav
 
 To analyze multiple files:
 
-    birdvoxdetect /path/to/file1.wav /path/to/file2.wav
+    birdvoxdetect path/to/file1.wav path/to/file2.wav
 
 To analyze one folder:
 
-    birdvoxdetect /path/to/folder
+    birdvoxdetect path/to/folder
+
+On Windows:
+
+    birdxodetect path\\to\\folder
 
 Optional arguments:
 
