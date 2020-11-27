@@ -39,9 +39,10 @@ To analyze multiple files:
 
 To analyze one folder:
 
-   birdvoxdetect /path/to/folder
+    birdvoxdetect /path/to/folder
 
 Optional arguments:
+
     --clip-duration CLIP_DURATION, -d CLIP_DURATION
                           Duration of the exported clips, expressed in seconds
                           (fps). The default value is 1.0, that is, one second.
