@@ -224,12 +224,10 @@ def process_file(
         event_hhmmss = []
         event_4lettercodes = []
         event_confidences = []
-        df_columns = [column for column in
-            ["Time (hh:mm:ss)", "Detection confidence (%)",
+        df_columns = ["Time (hh:mm:ss)", "Detection confidence (%)",
             "Order", "Order confidence (%)",
             "Family", "Family confidence (%)",
             "Species (4-letter code)", "Species confidence (%)"]
-                if column in chunk_df]
         df = pd.DataFrame()
         df.to_csv(checklist_path,index=False)
 
