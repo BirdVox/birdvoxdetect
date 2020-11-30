@@ -224,7 +224,7 @@ def process_file(
         event_hhmmss = []
         event_4lettercodes = []
         event_confidences = []
-        df_columns = ["Time (hh:mm:ss)", "Confidence (%)", "Species (4-letter code)"]
+        df_columns = ["Time (hh:mm:ss)", "Detection confidence (%)", "Species (4-letter code)"]
         df = pd.DataFrame()
         df.to_csv(checklist_path,index=False)
 
@@ -434,7 +434,7 @@ def process_file(
                 chunk_timestamp = chunk_timestamps[peak_id]
                 json_dict["Time (s)"] = float(chunk_timestamp)
                 json_dict["Time (hh:mm:ss)"] = seconds_to_hhmmss(chunk_timestamp)
-                json_dict["Confidence (%)"] = float(th_peak_confidences[peak_id])
+                json_dict["Detection confidence (%)"] = float(th_peak_confidences[peak_id])
                 json_dicts.append(json_dict)
         chunk_df = pd.DataFrame(rows)
 
@@ -456,9 +456,9 @@ def process_file(
         # Export checklist.
         chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
         chunk_df["Time (hh:mm:ss)"] = event_hhmmss + chunk_hhmmss
-        chunk_df["Confidence (%)"] = th_peak_confidences
+        chunk_df["Detection confidence (%)"] = th_peak_confidences
         df_columns = [column for column in
-            ["Time (hh:mm:ss)", "Species (4-letter code)", "Family", "Order", "Confidence (%)"]
+            ["Time (hh:mm:ss)", "Species (4-letter code)", "Family", "Order", "Detection confidence (%)"]
             if column in chunk_df]
         df = df.append(chunk_df)
         df.to_csv(checklist_path, columns=df_columns, index=False)
@@ -633,7 +633,7 @@ def process_file(
                 chunk_timestamp = chunk_timestamps[peak_id]
                 json_dict["Time (s)"] = float(chunk_timestamp),
                 json_dict["Time (hh:mm:ss)"] = seconds_to_hhmmss(chunk_timestamp)
-                json_dict["Confidence (%)"] = float(th_peak_confidences[peak_id]),
+                json_dict["Detection confidence (%)"] = float(th_peak_confidences[peak_id]),
                 json_dicts.append(json_dict)
         chunk_df = pd.DataFrame(rows)
 
@@ -655,9 +655,9 @@ def process_file(
         # Export checklist.
         chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
         chunk_df["Time (hh:mm:ss)"] = event_hhmmss + chunk_hhmmss
-        chunk_df["Confidence (%)"] = th_peak_confidences
+        chunk_df["Detection confidence (%)"] = th_peak_confidences
         df_columns = [column for column in
-            ["Time (hh:mm:ss)", "Species (4-letter code)", "Family", "Order", "Confidence (%)"]
+            ["Time (hh:mm:ss)", "Species (4-letter code)", "Family", "Order", "Detection confidence (%)"]
             if column in chunk_df]
         df = df.append(chunk_df)
         df.to_csv(checklist_path, columns=df_columns, index=False)
@@ -838,7 +838,7 @@ def process_file(
                     chunk_timestamp = chunk_timestamps[peak_id]
                     json_dict["Time (s)"] = float(chunk_timestamp)
                     json_dict["Time (hh:mm:ss)"] = seconds_to_hhmmss(chunk_timestamp)
-                    json_dict["Confidence (%)"] = float(th_peak_confidences[peak_id])
+                    json_dict["Detection confidence (%)"] = float(th_peak_confidences[peak_id])
                     json_dicts.append(json_dict)
             chunk_df = pd.DataFrame(rows)
 
@@ -860,9 +860,9 @@ def process_file(
             # Export checklist.
             chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
             chunk_df["Time (hh:mm:ss)"] = event_hhmmss + chunk_hhmmss
-            chunk_df["Confidence (%)"] = th_peak_confidences
+            chunk_df["Detection confidence (%)"] = th_peak_confidences
             df_columns = [column for column in
-                ["Time (hh:mm:ss)", "Species (4-letter code)", "Family", "Order", "Confidence (%)"]
+                ["Time (hh:mm:ss)", "Species (4-letter code)", "Family", "Order", "Detection confidence (%)"]
                 if column in chunk_df]
             df = df.append(chunk_df)
             df.to_csv(checklist_path, columns=df_columns, index=False)
