@@ -1047,7 +1047,27 @@ def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
     # Get prediction levels.
     pred_levels = list(formatted_prediction.keys())
 
-    # Loop over taxonomical levels.
+    # Case of a flax species classifier
+    if pred_levels == ["fine"]:
+        prob_dict = {
+            k: formatted_prediction[pred_level][k]["probability"]
+            for k in formatted_prediction[pred_level]
+        }
+        argmax_taxon = max(prob_dict.items(), key=operator.itemgetter(1))[0]
+        max_prob = prob_dict[argmax_taxon]
+        argmax_prediction = {
+            "Species (4-letter code)": "OTHE",
+            "Species confidence (%)": 100*(1-max_prob)
+        }
+        if max_prob>0.5:
+            argmax_dict = formatted_prediction[pred_level][argmax_taxon]
+            aliases = argmax_dict["taxonomy_level_aliases"]
+            alias = aliases["species_4letter_code"]
+            argmax_prediction["Species (4-letter code)"] = alias
+            argmax_prediction["Species confidence (%)"] = 100*max_prob
+        return argmax_prediction, formatted_prediction
+
+    # Case of a hierarchical classifier. (ex: TaxoNet)
     argmax_prediction = {}
     for pred_level in pred_levels:
         # List probabilities
