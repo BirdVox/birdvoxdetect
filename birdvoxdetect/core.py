@@ -224,7 +224,12 @@ def process_file(
         event_hhmmss = []
         event_4lettercodes = []
         event_confidences = []
-        df_columns = ["Time (hh:mm:ss)", "Detection confidence (%)", "Species (4-letter code)"]
+        df_columns = [column for column in
+            ["Time (hh:mm:ss)", "Detection confidence (%)",
+            "Order", "Order confidence (%)",
+            "Family", "Family confidence (%)",
+            "Species (4-letter code)", "Species confidence (%)"]
+                if column in chunk_df]
         df = pd.DataFrame()
         df.to_csv(checklist_path,index=False)
 
@@ -458,7 +463,11 @@ def process_file(
         chunk_df["Time (hh:mm:ss)"] = event_hhmmss + chunk_hhmmss
         chunk_df["Detection confidence (%)"] = th_peak_confidences
         df_columns = [column for column in
-            ["Time (hh:mm:ss)", "Species (4-letter code)", "Family", "Order", "Detection confidence (%)"]
+            [
+                "Time (hh:mm:ss)", "Detection confidence (%)",
+                "Order", "Order confidence (%)",
+                "Family", "Family confidence (%)",
+                "Species (4-letter code)", "Species confidence (%)"]
             if column in chunk_df]
         df = df.append(chunk_df)
         df.to_csv(checklist_path, columns=df_columns, index=False)
@@ -657,8 +666,11 @@ def process_file(
         chunk_df["Time (hh:mm:ss)"] = event_hhmmss + chunk_hhmmss
         chunk_df["Detection confidence (%)"] = th_peak_confidences
         df_columns = [column for column in
-            ["Time (hh:mm:ss)", "Species (4-letter code)", "Family", "Order", "Detection confidence (%)"]
-            if column in chunk_df]
+            ["Time (hh:mm:ss)", "Detection confidence (%)",
+            "Order", "Order confidence (%)",
+            "Family", "Family confidence (%)",
+            "Species (4-letter code)", "Species confidence (%)"]
+                if column in chunk_df]
         df = df.append(chunk_df)
         df.to_csv(checklist_path, columns=df_columns, index=False)
 
@@ -862,8 +874,11 @@ def process_file(
             chunk_df["Time (hh:mm:ss)"] = event_hhmmss + chunk_hhmmss
             chunk_df["Detection confidence (%)"] = th_peak_confidences
             df_columns = [column for column in
-                ["Time (hh:mm:ss)", "Species (4-letter code)", "Family", "Order", "Detection confidence (%)"]
-                if column in chunk_df]
+                ["Time (hh:mm:ss)", "Detection confidence (%)",
+                "Order", "Order confidence (%)",
+                "Family", "Family confidence (%)",
+                "Species (4-letter code)", "Species confidence (%)"]
+                    if column in chunk_df]
             df = df.append(chunk_df)
             df.to_csv(checklist_path, columns=df_columns, index=False)
 
