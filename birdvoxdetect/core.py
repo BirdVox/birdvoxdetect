@@ -985,7 +985,7 @@ def process_file(
     # Print final messages.
     if threshold is not None:
         df = pd.read_csv(checklist_path)
-        if len(df)>0:
+        if (len(df)>0) and ("Species (4-letter code)" in df.columns):
             logger.info(
                 "\n".join(
                     [
