@@ -224,7 +224,10 @@ def process_file(
         event_hhmmss = []
         event_4lettercodes = []
         event_confidences = []
-        df_columns = ["Time (hh:mm:ss)", "Confidence (%)", "Species (4-letter code)"]
+        df_columns = ["Time (hh:mm:ss)", "Detection confidence (%)",
+            "Order", "Order confidence (%)",
+            "Family", "Family confidence (%)",
+            "Species (4-letter code)", "Species confidence (%)"]
         df = pd.DataFrame()
         df.to_csv(checklist_path,index=False)
 
@@ -434,7 +437,7 @@ def process_file(
                 chunk_timestamp = chunk_timestamps[peak_id]
                 json_dict["Time (s)"] = float(chunk_timestamp)
                 json_dict["Time (hh:mm:ss)"] = seconds_to_hhmmss(chunk_timestamp)
-                json_dict["Confidence (%)"] = float(th_peak_confidences[peak_id])
+                json_dict["Detection confidence (%)"] = float(th_peak_confidences[peak_id])
                 json_dicts.append(json_dict)
         chunk_df = pd.DataFrame(rows)
 
@@ -456,9 +459,13 @@ def process_file(
         # Export checklist.
         chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
         chunk_df["Time (hh:mm:ss)"] = event_hhmmss + chunk_hhmmss
-        chunk_df["Confidence (%)"] = th_peak_confidences
+        chunk_df["Detection confidence (%)"] = th_peak_confidences
         df_columns = [column for column in
-            ["Time (hh:mm:ss)", "Species (4-letter code)", "Family", "Order", "Confidence (%)"]
+            [
+                "Time (hh:mm:ss)", "Detection confidence (%)",
+                "Order", "Order confidence (%)",
+                "Family", "Family confidence (%)",
+                "Species (4-letter code)", "Species confidence (%)"]
             if column in chunk_df]
         df = df.append(chunk_df)
         df.to_csv(checklist_path, columns=df_columns, index=False)
@@ -633,7 +640,7 @@ def process_file(
                 chunk_timestamp = chunk_timestamps[peak_id]
                 json_dict["Time (s)"] = float(chunk_timestamp),
                 json_dict["Time (hh:mm:ss)"] = seconds_to_hhmmss(chunk_timestamp)
-                json_dict["Confidence (%)"] = float(th_peak_confidences[peak_id]),
+                json_dict["Detection confidence (%)"] = float(th_peak_confidences[peak_id]),
                 json_dicts.append(json_dict)
         chunk_df = pd.DataFrame(rows)
 
@@ -655,10 +662,13 @@ def process_file(
         # Export checklist.
         chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
         chunk_df["Time (hh:mm:ss)"] = event_hhmmss + chunk_hhmmss
-        chunk_df["Confidence (%)"] = th_peak_confidences
+        chunk_df["Detection confidence (%)"] = th_peak_confidences
         df_columns = [column for column in
-            ["Time (hh:mm:ss)", "Species (4-letter code)", "Family", "Order", "Confidence (%)"]
-            if column in chunk_df]
+            ["Time (hh:mm:ss)", "Detection confidence (%)",
+            "Order", "Order confidence (%)",
+            "Family", "Family confidence (%)",
+            "Species (4-letter code)", "Species confidence (%)"]
+                if column in chunk_df]
         df = df.append(chunk_df)
         df.to_csv(checklist_path, columns=df_columns, index=False)
 
@@ -838,7 +848,7 @@ def process_file(
                     chunk_timestamp = chunk_timestamps[peak_id]
                     json_dict["Time (s)"] = float(chunk_timestamp)
                     json_dict["Time (hh:mm:ss)"] = seconds_to_hhmmss(chunk_timestamp)
-                    json_dict["Confidence (%)"] = float(th_peak_confidences[peak_id])
+                    json_dict["Detection confidence (%)"] = float(th_peak_confidences[peak_id])
                     json_dicts.append(json_dict)
             chunk_df = pd.DataFrame(rows)
 
@@ -860,10 +870,13 @@ def process_file(
             # Export checklist.
             chunk_hhmmss = list(map(seconds_to_hhmmss, chunk_timestamps))
             chunk_df["Time (hh:mm:ss)"] = event_hhmmss + chunk_hhmmss
-            chunk_df["Confidence (%)"] = th_peak_confidences
+            chunk_df["Detection confidence (%)"] = th_peak_confidences
             df_columns = [column for column in
-                ["Time (hh:mm:ss)", "Species (4-letter code)", "Family", "Order", "Confidence (%)"]
-                if column in chunk_df]
+                ["Time (hh:mm:ss)", "Detection confidence (%)",
+                "Order", "Order confidence (%)",
+                "Family", "Family confidence (%)",
+                "Species (4-letter code)", "Species confidence (%)"]
+                    if column in chunk_df]
             df = df.append(chunk_df)
             df.to_csv(checklist_path, columns=df_columns, index=False)
 
@@ -1047,31 +1060,84 @@ def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
     # Get prediction levels.
     pred_levels = list(formatted_prediction.keys())
 
-    # Loop over taxonomical levels.
-    argmax_prediction = {}
-    for pred_level in pred_levels:
-        # List probabilities
+    # Case of a flat species classifier
+    if pred_levels == ["fine"]:
         prob_dict = {
-            k: formatted_prediction[pred_level][k]["probability"]
-            for k in formatted_prediction[pred_level]
+            k: formatted_prediction["fine"][k]["probability"]
+            for k in formatted_prediction["fine"]
         }
-
-        # Extract class of maximum probability
         argmax_taxon = max(prob_dict.items(), key=operator.itemgetter(1))[0]
-        argmax_dict = formatted_prediction[pred_level][argmax_taxon]
-
-        if (pred_level=="coarse"):
-            argmax_prediction["Order"] = "other"
-            if (prob_dict[argmax_taxon]>0.5):
-                argmax_prediction["Order"] = argmax_dict["scientific_name"]
-        elif (pred_level=="medium"):
-            argmax_prediction["Family"] = argmax_dict["scientific_name"]
-        elif (pred_level=="fine"):
-            argmax_prediction["Species (4-letter code)"] = "OTHE"
+        max_prob = prob_dict[argmax_taxon]
+        argmax_prediction = {
+            "Species (4-letter code)": "OTHE",
+            "Species confidence (%)": 100*(1-max_prob)
+        }
+        if max_prob>0.5:
+            argmax_dict = formatted_prediction["fine"][argmax_taxon]
             aliases = argmax_dict["taxonomy_level_aliases"]
-            if "species_4letter_code" in aliases:
+            alias = aliases["species_4letter_code"]
+            argmax_prediction["Species (4-letter code)"] = alias
+            argmax_prediction["Species confidence (%)"] = 100*max_prob
+        return argmax_prediction, formatted_prediction
+
+    # Case of a hierarchical classifier. (ex: TaxoNet)
+    if set(pred_levels) == {"coarse", "medium", "fine"}:
+        # Coarse level: order.
+        prob_dict = {
+            k: formatted_prediction["coarse"][k]["probability"]
+            for k in formatted_prediction["coarse"]
+        }
+        argmax_taxon = max(prob_dict.items(), key=operator.itemgetter(1))[0]
+        max_prob = prob_dict[argmax_taxon]
+        argmax_prediction = {
+            "Order": "other",
+            "Order confidence (%)": 100*(1-max_prob)
+        }
+        if max_prob>0.5:
+            argmax_dict = formatted_prediction["coarse"][argmax_taxon]
+            argmax_prediction["Order"] = argmax_dict["scientific_name"]
+            argmax_prediction["Order confidence (%)"] = 100*max_prob
+
+        # Medium level: family.
+        if argmax_prediction["Order"] == "other":
+            argmax_prediction["Family"] = "other"
+            argmax_prediction["Family confidence (%)"] =\
+                argmax_prediction["Order confidence (%)"]
+        else:
+            prob_dict = {
+                k: formatted_prediction["medium"][k]["probability"]
+                for k in formatted_prediction["medium"]
+            }
+            argmax_taxon = max(prob_dict.items(), key=operator.itemgetter(1))[0]
+            max_prob = prob_dict[argmax_taxon]
+            argmax_prediction["Family"] = "other"
+            argmax_prediction["Family confidence (%)"] = 100*(1-max_prob)
+            if max_prob>0.5:
+                argmax_dict = formatted_prediction["medium"][argmax_taxon]
+                argmax_prediction["Family"] = argmax_dict["scientific_name"]
+                argmax_prediction["Family confidence (%)"] = 100*max_prob
+
+        # Fine level: species.
+        if argmax_prediction["Family"] == "other":
+            argmax_prediction["Species (4-letter code)"] = "OTHE"
+            argmax_prediction["Species confidence (%)"] =\
+                argmax_prediction["Family confidence (%)"]
+        else:
+            prob_dict = {
+                k: formatted_prediction["fine"][k]["probability"]
+                for k in formatted_prediction["fine"]
+                if k in formatted_prediction["medium"][argmax_taxon]["child_ids"]
+            }
+            argmax_taxon = max(prob_dict.items(), key=operator.itemgetter(1))[0]
+            max_prob = prob_dict[argmax_taxon]
+            argmax_prediction["Species (4-letter code)"] = "OTHE"
+            argmax_prediction["Species confidence (%)"] = 100*(1-max_prob)
+            if max_prob>0.5:
+                argmax_dict = formatted_prediction["fine"][argmax_taxon]
+                aliases = argmax_dict["taxonomy_level_aliases"]
                 alias = aliases["species_4letter_code"]
                 argmax_prediction["Species (4-letter code)"] = alias
+                argmax_prediction["Species confidence (%)"] = 100*max_prob
 
     return argmax_prediction, formatted_prediction
 
