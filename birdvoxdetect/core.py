@@ -228,7 +228,13 @@ def process_file(
             "Order", "Order confidence (%)",
             "Family", "Family confidence (%)",
             "Species (4-letter code)", "Species confidence (%)"]
-        df = pd.DataFrame()
+        if set(taxonomy["output_encoding"]) == {"fine"}:
+            df = pd.DataFrame(columns=[
+                "Time (hh:mm:ss)", "Detection confidence (%)",
+                "Species (4-letter code)", "Species confidence (%)"]
+            )
+        elif set(taxonomy["output_encoding"]) == {"fine", "medium", "coarse"}:
+            df = pd.DataFrame(columns=df_columns)
         df.to_csv(checklist_path,index=False)
 
     # Initialize fault log as a Pandas DataFrame.
