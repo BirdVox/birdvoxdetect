@@ -224,17 +224,15 @@ def process_file(
         event_hhmmss = []
         event_4lettercodes = []
         event_confidences = []
-        df_columns = ["Time (hh:mm:ss)", "Detection confidence (%)",
-            "Order", "Order confidence (%)",
-            "Family", "Family confidence (%)",
-            "Species (4-letter code)", "Species confidence (%)"]
         if set(taxonomy["output_encoding"]) == {"fine"}:
-            df = pd.DataFrame(columns=[
-                "Time (hh:mm:ss)", "Detection confidence (%)",
+            df_columns = ["Time (hh:mm:ss)", "Detection confidence (%)",
                 "Species (4-letter code)", "Species confidence (%)"]
-            )
         elif set(taxonomy["output_encoding"]) == {"fine", "medium", "coarse"}:
-            df = pd.DataFrame(columns=df_columns)
+            df_columns = ["Time (hh:mm:ss)", "Detection confidence (%)",
+                "Order", "Order confidence (%)",
+                "Family", "Family confidence (%)",
+                "Species (4-letter code)", "Species confidence (%)"]
+        df = pd.DataFrame(columns=df_columns)
         df.to_csv(checklist_path,index=False)
 
     # Initialize fault log as a Pandas DataFrame.
@@ -445,7 +443,7 @@ def process_file(
                 json_dict["Time (hh:mm:ss)"] = seconds_to_hhmmss(chunk_timestamp)
                 json_dict["Detection confidence (%)"] = float(th_peak_confidences[peak_id])
                 json_dicts.append(json_dict)
-        chunk_df = pd.DataFrame(rows)
+        chunk_df = pd.DataFrame(rows, columns=df_columns)
 
         # Count flight calls.
         if n_peaks>0:
@@ -648,7 +646,7 @@ def process_file(
                 json_dict["Time (hh:mm:ss)"] = seconds_to_hhmmss(chunk_timestamp)
                 json_dict["Detection confidence (%)"] = float(th_peak_confidences[peak_id]),
                 json_dicts.append(json_dict)
-        chunk_df = pd.DataFrame(rows)
+        chunk_df = pd.DataFrame(rows, columns=df_columns)
 
         # Count flight calls.
         if n_peaks>0:
@@ -856,7 +854,7 @@ def process_file(
                     json_dict["Time (hh:mm:ss)"] = seconds_to_hhmmss(chunk_timestamp)
                     json_dict["Detection confidence (%)"] = float(th_peak_confidences[peak_id])
                     json_dicts.append(json_dict)
-            chunk_df = pd.DataFrame(rows)
+            chunk_df = pd.DataFrame(rows, columns=df_columns)
 
             # Count flight calls.
             if n_peaks>0:
