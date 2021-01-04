@@ -436,6 +436,8 @@ def process_file(
         for peak_id, th_peak_loc in enumerate(th_peak_locs):
             row, json_dict = classify_species(
                 classifier, chunk_pcen, th_peak_loc, taxonomy)
+            if row is None:
+                continue
             rows.append(row)
             if predict_proba:
                 chunk_timestamp = chunk_timestamps[peak_id]
@@ -639,6 +641,8 @@ def process_file(
         for peak_id, th_peak_loc in enumerate(th_peak_locs):
             row, json_dict = classify_species(
                 classifier, chunk_pcen, th_peak_loc, taxonomy)
+            if row is None:
+                continue
             rows.append(row)
             if predict_proba:
                 chunk_timestamp = chunk_timestamps[peak_id]
@@ -847,6 +851,8 @@ def process_file(
             for peak_id, th_peak_loc in enumerate(th_peak_locs):
                 row, json_dict = classify_species(
                     classifier, chunk_pcen, th_peak_loc, taxonomy)
+                if row is None:
+                    continue
                 rows.append(row)
                 if predict_proba:
                     chunk_timestamp = chunk_timestamps[peak_id]
