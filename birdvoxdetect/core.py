@@ -1052,7 +1052,7 @@ def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
 
     # If PCEN clip is empty, return None
     if pcen_clip.shape[1] == 0:
-        return None
+        return None, None
 
     # Run BirdVoxClassify.
     bvc_prediction = birdvoxclassify.predict(pcen_clip, classifier=classifier)
