@@ -429,14 +429,15 @@ def process_file(
         th_peak_confidences = chunk_confidence[th_peak_locs]
         chunk_offset = chunk_duration * chunk_id
         chunk_timestamps = chunk_offset + th_peak_locs / frame_rate
-        n_peaks = len(chunk_timestamps)
 
         # Classify species.
         rows = []
+        none_peak_ids = []
         for peak_id, th_peak_loc in enumerate(th_peak_locs):
             row, json_dict = classify_species(
                 classifier, chunk_pcen, th_peak_loc, taxonomy)
             if row is None:
+                none_peak_ids.append(peak_id)
                 continue
             rows.append(row)
             if predict_proba:
@@ -445,6 +446,15 @@ def process_file(
                 json_dict["Time (hh:mm:ss)"] = seconds_to_hhmmss(chunk_timestamp)
                 json_dict["Detection confidence (%)"] = float(th_peak_confidences[peak_id])
                 json_dicts.append(json_dict)
+        th_peak_confidences = [
+            th_peak_confidences[peak_id] for peak_id in range(len(th_peak_locs))
+            if peak_id not in none_peak_ids
+        ]
+        chunk_timestamps = [
+            chunk_timestamps[peak_id] for peak_id in range(len(th_peak_locs))
+            if peak_id not in none_peak_ids
+        ]
+        n_peaks = len(chunk_timestamps)
         chunk_df = pd.DataFrame(rows, columns=df_columns)
 
         # Count flight calls.
@@ -634,14 +644,15 @@ def process_file(
         th_peak_confidences = chunk_confidence[th_peak_locs]
         chunk_offset = chunk_duration * chunk_id
         chunk_timestamps = chunk_offset + th_peak_locs / frame_rate
-        n_peaks = len(chunk_timestamps)
 
         # Classify species.
         rows = []
+        none_peak_ids = []
         for peak_id, th_peak_loc in enumerate(th_peak_locs):
             row, json_dict = classify_species(
                 classifier, chunk_pcen, th_peak_loc, taxonomy)
             if row is None:
+                none_peak_ids.append(peak_id)
                 continue
             rows.append(row)
             if predict_proba:
@@ -650,6 +661,15 @@ def process_file(
                 json_dict["Time (hh:mm:ss)"] = seconds_to_hhmmss(chunk_timestamp)
                 json_dict["Detection confidence (%)"] = float(th_peak_confidences[peak_id]),
                 json_dicts.append(json_dict)
+        th_peak_confidences = [
+            th_peak_confidences[peak_id] for peak_id in range(len(th_peak_locs))
+            if peak_id not in none_peak_ids
+        ]
+        chunk_timestamps = [
+            chunk_timestamps[peak_id] for peak_id in range(len(th_peak_locs))
+            if peak_id not in none_peak_ids
+        ]
+        n_peaks = len(chunk_timestamps)
         chunk_df = pd.DataFrame(rows, columns=df_columns)
 
         # Count flight calls.
@@ -841,17 +861,17 @@ def process_file(
             # Threshold peaks.
             th_peak_locs = peak_locs[peak_vals > threshold]
             th_peak_confidences = chunk_confidence[th_peak_locs]
-
             chunk_offset = chunk_duration * (n_chunks - 1)
             chunk_timestamps = chunk_offset + th_peak_locs / frame_rate
-            n_peaks = len(chunk_timestamps)
 
             # Classify species.
             rows = []
+            none_peak_ids = []
             for peak_id, th_peak_loc in enumerate(th_peak_locs):
                 row, json_dict = classify_species(
                     classifier, chunk_pcen, th_peak_loc, taxonomy)
                 if row is None:
+                    none_peak_ids.append(peak_id)
                     continue
                 rows.append(row)
                 if predict_proba:
@@ -860,6 +880,15 @@ def process_file(
                     json_dict["Time (hh:mm:ss)"] = seconds_to_hhmmss(chunk_timestamp)
                     json_dict["Detection confidence (%)"] = float(th_peak_confidences[peak_id])
                     json_dicts.append(json_dict)
+            th_peak_confidences = [
+                th_peak_confidences[peak_id] for peak_id in range(len(th_peak_locs))
+                if peak_id not in none_peak_ids
+            ]
+            chunk_timestamps = [
+                chunk_timestamps[peak_id] for peak_id in range(len(th_peak_locs))
+                if peak_id not in none_peak_ids
+            ]
+            n_peaks = len(chunk_timestamps)
             chunk_df = pd.DataFrame(rows, columns=df_columns)
 
             # Count flight calls.
