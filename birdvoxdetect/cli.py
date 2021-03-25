@@ -45,6 +45,7 @@ def run(
     suffix="",
     clip_duration=1.0,
     logger_level=logging.INFO,
+    detector_name="birdvoxdetect-v03_trial-12_network_epoch-068"
 ):
     verbose = True
     if isinstance(inputs, string_types):
@@ -94,6 +95,7 @@ def run(
             predict_proba=predict_proba,
             suffix=suffix,
             threshold=threshold,
+            detector_name=detector_name
         )
     if verbose:
         print("birdvoxdetect: Done.")
@@ -188,6 +190,13 @@ def parse_args(args):
     )
 
     parser.add_argument(
+        "--detector-name",
+        "-D",
+        default="birdvoxdetect-v03_trial-12_network_epoch-068",
+        help="Name of flight call detector (see /models branch on git)."
+    )
+
+    parser.add_argument(
         "--quiet", "-q", action="store_true", help="Print less messages on screen."
     )
 
@@ -258,6 +267,7 @@ def main():
         suffix=args.suffix,
         clip_duration=args.clip_duration,
         logger_level=logger_level,
+        detector_name=args.detector_name
     )
 
 
