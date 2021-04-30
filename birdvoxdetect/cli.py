@@ -1,6 +1,6 @@
 from __future__ import print_function
 from argparse import ArgumentParser, RawDescriptionHelpFormatter, ArgumentTypeError
-from collections import Iterable
+from collections.abc import Iterable
 import logging
 import numpy as np
 import os
