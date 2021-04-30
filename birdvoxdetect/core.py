@@ -61,7 +61,10 @@ def process_file(
     logger_level=logging.INFO,
     detector_name="birdvoxdetect-v03_trial-12_network_epoch-068",
     classifier_name="_".join(
-        ["birdvoxclassify-taxonet", "tv1hierarchical-2e7e1bbd434a35b3961e315cfe3832fc"]
+        [
+            "birdvoxclassify-flat-multitask-convnet-v2",
+            "tv1hierarchical-2e7e1bbd434a35b3961e315cfe3832fc",
+        ]
     ),
     custom_objects=None,
     bva_threshold=0.5,
