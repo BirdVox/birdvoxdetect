@@ -227,15 +227,7 @@ def process_file(
         event_hhmmss = []
         event_4lettercodes = []
         event_confidences = []
-        if set(taxonomy["output_encoding"]) == {"fine"}:
-            df_columns = [
-                "Time (hh:mm:ss)",
-                "Detection confidence (%)",
-                "Species (4-letter code)",
-                "Species confidence (%)",
-            ]
-        elif set(taxonomy["output_encoding"]) == {"fine", "medium", "coarse"}:
-            df_columns = [
+        df_columns = [
                 "Time (hh:mm:ss)",
                 "Detection confidence (%)",
                 "Order",
@@ -442,15 +434,18 @@ def process_file(
 
         # Classify species.
         rows = []
-        none_peak_ids = []
         for peak_id, th_peak_loc in enumerate(th_peak_locs):
-            row, json_dict = classify_species(
+            consistent_pred_dict, json_dict = classify_species(
                 classifier, chunk_pcen, th_peak_loc, taxonomy
             )
-            if row is None:
-                none_peak_ids.append(peak_id)
-                continue
-            rows.append(row)
+            rows.append({
+                "Order": consistent_pred["coarse"]["common_name"],
+                "Order confidence (%)": consistent_pred["coarse"]["probability"],
+                "Family": consistent_pred["medium"]["common_name"],
+                "Family confidence (%)": consistent_pred["medium"]["probability"],
+                "Species": consistent_pred["fine"]["common_name"],
+                "Species confidence (%)": consistent_pred["fine"]["probability"]
+            })
             if predict_proba:
                 chunk_timestamp = chunk_timestamps[peak_id]
                 json_dict["Time (s)"] = float(chunk_timestamp)
@@ -462,12 +457,10 @@ def process_file(
         th_peak_confidences = [
             th_peak_confidences[peak_id]
             for peak_id in range(len(th_peak_locs))
-            if peak_id not in none_peak_ids
         ]
         chunk_timestamps = [
             chunk_timestamps[peak_id]
             for peak_id in range(len(th_peak_locs))
-            if peak_id not in none_peak_ids
         ]
         n_peaks = len(chunk_timestamps)
         chunk_df = pd.DataFrame(rows, columns=df_columns)
@@ -670,32 +663,33 @@ def process_file(
 
         # Classify species.
         rows = []
-        none_peak_ids = []
         for peak_id, th_peak_loc in enumerate(th_peak_locs):
-            row, json_dict = classify_species(
+            consistent_pred_dict, json_dict = classify_species(
                 classifier, chunk_pcen, th_peak_loc, taxonomy
             )
-            if row is None:
-                none_peak_ids.append(peak_id)
-                continue
-            rows.append(row)
+            rows.append({
+                "Order": consistent_pred["coarse"]["common_name"],
+                "Order confidence (%)": consistent_pred["coarse"]["probability"],
+                "Family": consistent_pred["medium"]["common_name"],
+                "Family confidence (%)": consistent_pred["medium"]["probability"],
+                "Species": consistent_pred["fine"]["common_name"],
+                "Species confidence (%)": consistent_pred["fine"]["probability"]
+            })
             if predict_proba:
                 chunk_timestamp = chunk_timestamps[peak_id]
-                json_dict["Time (s)"] = (float(chunk_timestamp),)
+                json_dict["Time (s)"] = float(chunk_timestamp)
                 json_dict["Time (hh:mm:ss)"] = seconds_to_hhmmss(chunk_timestamp)
-                json_dict["Detection confidence (%)"] = (
-                    float(th_peak_confidences[peak_id]),
+                json_dict["Detection confidence (%)"] = float(
+                    th_peak_confidences[peak_id]
                 )
                 json_dicts.append(json_dict)
         th_peak_confidences = [
             th_peak_confidences[peak_id]
             for peak_id in range(len(th_peak_locs))
-            if peak_id not in none_peak_ids
         ]
         chunk_timestamps = [
             chunk_timestamps[peak_id]
             for peak_id in range(len(th_peak_locs))
-            if peak_id not in none_peak_ids
         ]
         n_peaks = len(chunk_timestamps)
         chunk_df = pd.DataFrame(rows, columns=df_columns)
@@ -906,15 +900,18 @@ def process_file(
 
             # Classify species.
             rows = []
-            none_peak_ids = []
             for peak_id, th_peak_loc in enumerate(th_peak_locs):
-                row, json_dict = classify_species(
+                consistent_pred_dict, json_dict = classify_species(
                     classifier, chunk_pcen, th_peak_loc, taxonomy
                 )
-                if row is None:
-                    none_peak_ids.append(peak_id)
-                    continue
-                rows.append(row)
+                rows.append({
+                    "Order": consistent_pred["coarse"]["common_name"],
+                    "Order confidence (%)": consistent_pred["coarse"]["probability"],
+                    "Family": consistent_pred["medium"]["common_name"],
+                    "Family confidence (%)": consistent_pred["medium"]["probability"],
+                    "Species": consistent_pred["fine"]["common_name"],
+                    "Species confidence (%)": consistent_pred["fine"]["probability"]
+                })
                 if predict_proba:
                     chunk_timestamp = chunk_timestamps[peak_id]
                     json_dict["Time (s)"] = float(chunk_timestamp)
@@ -926,12 +923,10 @@ def process_file(
             th_peak_confidences = [
                 th_peak_confidences[peak_id]
                 for peak_id in range(len(th_peak_locs))
-                if peak_id not in none_peak_ids
             ]
             chunk_timestamps = [
                 chunk_timestamps[peak_id]
                 for peak_id in range(len(th_peak_locs))
-                if peak_id not in none_peak_ids
             ]
             n_peaks = len(chunk_timestamps)
             chunk_df = pd.DataFrame(rows, columns=df_columns)
