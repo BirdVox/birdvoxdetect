@@ -242,7 +242,7 @@ def process_file(
                 "Order confidence (%)",
                 "Family",
                 "Family confidence (%)",
-                "Species (4-letter code)",
+                "Species",
                 "Species confidence (%)",
             ]
         df = pd.DataFrame(columns=df_columns)
@@ -474,7 +474,7 @@ def process_file(
 
         # Count flight calls.
         if n_peaks > 0:
-            chunk_counter = collections.Counter(chunk_df["Species (4-letter code)"])
+            chunk_counter = collections.Counter(chunk_df["Species"])
             logger.info("Number of flight calls in current chunk: {}".format(n_peaks))
             logger.info(
                 "("
@@ -500,7 +500,7 @@ def process_file(
                 "Order confidence (%)",
                 "Family",
                 "Family confidence (%)",
-                "Species (4-letter code)",
+                "Species",
                 "Species confidence (%)",
             ]
             if column in chunk_df
@@ -526,7 +526,7 @@ def process_file(
                 chunk_timestamps,
                 chunk_hhmmss,
                 list(th_peak_confidences),
-                list(df["Species (4-letter code)"]),
+                list(df["Species"]),
             )
             for (
                 clip_timestamp,
@@ -702,7 +702,7 @@ def process_file(
 
         # Count flight calls.
         if n_peaks > 0:
-            chunk_counter = collections.Counter(chunk_df["Species (4-letter code)"])
+            chunk_counter = collections.Counter(chunk_df["Species"])
             logger.info("Number of flight calls in current chunk: {}".format(n_peaks))
             logger.info(
                 "("
@@ -728,7 +728,7 @@ def process_file(
                 "Order confidence (%)",
                 "Family",
                 "Family confidence (%)",
-                "Species (4-letter code)",
+                "Species",
                 "Species confidence (%)",
             ]
             if column in chunk_df
@@ -754,7 +754,7 @@ def process_file(
                 chunk_timestamps,
                 chunk_hhmmss,
                 list(th_peak_confidences),
-                list(df["Species (4-letter code)"]),
+                list(df["Species"]),
             )
             for (
                 clip_timestamp,
@@ -938,7 +938,7 @@ def process_file(
 
             # Count flight calls.
             if n_peaks > 0:
-                chunk_counter = collections.Counter(chunk_df["Species (4-letter code)"])
+                chunk_counter = collections.Counter(chunk_df["Species"])
                 logger.info(
                     "Number of flight calls in current chunk: {}".format(n_peaks)
                 )
@@ -966,7 +966,7 @@ def process_file(
                     "Order confidence (%)",
                     "Family",
                     "Family confidence (%)",
-                    "Species (4-letter code)",
+                    "Species",
                     "Species confidence (%)",
                 ]
                 if column in chunk_df
@@ -995,7 +995,7 @@ def process_file(
                     chunk_timestamps,
                     chunk_hhmmss,
                     list(th_peak_confidences),
-                    list(df["Species (4-letter code)"]),
+                    list(df["Species"]),
                 )
                 for (
                     clip_timestamp,
@@ -1095,13 +1095,13 @@ def process_file(
     # Print final messages.
     if threshold is not None:
         df = pd.read_csv(checklist_path)
-        if (len(df) > 0) and ("Species (4-letter code)" in df.columns):
+        if (len(df) > 0) and ("Species" in df.columns):
             logger.info(
                 "\n".join(
                     [
                         (k + " " + str(v).rjust(6))
                         for (k, v) in collections.Counter(
-                            df["Species (4-letter code)"]
+                            df["Species"]
                         ).most_common()
                     ]
                 )
