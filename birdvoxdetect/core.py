@@ -681,7 +681,7 @@ def process_file(
                     "Order confidence (%)": consistent_pred_dict["coarse"]["probability"],
                     "Family": consistent_pred_dict["medium"]["common_name"],
                     "Family confidence (%)": consistent_pred_dict["medium"]["probability"],
-                    "Species": consistent_pred[_dict"fine"]["common_name"],
+                    "Species": consistent_pred_dict["fine"]["common_name"],
                     "Species confidence (%)": consistent_pred_dict["fine"]["probability"],
                 }
             )
