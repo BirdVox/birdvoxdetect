@@ -79,7 +79,7 @@ setup(
         "Tracker": "https://github.com/BirdVox/birdvoxdetect/issues",
     },
     install_requires=[
-        "birdvoxclassify>=0.2",
+        "birdvoxclassify>=0.3",
         "h5py>=2.7.0,<3.0.0",
         "librosa==0.7.0",
         "numba==0.48.0",
