@@ -251,7 +251,10 @@ def process_file(
     ]
     faultlist_df = pd.DataFrame(columns=faultlist_df_columns)
     if export_faults:
-        faultlist_df.to_csv(faultlist_path, columns=faultlist_df_columns, index=False)
+        faultlist_df.to_csv(
+            faultlist_path,
+            columns=faultlist_df_columns, index=False, float_format="%.2f%%"
+        )
 
     # Initialize JSON output.
     if predict_proba:
@@ -384,7 +387,8 @@ def process_file(
         )
         if export_faults:
             faultlist_df.to_csv(
-                faultlist_path, columns=faultlist_df_columns, index=False
+                faultlist_path, columns=faultlist_df_columns,
+                index=False, float_format="%.2f%%"
             )
     else:
         chunk_id_start = 0
@@ -499,7 +503,10 @@ def process_file(
             if column in chunk_df
         ]
         df = df.append(chunk_df)
-        df.to_csv(checklist_path, columns=df_columns, index=False)
+        df.to_csv(
+            checklist_path, columns=df_columns,
+            index=False, float_format="%.2f%%"
+        )
 
         # Export probabilities as JSON file.
         if predict_proba:
@@ -597,7 +604,8 @@ def process_file(
         )
         if export_faults:
             faultlist_df.to_csv(
-                faultlist_path, columns=faultlist_df_columns, index=False
+                faultlist_path, columns=faultlist_df_columns,
+                index=False, float_format="%.2f%%"
             )
 
         # If probability of sensor fault is above threshold, exclude chunk.
@@ -728,7 +736,10 @@ def process_file(
             if column in chunk_df
         ]
         df = df.append(chunk_df)
-        df.to_csv(checklist_path, columns=df_columns, index=False)
+        df.to_csv(
+            checklist_path, columns=df_columns,
+            index=False, float_format="%.2f%%"
+        )
 
         # Export probabilities as JSON file.
         if predict_proba:
@@ -795,7 +806,8 @@ def process_file(
         )
         if export_faults:
             faultlist_df.to_csv(
-                faultlist_path, columns=faultlist_df_columns, index=False
+                faultlist_path, columns=faultlist_df_columns,
+                index=False, float_format="%.2f%%"
             )
 
     if (n_chunks > 1) and has_sensor_fault:
@@ -973,7 +985,10 @@ def process_file(
                 if column in chunk_df
             ]
             df = df.append(chunk_df)
-            df.to_csv(checklist_path, columns=df_columns, index=False)
+            df.to_csv(
+                checklist_path, columns=df_columns,
+                index=False, float_format='%.2f%%'
+            )
 
             # Export probabilities as JSON file.
             if predict_proba:
