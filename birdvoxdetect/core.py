@@ -1151,95 +1151,17 @@ def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
     bvc_prediction = birdvoxclassify.predict(pcen_clip, classifier=classifier)
 
     # Format prediction
-    formatted_prediction = birdvoxclassify.format_pred(
+    formatted_pred_dict = birdvoxclassify.format_pred(
         bvc_prediction, taxonomy=taxonomy
     )
 
-    # Get prediction levels.
-    pred_levels = list(formatted_prediction.keys())
+    # Apply hierarchical consistency
+    consistent_pred_dict = get_best_candidates(
+        formatted_pred_dict=formatted_pred_dict,
+        taxonomy=taxonomy,
+        hierarchical_consistency=True)
 
-    # Case of a flat species classifier
-    if pred_levels == ["fine"]:
-        prob_dict = {
-            k: formatted_prediction["fine"][k]["probability"]
-            for k in formatted_prediction["fine"]
-        }
-        argmax_taxon = max(prob_dict.items(), key=operator.itemgetter(1))[0]
-        max_prob = prob_dict[argmax_taxon]
-        argmax_prediction = {
-            "Species (4-letter code)": "OTHE",
-            "Species confidence (%)": 100 * (1 - max_prob),
-        }
-        if max_prob > 0.5:
-            argmax_dict = formatted_prediction["fine"][argmax_taxon]
-            aliases = argmax_dict["taxonomy_level_aliases"]
-            alias = aliases["species_4letter_code"]
-            argmax_prediction["Species (4-letter code)"] = alias
-            argmax_prediction["Species confidence (%)"] = 100 * max_prob
-        return argmax_prediction, formatted_prediction
-
-    # Case of a hierarchical classifier. (ex: TaxoNet)
-    if set(pred_levels) == {"coarse", "medium", "fine"}:
-        # Coarse level: order.
-        prob_dict = {
-            k: formatted_prediction["coarse"][k]["probability"]
-            for k in formatted_prediction["coarse"]
-        }
-        argmax_taxon = max(prob_dict.items(), key=operator.itemgetter(1))[0]
-        max_prob = prob_dict[argmax_taxon]
-        argmax_prediction = {
-            "Order": "other",
-            "Order confidence (%)": 100 * (1 - max_prob),
-        }
-        if max_prob > 0.5:
-            argmax_dict = formatted_prediction["coarse"][argmax_taxon]
-            argmax_prediction["Order"] = argmax_dict["scientific_name"]
-            argmax_prediction["Order confidence (%)"] = 100 * max_prob
-
-        # Medium level: family.
-        if argmax_prediction["Order"] == "other":
-            argmax_prediction["Family"] = "other"
-            argmax_prediction["Family confidence (%)"] = argmax_prediction[
-                "Order confidence (%)"
-            ]
-        else:
-            prob_dict = {
-                k: formatted_prediction["medium"][k]["probability"]
-                for k in formatted_prediction["medium"]
-            }
-            argmax_taxon = max(prob_dict.items(), key=operator.itemgetter(1))[0]
-            max_prob = prob_dict[argmax_taxon]
-            argmax_prediction["Family"] = "other"
-            argmax_prediction["Family confidence (%)"] = 100 * (1 - max_prob)
-            if max_prob > 0.5:
-                argmax_dict = formatted_prediction["medium"][argmax_taxon]
-                argmax_prediction["Family"] = argmax_dict["scientific_name"]
-                argmax_prediction["Family confidence (%)"] = 100 * max_prob
-
-        # Fine level: species.
-        if argmax_prediction["Family"] == "other":
-            argmax_prediction["Species (4-letter code)"] = "OTHE"
-            argmax_prediction["Species confidence (%)"] = argmax_prediction[
-                "Family confidence (%)"
-            ]
-        else:
-            prob_dict = {
-                k: formatted_prediction["fine"][k]["probability"]
-                for k in formatted_prediction["fine"]
-                if k in formatted_prediction["medium"][argmax_taxon]["child_ids"]
-            }
-            argmax_taxon = max(prob_dict.items(), key=operator.itemgetter(1))[0]
-            max_prob = prob_dict[argmax_taxon]
-            argmax_prediction["Species (4-letter code)"] = "OTHE"
-            argmax_prediction["Species confidence (%)"] = 100 * (1 - max_prob)
-            if max_prob > 0.5:
-                argmax_dict = formatted_prediction["fine"][argmax_taxon]
-                aliases = argmax_dict["taxonomy_level_aliases"]
-                alias = aliases["species_4letter_code"]
-                argmax_prediction["Species (4-letter code)"] = alias
-                argmax_prediction["Species confidence (%)"] = 100 * max_prob
-
-    return argmax_prediction, formatted_prediction
+    return consistent_pred_dict, formatted_pred_dict
 
 
 def compute_pcen(audio, sr):
