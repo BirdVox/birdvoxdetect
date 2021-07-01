@@ -228,15 +228,15 @@ def process_file(
         event_4lettercodes = []
         event_confidences = []
         df_columns = [
-                "Time (hh:mm:ss)",
-                "Detection confidence (%)",
-                "Order",
-                "Order confidence (%)",
-                "Family",
-                "Family confidence (%)",
-                "Species",
-                "Species confidence (%)",
-            ]
+            "Time (hh:mm:ss)",
+            "Detection confidence (%)",
+            "Order",
+            "Order confidence (%)",
+            "Family",
+            "Family confidence (%)",
+            "Species",
+            "Species confidence (%)",
+        ]
         df = pd.DataFrame(columns=df_columns)
         df.to_csv(checklist_path, index=False)
 
@@ -438,14 +438,16 @@ def process_file(
             consistent_pred_dict, json_dict = classify_species(
                 classifier, chunk_pcen, th_peak_loc, taxonomy
             )
-            rows.append({
-                "Order": consistent_pred["coarse"]["common_name"],
-                "Order confidence (%)": consistent_pred["coarse"]["probability"],
-                "Family": consistent_pred["medium"]["common_name"],
-                "Family confidence (%)": consistent_pred["medium"]["probability"],
-                "Species": consistent_pred["fine"]["common_name"],
-                "Species confidence (%)": consistent_pred["fine"]["probability"]
-            })
+            rows.append(
+                {
+                    "Order": consistent_pred["coarse"]["common_name"],
+                    "Order confidence (%)": consistent_pred["coarse"]["probability"],
+                    "Family": consistent_pred["medium"]["common_name"],
+                    "Family confidence (%)": consistent_pred["medium"]["probability"],
+                    "Species": consistent_pred["fine"]["common_name"],
+                    "Species confidence (%)": consistent_pred["fine"]["probability"],
+                }
+            )
             if predict_proba:
                 chunk_timestamp = chunk_timestamps[peak_id]
                 json_dict["Time (s)"] = float(chunk_timestamp)
@@ -455,12 +457,10 @@ def process_file(
                 )
                 json_dicts.append(json_dict)
         th_peak_confidences = [
-            th_peak_confidences[peak_id]
-            for peak_id in range(len(th_peak_locs))
+            th_peak_confidences[peak_id] for peak_id in range(len(th_peak_locs))
         ]
         chunk_timestamps = [
-            chunk_timestamps[peak_id]
-            for peak_id in range(len(th_peak_locs))
+            chunk_timestamps[peak_id] for peak_id in range(len(th_peak_locs))
         ]
         n_peaks = len(chunk_timestamps)
         chunk_df = pd.DataFrame(rows, columns=df_columns)
@@ -667,14 +667,16 @@ def process_file(
             consistent_pred_dict, json_dict = classify_species(
                 classifier, chunk_pcen, th_peak_loc, taxonomy
             )
-            rows.append({
-                "Order": consistent_pred["coarse"]["common_name"],
-                "Order confidence (%)": consistent_pred["coarse"]["probability"],
-                "Family": consistent_pred["medium"]["common_name"],
-                "Family confidence (%)": consistent_pred["medium"]["probability"],
-                "Species": consistent_pred["fine"]["common_name"],
-                "Species confidence (%)": consistent_pred["fine"]["probability"]
-            })
+            rows.append(
+                {
+                    "Order": consistent_pred["coarse"]["common_name"],
+                    "Order confidence (%)": consistent_pred["coarse"]["probability"],
+                    "Family": consistent_pred["medium"]["common_name"],
+                    "Family confidence (%)": consistent_pred["medium"]["probability"],
+                    "Species": consistent_pred["fine"]["common_name"],
+                    "Species confidence (%)": consistent_pred["fine"]["probability"],
+                }
+            )
             if predict_proba:
                 chunk_timestamp = chunk_timestamps[peak_id]
                 json_dict["Time (s)"] = float(chunk_timestamp)
@@ -684,12 +686,10 @@ def process_file(
                 )
                 json_dicts.append(json_dict)
         th_peak_confidences = [
-            th_peak_confidences[peak_id]
-            for peak_id in range(len(th_peak_locs))
+            th_peak_confidences[peak_id] for peak_id in range(len(th_peak_locs))
         ]
         chunk_timestamps = [
-            chunk_timestamps[peak_id]
-            for peak_id in range(len(th_peak_locs))
+            chunk_timestamps[peak_id] for peak_id in range(len(th_peak_locs))
         ]
         n_peaks = len(chunk_timestamps)
         chunk_df = pd.DataFrame(rows, columns=df_columns)
@@ -904,14 +904,22 @@ def process_file(
                 consistent_pred_dict, json_dict = classify_species(
                     classifier, chunk_pcen, th_peak_loc, taxonomy
                 )
-                rows.append({
-                    "Order": consistent_pred["coarse"]["common_name"],
-                    "Order confidence (%)": consistent_pred["coarse"]["probability"],
-                    "Family": consistent_pred["medium"]["common_name"],
-                    "Family confidence (%)": consistent_pred["medium"]["probability"],
-                    "Species": consistent_pred["fine"]["common_name"],
-                    "Species confidence (%)": consistent_pred["fine"]["probability"]
-                })
+                rows.append(
+                    {
+                        "Order": consistent_pred["coarse"]["common_name"],
+                        "Order confidence (%)": consistent_pred["coarse"][
+                            "probability"
+                        ],
+                        "Family": consistent_pred["medium"]["common_name"],
+                        "Family confidence (%)": consistent_pred["medium"][
+                            "probability"
+                        ],
+                        "Species": consistent_pred["fine"]["common_name"],
+                        "Species confidence (%)": consistent_pred["fine"][
+                            "probability"
+                        ],
+                    }
+                )
                 if predict_proba:
                     chunk_timestamp = chunk_timestamps[peak_id]
                     json_dict["Time (s)"] = float(chunk_timestamp)
@@ -921,12 +929,10 @@ def process_file(
                     )
                     json_dicts.append(json_dict)
             th_peak_confidences = [
-                th_peak_confidences[peak_id]
-                for peak_id in range(len(th_peak_locs))
+                th_peak_confidences[peak_id] for peak_id in range(len(th_peak_locs))
             ]
             chunk_timestamps = [
-                chunk_timestamps[peak_id]
-                for peak_id in range(len(th_peak_locs))
+                chunk_timestamps[peak_id] for peak_id in range(len(th_peak_locs))
             ]
             n_peaks = len(chunk_timestamps)
             chunk_df = pd.DataFrame(rows, columns=df_columns)
@@ -1095,9 +1101,7 @@ def process_file(
                 "\n".join(
                     [
                         (k + " " + str(v).rjust(6))
-                        for (k, v) in collections.Counter(
-                            df["Species"]
-                        ).most_common()
+                        for (k, v) in collections.Counter(df["Species"]).most_common()
                     ]
                 )
             )
@@ -1146,15 +1150,14 @@ def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
     bvc_prediction = birdvoxclassify.predict(pcen_clip, classifier=classifier)
 
     # Format prediction
-    formatted_pred_dict = birdvoxclassify.format_pred(
-        bvc_prediction, taxonomy=taxonomy
-    )
+    formatted_pred_dict = birdvoxclassify.format_pred(bvc_prediction, taxonomy=taxonomy)
 
     # Apply hierarchical consistency
     consistent_pred_dict = get_best_candidates(
         formatted_pred_dict=formatted_pred_dict,
         taxonomy=taxonomy,
-        hierarchical_consistency=True)
+        hierarchical_consistency=True,
+    )
 
     return consistent_pred_dict, formatted_pred_dict
 
