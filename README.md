@@ -84,8 +84,8 @@ Call syntax:
 
 Below is a typical output from the test suite (file path `tests/data/audio/fd79e55d-d3a3-4083-aba1-4f00b545c3d6.wav`):
 
-Time (hh:mm:ss),Detection confidence (%),Order,Order confidence (%),Family,Family confidence (%),Species (English name),Species (scientific name),Species (4-letter code),Species confidence (%)
-0,00:00:08.78,70.15%,Passeriformes,100.00%,Turdidae,100.00%,Swainson's thrush,Catharus ustulatus,SWTH,99.28%
+    Time (hh:mm:ss),Detection confidence (%),Order,Order confidence (%),Family,Family confidence (%),Species (English name),Species (scientific name),Species (4-letter code),Species confidence (%)
+    0,00:00:08.78,70.15%,Passeriformes,100.00%,Turdidae,100.00%,Swainson's thrush,Catharus ustulatus,SWTH,99.28%
 
 
 ## Contact
