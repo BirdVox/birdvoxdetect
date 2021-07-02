@@ -96,7 +96,7 @@ def test_process_file():
     )
     assert list(df["Order"])[0] == "Passerine"
     assert list(df["Family"])[0] == "Thrush"
-    assert list(df["Species"])[0] == "Swainson's Thrush"
+    assert list(df["Species"])[0] == "Swainson's thrush"
     shutil.rmtree(tmpdir)
 
     # standard call on clip without any flight call
