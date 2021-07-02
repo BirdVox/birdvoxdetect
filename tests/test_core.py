@@ -82,7 +82,7 @@ def test_process_file():
     assert df.columns[3] == "Order confidence (%)"
     assert df.columns[4] == "Family"
     assert df.columns[5] == "Family confidence (%)"
-    assert df.columns[6] == "Species (4-letter code)"
+    assert df.columns[6] == "Species"
     assert df.columns[7] == "Species confidence (%)"
 
     df_strptime = datetime.datetime.strptime(
