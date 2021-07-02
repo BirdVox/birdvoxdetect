@@ -94,8 +94,8 @@ def test_process_file():
     assert np.allclose(
         np.array([df_timedelta.total_seconds()]), np.array([8.79]), atol=0.1
     )
-    assert list(df["Order"])[0] == "Passeriforme"
-    assert list(df["Family"])[0] == "Turdidae"
+    assert list(df["Order"])[0] == "Passerine"
+    assert list(df["Family"])[0] == "Thrush"
     assert list(df["Species"])[0] == "Swainson's Thrush"
     shutil.rmtree(tmpdir)
 
