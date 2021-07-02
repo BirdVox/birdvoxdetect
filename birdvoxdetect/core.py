@@ -1182,6 +1182,9 @@ def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
         hierarchical_consistency=True,
     )
 
+    for level in consistent_pred_dict.keys():
+        consistent_pred_dict[level]["probability"] *= 100
+
     if consistent_pred_dict["coarse"]["common_name"] == "other":
         consistent_pred_dict["coarse"]["common_name"] = ""
 
