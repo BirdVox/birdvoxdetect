@@ -234,7 +234,10 @@ def process_file(
             "Order confidence (%)",
             "Family",
             "Family confidence (%)",
-            "Species",
+            "Species (English name)",
+            "Species (scientific name)",
+            "Species (4-letter code)",
+            "Species (6-letter code)",
             "Species confidence (%)",
         ]
         df = pd.DataFrame(columns=df_columns)
@@ -444,11 +447,14 @@ def process_file(
             )
             rows.append(
                 {
-                    "Order": consistent_pred_dict["coarse"]["common_name"],
+                    "Order": consistent_pred_dict["coarse"]["scientific_name"],
                     "Order confidence (%)": consistent_pred_dict["coarse"]["probability"],
-                    "Family": consistent_pred_dict["medium"]["common_name"],
+                    "Family": consistent_pred_dict["medium"]["scientific_name"],
                     "Family confidence (%)": consistent_pred_dict["medium"]["probability"],
-                    "Species": consistent_pred_dict["fine"]["common_name"],
+                    "Species (English name)": consistent_pred_dict["fine"]["common_name"],
+                    "Species (scientific name)": consistent_pred_dict["fine"]["scientific_name"],
+                    "Species (4-letter code)": consistent_pred_dict["fine"]["taxonomy_level_aliases"]["species_4letter_code"],
+                    "Species (6-letter code)": consistent_pred_dict["fine"]["taxonomy_level_aliases"]["species_6letter_code"],
                     "Species confidence (%)": consistent_pred_dict["fine"]["probability"],
                 }
             )
@@ -497,7 +503,10 @@ def process_file(
                 "Order confidence (%)",
                 "Family",
                 "Family confidence (%)",
-                "Species",
+                "Species (English name)",
+                "Species (scientific name)",
+                "Species (4-letter code)",
+                "Species (6-letter code)",
                 "Species confidence (%)",
             ]
             if column in chunk_df
@@ -677,11 +686,14 @@ def process_file(
             )
             rows.append(
                 {
-                    "Order": consistent_pred_dict["coarse"]["common_name"],
+                    "Order": consistent_pred_dict["coarse"]["scientific_name"],
                     "Order confidence (%)": consistent_pred_dict["coarse"]["probability"],
-                    "Family": consistent_pred_dict["medium"]["common_name"],
+                    "Family": consistent_pred_dict["medium"]["scientific_name"],
                     "Family confidence (%)": consistent_pred_dict["medium"]["probability"],
-                    "Species": consistent_pred_dict["fine"]["common_name"],
+                    "Species (English name)": consistent_pred_dict["fine"]["common_name"],
+                    "Species (scientific name)": consistent_pred_dict["fine"]["scientific_name"],
+                    "Species (4-letter code)": consistent_pred_dict["fine"]["taxonomy_level_aliases"]["species_4letter_code"],
+                    "Species (6-letter code)": consistent_pred_dict["fine"]["taxonomy_level_aliases"]["species_6letter_code"],
                     "Species confidence (%)": consistent_pred_dict["fine"]["probability"],
                 }
             )
@@ -730,7 +742,10 @@ def process_file(
                 "Order confidence (%)",
                 "Family",
                 "Family confidence (%)",
-                "Species",
+                "Species (English name)",
+                "Species (scientific name)",
+                "Species (4-letter code)",
+                "Species (6-letter code)",
                 "Species confidence (%)",
             ]
             if column in chunk_df
@@ -918,18 +933,15 @@ def process_file(
                 )
                 rows.append(
                     {
-                        "Order": consistent_pred_dict["coarse"]["common_name"],
-                        "Order confidence (%)": consistent_pred_dict["coarse"][
-                            "probability"
-                        ],
-                        "Family": consistent_pred_dict["medium"]["common_name"],
-                        "Family confidence (%)": consistent_pred_dict["medium"][
-                            "probability"
-                        ],
-                        "Species": consistent_pred_dict["fine"]["common_name"],
-                        "Species confidence (%)": consistent_pred_dict["fine"][
-                            "probability"
-                        ],
+                        "Order": consistent_pred_dict["coarse"]["scientific_name"],
+                        "Order confidence (%)": consistent_pred_dict["coarse"]["probability"],
+                        "Family": consistent_pred_dict["medium"]["scientific_name"],
+                        "Family confidence (%)": consistent_pred_dict["medium"]["probability"],
+                        "Species (English name)": consistent_pred_dict["fine"]["common_name"],
+                        "Species (scientific name)": consistent_pred_dict["fine"]["scientific_name"],
+                        "Species (4-letter code)": consistent_pred_dict["fine"]["taxonomy_level_aliases"]["species_4letter_code"],
+                        "Species (6-letter code)": consistent_pred_dict["fine"]["taxonomy_level_aliases"]["species_6letter_code"],
+                        "Species confidence (%)": consistent_pred_dict["fine"]["probability"],
                     }
                 )
                 if predict_proba:
@@ -1173,6 +1185,19 @@ def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
         taxonomy=taxonomy,
         hierarchical_consistency=True,
     )
+
+    if consistent_pred_dict["coarse"]["common_name"] == "other":
+        consistent_pred_dict["coarse"]["common_name"] = ""
+
+    if consistent_pred_dict["medium"]["common_name"] == "other":
+        consistent_pred_dict["medium"]["common_name"] = ""
+
+    if consistent_pred_dict["fine"]["common_name"] == "other":
+        consistent_pred_dict["fine"]["scientific_name"] = ""
+        consistent_pred_dict["fine"]["taxonomy_level_aliases"] = {
+            "species_4letter_code": "",
+            "species_6letter_code": "",
+        }
 
     return consistent_pred_dict, formatted_pred_dict
 
