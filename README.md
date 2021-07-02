@@ -18,9 +18,9 @@ if needed.
  Note that birdvoxdetect requires:
 * Python (3.6, 3.7, or 3.8)
 * librosa (==0.7.0)
-* tensorflow (>=2)
+* tensorflow (>=2.2)
 * scikit-learn (==0.21.2)
-* birdvoxclassify (0.2)
+* birdvoxclassify (>=0.3)
 * h5py
 * pandas
 
@@ -84,8 +84,8 @@ Call syntax:
 
 Below is a typical output from the test suite (file path `tests/data/audio/fd79e55d-d3a3-4083-aba1-4f00b545c3d6.wav`):
 
-    Time (hh:mm:ss),Detection confidence (%),Order,Order confidence (%),Family,Family confidence (%),Species (4-letter code),Species confidence (%)
-    00:00:08.78,70.14839172363281,Passeriforme,92.61552095413208,Turdidae,98.76762628555298,SWTH,99.93199110031128
+Time (hh:mm:ss),Detection confidence (%),Order,Order confidence (%),Family,Family confidence (%),Species (English name),Species (scientific name),Species (4-letter code),Species confidence (%)
+0,00:00:08.78,70.15%,Passeriformes,1.00%,Turdidae,1.00%,Swainson's thrush,Catharus ustulatus,SWTH,0.99%
 
 
 ## Contact
