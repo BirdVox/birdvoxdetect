@@ -75,7 +75,7 @@ def test_process_file():
     assert os.path.exists(csv_path)
     df = pd.read_csv(csv_path)
     assert len(df) == 1
-    assert len(df.columns) == 11
+    assert len(df.columns) == 10
     assert df.columns[0] == "Time (hh:mm:ss)"
     assert df.columns[1] == "Detection confidence (%)"
     assert df.columns[2] == "Order"
@@ -85,8 +85,7 @@ def test_process_file():
     assert df.columns[6] == "Species (English name)"
     assert df.columns[7] == "Species (scientific name)"
     assert df.columns[8] == "Species (4-letter code)"
-    assert df.columns[9] == "Species (6-letter code)"
-    assert df.columns[10] == "Species confidence (%)"
+    assert df.columns[9] == "Species confidence (%)"
 
     df_strptime = datetime.datetime.strptime(
         list(df["Time (hh:mm:ss)"])[0], "%H:%M:%S.%f"
