@@ -535,7 +535,7 @@ def process_file(
                 chunk_timestamps,
                 chunk_hhmmss,
                 list(th_peak_confidences),
-                list(df["Species"]),
+                list(df["Species (4-letter code)"]),
             )
             for (
                 clip_timestamp,
@@ -774,7 +774,7 @@ def process_file(
                 chunk_timestamps,
                 chunk_hhmmss,
                 list(th_peak_confidences),
-                list(df["Species"]),
+                list(df["Species (4-letter code)"]),
             )
             for (
                 clip_timestamp,
@@ -1023,7 +1023,7 @@ def process_file(
                     chunk_timestamps,
                     chunk_hhmmss,
                     list(th_peak_confidences),
-                    list(df["Species"]),
+                    list(df["Species (4-letter code)"]),
                 )
                 for (
                     clip_timestamp,
