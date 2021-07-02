@@ -1168,7 +1168,7 @@ def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
     formatted_pred_dict = birdvoxclassify.format_pred(bvc_prediction, taxonomy=taxonomy)
 
     # Apply hierarchical consistency
-    consistent_pred_dict = get_best_candidates(
+    consistent_pred_dict = birdvoxclassify.get_best_candidates(
         formatted_pred_dict=formatted_pred_dict,
         taxonomy=taxonomy,
         hierarchical_consistency=True,
