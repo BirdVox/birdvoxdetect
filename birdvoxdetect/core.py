@@ -237,7 +237,6 @@ def process_file(
             "Species (English name)",
             "Species (scientific name)",
             "Species (4-letter code)",
-            "Species (6-letter code)",
             "Species confidence (%)",
         ]
         df = pd.DataFrame(columns=df_columns)
@@ -454,7 +453,6 @@ def process_file(
                     "Species (English name)": consistent_pred_dict["fine"]["common_name"],
                     "Species (scientific name)": consistent_pred_dict["fine"]["scientific_name"],
                     "Species (4-letter code)": consistent_pred_dict["fine"]["taxonomy_level_aliases"]["species_4letter_code"],
-                    "Species (6-letter code)": consistent_pred_dict["fine"]["taxonomy_level_aliases"]["species_6letter_code"],
                     "Species confidence (%)": consistent_pred_dict["fine"]["probability"],
                 }
             )
@@ -506,7 +504,6 @@ def process_file(
                 "Species (English name)",
                 "Species (scientific name)",
                 "Species (4-letter code)",
-                "Species (6-letter code)",
                 "Species confidence (%)",
             ]
             if column in chunk_df
@@ -693,7 +690,6 @@ def process_file(
                     "Species (English name)": consistent_pred_dict["fine"]["common_name"],
                     "Species (scientific name)": consistent_pred_dict["fine"]["scientific_name"],
                     "Species (4-letter code)": consistent_pred_dict["fine"]["taxonomy_level_aliases"]["species_4letter_code"],
-                    "Species (6-letter code)": consistent_pred_dict["fine"]["taxonomy_level_aliases"]["species_6letter_code"],
                     "Species confidence (%)": consistent_pred_dict["fine"]["probability"],
                 }
             )
@@ -745,7 +741,6 @@ def process_file(
                 "Species (English name)",
                 "Species (scientific name)",
                 "Species (4-letter code)",
-                "Species (6-letter code)",
                 "Species confidence (%)",
             ]
             if column in chunk_df
@@ -940,7 +935,6 @@ def process_file(
                         "Species (English name)": consistent_pred_dict["fine"]["common_name"],
                         "Species (scientific name)": consistent_pred_dict["fine"]["scientific_name"],
                         "Species (4-letter code)": consistent_pred_dict["fine"]["taxonomy_level_aliases"]["species_4letter_code"],
-                        "Species (6-letter code)": consistent_pred_dict["fine"]["taxonomy_level_aliases"]["species_6letter_code"],
                         "Species confidence (%)": consistent_pred_dict["fine"]["probability"],
                     }
                 )
@@ -994,7 +988,6 @@ def process_file(
                     "Species (English name)",
                     "Species (scientific name)",
                     "Species (4-letter code)",
-                    "Species (6-letter code)",
                     "Species confidence (%)",
                 ]
                 if column in chunk_df
