@@ -63,7 +63,7 @@ def process_file(
     classifier_name="_".join(
         [
             "birdvoxclassify-flat-multitask-convnet-v2",
-            "tv1hierarchical-2e7e1bbd434a35b3961e315cfe3832fc",
+            "tv1hierarchical-3c6d869456b2705ea5805b6b7d08f870",
         ]
     ),
     custom_objects=None,
