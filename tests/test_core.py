@@ -75,15 +75,17 @@ def test_process_file():
     assert os.path.exists(csv_path)
     df = pd.read_csv(csv_path)
     assert len(df) == 1
-    assert len(df.columns) == 8
+    assert len(df.columns) == 10
     assert df.columns[0] == "Time (hh:mm:ss)"
     assert df.columns[1] == "Detection confidence (%)"
     assert df.columns[2] == "Order"
     assert df.columns[3] == "Order confidence (%)"
     assert df.columns[4] == "Family"
     assert df.columns[5] == "Family confidence (%)"
-    assert df.columns[6] == "Species (4-letter code)"
-    assert df.columns[7] == "Species confidence (%)"
+    assert df.columns[6] == "Species (English name)"
+    assert df.columns[7] == "Species (scientific name)"
+    assert df.columns[8] == "Species (4-letter code)"
+    assert df.columns[9] == "Species confidence (%)"
 
     df_strptime = datetime.datetime.strptime(
         list(df["Time (hh:mm:ss)"])[0], "%H:%M:%S.%f"
@@ -94,8 +96,9 @@ def test_process_file():
     assert np.allclose(
         np.array([df_timedelta.total_seconds()]), np.array([8.79]), atol=0.1
     )
-    assert list(df["Order"])[0] == "Passeriforme"
+    assert list(df["Order"])[0] == "Passeriformes"
     assert list(df["Family"])[0] == "Turdidae"
+    assert list(df["Species (English name)"])[0] == "Swainson's thrush"
     assert list(df["Species (4-letter code)"])[0] == "SWTH"
     shutil.rmtree(tmpdir)
 

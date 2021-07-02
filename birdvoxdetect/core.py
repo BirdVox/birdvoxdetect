@@ -63,7 +63,7 @@ def process_file(
     classifier_name="_".join(
         [
             "birdvoxclassify-flat-multitask-convnet-v2",
-            "tv1hierarchical-2e7e1bbd434a35b3961e315cfe3832fc",
+            "tv1hierarchical-3c6d869456b2705ea5805b6b7d08f870",
         ]
     ),
     custom_objects=None,
@@ -227,24 +227,18 @@ def process_file(
         event_hhmmss = []
         event_4lettercodes = []
         event_confidences = []
-        if set(taxonomy["output_encoding"]) == {"fine"}:
-            df_columns = [
-                "Time (hh:mm:ss)",
-                "Detection confidence (%)",
-                "Species (4-letter code)",
-                "Species confidence (%)",
-            ]
-        elif set(taxonomy["output_encoding"]) == {"fine", "medium", "coarse"}:
-            df_columns = [
-                "Time (hh:mm:ss)",
-                "Detection confidence (%)",
-                "Order",
-                "Order confidence (%)",
-                "Family",
-                "Family confidence (%)",
-                "Species (4-letter code)",
-                "Species confidence (%)",
-            ]
+        df_columns = [
+            "Time (hh:mm:ss)",
+            "Detection confidence (%)",
+            "Order",
+            "Order confidence (%)",
+            "Family",
+            "Family confidence (%)",
+            "Species (English name)",
+            "Species (scientific name)",
+            "Species (4-letter code)",
+            "Species confidence (%)",
+        ]
         df = pd.DataFrame(columns=df_columns)
         df.to_csv(checklist_path, index=False)
 
@@ -259,7 +253,10 @@ def process_file(
     ]
     faultlist_df = pd.DataFrame(columns=faultlist_df_columns)
     if export_faults:
-        faultlist_df.to_csv(faultlist_path, columns=faultlist_df_columns, index=False)
+        faultlist_df.to_csv(
+            faultlist_path,
+            columns=faultlist_df_columns, index=False, float_format="%.2f%%"
+        )
 
     # Initialize JSON output.
     if predict_proba:
@@ -392,7 +389,8 @@ def process_file(
         )
         if export_faults:
             faultlist_df.to_csv(
-                faultlist_path, columns=faultlist_df_columns, index=False
+                faultlist_path, columns=faultlist_df_columns,
+                index=False, float_format="%.2f%%"
             )
     else:
         chunk_id_start = 0
@@ -442,15 +440,22 @@ def process_file(
 
         # Classify species.
         rows = []
-        none_peak_ids = []
         for peak_id, th_peak_loc in enumerate(th_peak_locs):
-            row, json_dict = classify_species(
+            consistent_pred_dict, json_dict = classify_species(
                 classifier, chunk_pcen, th_peak_loc, taxonomy
             )
-            if row is None:
-                none_peak_ids.append(peak_id)
-                continue
-            rows.append(row)
+            rows.append(
+                {
+                    "Order": consistent_pred_dict["coarse"]["scientific_name"],
+                    "Order confidence (%)": consistent_pred_dict["coarse"]["probability"],
+                    "Family": consistent_pred_dict["medium"]["scientific_name"],
+                    "Family confidence (%)": consistent_pred_dict["medium"]["probability"],
+                    "Species (English name)": consistent_pred_dict["fine"]["common_name"],
+                    "Species (scientific name)": consistent_pred_dict["fine"]["scientific_name"],
+                    "Species (4-letter code)": consistent_pred_dict["fine"]["taxonomy_level_aliases"]["species_4letter_code"],
+                    "Species confidence (%)": consistent_pred_dict["fine"]["probability"],
+                }
+            )
             if predict_proba:
                 chunk_timestamp = chunk_timestamps[peak_id]
                 json_dict["Time (s)"] = float(chunk_timestamp)
@@ -460,21 +465,17 @@ def process_file(
                 )
                 json_dicts.append(json_dict)
         th_peak_confidences = [
-            th_peak_confidences[peak_id]
-            for peak_id in range(len(th_peak_locs))
-            if peak_id not in none_peak_ids
+            th_peak_confidences[peak_id] for peak_id in range(len(th_peak_locs))
         ]
         chunk_timestamps = [
-            chunk_timestamps[peak_id]
-            for peak_id in range(len(th_peak_locs))
-            if peak_id not in none_peak_ids
+            chunk_timestamps[peak_id] for peak_id in range(len(th_peak_locs))
         ]
         n_peaks = len(chunk_timestamps)
         chunk_df = pd.DataFrame(rows, columns=df_columns)
 
         # Count flight calls.
         if n_peaks > 0:
-            chunk_counter = collections.Counter(chunk_df["Species (4-letter code)"])
+            chunk_counter = collections.Counter(chunk_df["Species (English name)"])
             logger.info("Number of flight calls in current chunk: {}".format(n_peaks))
             logger.info(
                 "("
@@ -500,13 +501,18 @@ def process_file(
                 "Order confidence (%)",
                 "Family",
                 "Family confidence (%)",
+                "Species (English name)",
+                "Species (scientific name)",
                 "Species (4-letter code)",
                 "Species confidence (%)",
             ]
             if column in chunk_df
         ]
         df = df.append(chunk_df)
-        df.to_csv(checklist_path, columns=df_columns, index=False)
+        df.to_csv(
+            checklist_path, columns=df_columns,
+            index=False, float_format="%.2f%%"
+        )
 
         # Export probabilities as JSON file.
         if predict_proba:
@@ -604,7 +610,8 @@ def process_file(
         )
         if export_faults:
             faultlist_df.to_csv(
-                faultlist_path, columns=faultlist_df_columns, index=False
+                faultlist_path, columns=faultlist_df_columns,
+                index=False, float_format="%.2f%%"
             )
 
         # If probability of sensor fault is above threshold, exclude chunk.
@@ -670,39 +677,42 @@ def process_file(
 
         # Classify species.
         rows = []
-        none_peak_ids = []
         for peak_id, th_peak_loc in enumerate(th_peak_locs):
-            row, json_dict = classify_species(
+            consistent_pred_dict, json_dict = classify_species(
                 classifier, chunk_pcen, th_peak_loc, taxonomy
             )
-            if row is None:
-                none_peak_ids.append(peak_id)
-                continue
-            rows.append(row)
+            rows.append(
+                {
+                    "Order": consistent_pred_dict["coarse"]["scientific_name"],
+                    "Order confidence (%)": consistent_pred_dict["coarse"]["probability"],
+                    "Family": consistent_pred_dict["medium"]["scientific_name"],
+                    "Family confidence (%)": consistent_pred_dict["medium"]["probability"],
+                    "Species (English name)": consistent_pred_dict["fine"]["common_name"],
+                    "Species (scientific name)": consistent_pred_dict["fine"]["scientific_name"],
+                    "Species (4-letter code)": consistent_pred_dict["fine"]["taxonomy_level_aliases"]["species_4letter_code"],
+                    "Species confidence (%)": consistent_pred_dict["fine"]["probability"],
+                }
+            )
             if predict_proba:
                 chunk_timestamp = chunk_timestamps[peak_id]
-                json_dict["Time (s)"] = (float(chunk_timestamp),)
+                json_dict["Time (s)"] = float(chunk_timestamp)
                 json_dict["Time (hh:mm:ss)"] = seconds_to_hhmmss(chunk_timestamp)
-                json_dict["Detection confidence (%)"] = (
-                    float(th_peak_confidences[peak_id]),
+                json_dict["Detection confidence (%)"] = float(
+                    th_peak_confidences[peak_id]
                 )
                 json_dicts.append(json_dict)
         th_peak_confidences = [
-            th_peak_confidences[peak_id]
-            for peak_id in range(len(th_peak_locs))
-            if peak_id not in none_peak_ids
+            th_peak_confidences[peak_id] for peak_id in range(len(th_peak_locs))
         ]
         chunk_timestamps = [
-            chunk_timestamps[peak_id]
-            for peak_id in range(len(th_peak_locs))
-            if peak_id not in none_peak_ids
+            chunk_timestamps[peak_id] for peak_id in range(len(th_peak_locs))
         ]
         n_peaks = len(chunk_timestamps)
         chunk_df = pd.DataFrame(rows, columns=df_columns)
 
         # Count flight calls.
         if n_peaks > 0:
-            chunk_counter = collections.Counter(chunk_df["Species (4-letter code)"])
+            chunk_counter = collections.Counter(chunk_df["Species (English name)"])
             logger.info("Number of flight calls in current chunk: {}".format(n_peaks))
             logger.info(
                 "("
@@ -728,13 +738,18 @@ def process_file(
                 "Order confidence (%)",
                 "Family",
                 "Family confidence (%)",
+                "Species (English name)",
+                "Species (scientific name)",
                 "Species (4-letter code)",
                 "Species confidence (%)",
             ]
             if column in chunk_df
         ]
         df = df.append(chunk_df)
-        df.to_csv(checklist_path, columns=df_columns, index=False)
+        df.to_csv(
+            checklist_path, columns=df_columns,
+            index=False, float_format="%.2f%%"
+        )
 
         # Export probabilities as JSON file.
         if predict_proba:
@@ -801,7 +816,8 @@ def process_file(
         )
         if export_faults:
             faultlist_df.to_csv(
-                faultlist_path, columns=faultlist_df_columns, index=False
+                faultlist_path, columns=faultlist_df_columns,
+                index=False, float_format="%.2f%%"
             )
 
     if (n_chunks > 1) and has_sensor_fault:
@@ -906,15 +922,22 @@ def process_file(
 
             # Classify species.
             rows = []
-            none_peak_ids = []
             for peak_id, th_peak_loc in enumerate(th_peak_locs):
-                row, json_dict = classify_species(
+                consistent_pred_dict, json_dict = classify_species(
                     classifier, chunk_pcen, th_peak_loc, taxonomy
                 )
-                if row is None:
-                    none_peak_ids.append(peak_id)
-                    continue
-                rows.append(row)
+                rows.append(
+                    {
+                        "Order": consistent_pred_dict["coarse"]["scientific_name"],
+                        "Order confidence (%)": consistent_pred_dict["coarse"]["probability"],
+                        "Family": consistent_pred_dict["medium"]["scientific_name"],
+                        "Family confidence (%)": consistent_pred_dict["medium"]["probability"],
+                        "Species (English name)": consistent_pred_dict["fine"]["common_name"],
+                        "Species (scientific name)": consistent_pred_dict["fine"]["scientific_name"],
+                        "Species (4-letter code)": consistent_pred_dict["fine"]["taxonomy_level_aliases"]["species_4letter_code"],
+                        "Species confidence (%)": consistent_pred_dict["fine"]["probability"],
+                    }
+                )
                 if predict_proba:
                     chunk_timestamp = chunk_timestamps[peak_id]
                     json_dict["Time (s)"] = float(chunk_timestamp)
@@ -924,21 +947,17 @@ def process_file(
                     )
                     json_dicts.append(json_dict)
             th_peak_confidences = [
-                th_peak_confidences[peak_id]
-                for peak_id in range(len(th_peak_locs))
-                if peak_id not in none_peak_ids
+                th_peak_confidences[peak_id] for peak_id in range(len(th_peak_locs))
             ]
             chunk_timestamps = [
-                chunk_timestamps[peak_id]
-                for peak_id in range(len(th_peak_locs))
-                if peak_id not in none_peak_ids
+                chunk_timestamps[peak_id] for peak_id in range(len(th_peak_locs))
             ]
             n_peaks = len(chunk_timestamps)
             chunk_df = pd.DataFrame(rows, columns=df_columns)
 
             # Count flight calls.
             if n_peaks > 0:
-                chunk_counter = collections.Counter(chunk_df["Species (4-letter code)"])
+                chunk_counter = collections.Counter(chunk_df["Species (English name)"])
                 logger.info(
                     "Number of flight calls in current chunk: {}".format(n_peaks)
                 )
@@ -966,13 +985,18 @@ def process_file(
                     "Order confidence (%)",
                     "Family",
                     "Family confidence (%)",
+                    "Species (English name)",
+                    "Species (scientific name)",
                     "Species (4-letter code)",
                     "Species confidence (%)",
                 ]
                 if column in chunk_df
             ]
             df = df.append(chunk_df)
-            df.to_csv(checklist_path, columns=df_columns, index=False)
+            df.to_csv(
+                checklist_path, columns=df_columns,
+                index=False, float_format='%.2f%%'
+            )
 
             # Export probabilities as JSON file.
             if predict_proba:
@@ -1095,14 +1119,12 @@ def process_file(
     # Print final messages.
     if threshold is not None:
         df = pd.read_csv(checklist_path)
-        if (len(df) > 0) and ("Species (4-letter code)" in df.columns):
+        if (len(df) > 0) and ("Species (English name)" in df.columns):
             logger.info(
                 "\n".join(
                     [
                         (k + " " + str(v).rjust(6))
-                        for (k, v) in collections.Counter(
-                            df["Species (4-letter code)"]
-                        ).most_common()
+                        for (k, v) in collections.Counter(df["Species (English name)"]).most_common()
                     ]
                 )
             )
@@ -1151,95 +1173,29 @@ def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
     bvc_prediction = birdvoxclassify.predict(pcen_clip, classifier=classifier)
 
     # Format prediction
-    formatted_prediction = birdvoxclassify.format_pred(
-        bvc_prediction, taxonomy=taxonomy
+    formatted_pred_dict = birdvoxclassify.format_pred(bvc_prediction, taxonomy=taxonomy)
+
+    # Apply hierarchical consistency
+    consistent_pred_dict = birdvoxclassify.get_best_candidates(
+        formatted_pred_dict=formatted_pred_dict,
+        taxonomy=taxonomy,
+        hierarchical_consistency=True,
     )
 
-    # Get prediction levels.
-    pred_levels = list(formatted_prediction.keys())
+    if consistent_pred_dict["coarse"]["common_name"] == "other":
+        consistent_pred_dict["coarse"]["common_name"] = ""
 
-    # Case of a flat species classifier
-    if pred_levels == ["fine"]:
-        prob_dict = {
-            k: formatted_prediction["fine"][k]["probability"]
-            for k in formatted_prediction["fine"]
+    if consistent_pred_dict["medium"]["common_name"] == "other":
+        consistent_pred_dict["medium"]["common_name"] = ""
+
+    if consistent_pred_dict["fine"]["common_name"] == "other":
+        consistent_pred_dict["fine"]["scientific_name"] = ""
+        consistent_pred_dict["fine"]["taxonomy_level_aliases"] = {
+            "species_4letter_code": "",
+            "species_6letter_code": "",
         }
-        argmax_taxon = max(prob_dict.items(), key=operator.itemgetter(1))[0]
-        max_prob = prob_dict[argmax_taxon]
-        argmax_prediction = {
-            "Species (4-letter code)": "OTHE",
-            "Species confidence (%)": 100 * (1 - max_prob),
-        }
-        if max_prob > 0.5:
-            argmax_dict = formatted_prediction["fine"][argmax_taxon]
-            aliases = argmax_dict["taxonomy_level_aliases"]
-            alias = aliases["species_4letter_code"]
-            argmax_prediction["Species (4-letter code)"] = alias
-            argmax_prediction["Species confidence (%)"] = 100 * max_prob
-        return argmax_prediction, formatted_prediction
 
-    # Case of a hierarchical classifier. (ex: TaxoNet)
-    if set(pred_levels) == {"coarse", "medium", "fine"}:
-        # Coarse level: order.
-        prob_dict = {
-            k: formatted_prediction["coarse"][k]["probability"]
-            for k in formatted_prediction["coarse"]
-        }
-        argmax_taxon = max(prob_dict.items(), key=operator.itemgetter(1))[0]
-        max_prob = prob_dict[argmax_taxon]
-        argmax_prediction = {
-            "Order": "other",
-            "Order confidence (%)": 100 * (1 - max_prob),
-        }
-        if max_prob > 0.5:
-            argmax_dict = formatted_prediction["coarse"][argmax_taxon]
-            argmax_prediction["Order"] = argmax_dict["scientific_name"]
-            argmax_prediction["Order confidence (%)"] = 100 * max_prob
-
-        # Medium level: family.
-        if argmax_prediction["Order"] == "other":
-            argmax_prediction["Family"] = "other"
-            argmax_prediction["Family confidence (%)"] = argmax_prediction[
-                "Order confidence (%)"
-            ]
-        else:
-            prob_dict = {
-                k: formatted_prediction["medium"][k]["probability"]
-                for k in formatted_prediction["medium"]
-            }
-            argmax_taxon = max(prob_dict.items(), key=operator.itemgetter(1))[0]
-            max_prob = prob_dict[argmax_taxon]
-            argmax_prediction["Family"] = "other"
-            argmax_prediction["Family confidence (%)"] = 100 * (1 - max_prob)
-            if max_prob > 0.5:
-                argmax_dict = formatted_prediction["medium"][argmax_taxon]
-                argmax_prediction["Family"] = argmax_dict["scientific_name"]
-                argmax_prediction["Family confidence (%)"] = 100 * max_prob
-
-        # Fine level: species.
-        if argmax_prediction["Family"] == "other":
-            argmax_prediction["Species (4-letter code)"] = "OTHE"
-            argmax_prediction["Species confidence (%)"] = argmax_prediction[
-                "Family confidence (%)"
-            ]
-        else:
-            prob_dict = {
-                k: formatted_prediction["fine"][k]["probability"]
-                for k in formatted_prediction["fine"]
-                if k in formatted_prediction["medium"][argmax_taxon]["child_ids"]
-            }
-            argmax_taxon = max(prob_dict.items(), key=operator.itemgetter(1))[0]
-            max_prob = prob_dict[argmax_taxon]
-            argmax_prediction["Species (4-letter code)"] = "OTHE"
-            argmax_prediction["Species confidence (%)"] = 100 * (1 - max_prob)
-            if max_prob > 0.5:
-                argmax_dict = formatted_prediction["fine"][argmax_taxon]
-                aliases = argmax_dict["taxonomy_level_aliases"]
-                alias = aliases["species_4letter_code"]
-                argmax_prediction["Species (4-letter code)"] = alias
-                argmax_prediction["Species confidence (%)"] = 100 * max_prob
-
-    return argmax_prediction, formatted_prediction
+    return consistent_pred_dict, formatted_pred_dict
 
 
 def compute_pcen(audio, sr):
