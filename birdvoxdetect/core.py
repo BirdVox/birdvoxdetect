@@ -1187,9 +1187,11 @@ def classify_species(classifier, chunk_pcen, th_peak_loc, taxonomy):
 
     if consistent_pred_dict["coarse"]["common_name"] == "other":
         consistent_pred_dict["coarse"]["common_name"] = ""
+        consistent_pred_dict["coarse"]["scientific_name"] = ""
 
     if consistent_pred_dict["medium"]["common_name"] == "other":
         consistent_pred_dict["medium"]["common_name"] = ""
+        consistent_pred_dict["medium"]["scientific_name"] = ""
 
     if consistent_pred_dict["fine"]["common_name"] == "other":
         consistent_pred_dict["fine"]["scientific_name"] = ""
