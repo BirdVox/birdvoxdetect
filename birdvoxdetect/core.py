@@ -188,8 +188,7 @@ def process_file(
 
     # Load the taxonomy.
     taxonomy_path = birdvoxclassify.get_taxonomy_path(classifier_name)
-    with open(taxonomy_path) as f:
-        taxonomy = json.load(f)
+    taxonomy = birdvoxclassify.load_taxonomy(taxonomy_path)
 
     # Define percentiles.
     percentiles = [0.1, 1, 10, 25, 50, 75, 90, 99, 99.9]
