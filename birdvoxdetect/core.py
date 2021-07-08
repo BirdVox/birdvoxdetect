@@ -188,8 +188,7 @@ def process_file(
 
     # Load the taxonomy.
     taxonomy_path = birdvoxclassify.get_taxonomy_path(classifier_name)
-    with open(taxonomy_path) as f:
-        taxonomy = json.load(f)
+    taxonomy = birdvoxclassify.load_taxonomy(taxonomy_path)
 
     # Define percentiles.
     percentiles = [0.1, 1, 10, 25, 50, 75, 90, 99, 99.9]
@@ -440,10 +439,14 @@ def process_file(
 
         # Classify species.
         rows = []
+        none_peak_ids = []
         for peak_id, th_peak_loc in enumerate(th_peak_locs):
             consistent_pred_dict, json_dict = classify_species(
                 classifier, chunk_pcen, th_peak_loc, taxonomy
             )
+            if row is None:
+                none_peak_ids.append(peak_id)
+                continue
             rows.append(
                 {
                     "Order": consistent_pred_dict["coarse"]["scientific_name"],
@@ -465,10 +468,14 @@ def process_file(
                 )
                 json_dicts.append(json_dict)
         th_peak_confidences = [
-            th_peak_confidences[peak_id] for peak_id in range(len(th_peak_locs))
+            th_peak_confidences[peak_id]
+            for peak_id in range(len(th_peak_locs))
+            if peak_id not in none_peak_ids
         ]
         chunk_timestamps = [
-            chunk_timestamps[peak_id] for peak_id in range(len(th_peak_locs))
+            chunk_timestamps[peak_id]
+            for peak_id in range(len(th_peak_locs))
+            if peak_id not in none_peak_ids
         ]
         n_peaks = len(chunk_timestamps)
         chunk_df = pd.DataFrame(rows, columns=df_columns)
@@ -677,10 +684,14 @@ def process_file(
 
         # Classify species.
         rows = []
+        none_peak_ids = []
         for peak_id, th_peak_loc in enumerate(th_peak_locs):
             consistent_pred_dict, json_dict = classify_species(
                 classifier, chunk_pcen, th_peak_loc, taxonomy
             )
+            if row is None:
+                none_peak_ids.append(peak_id)
+                continue
             rows.append(
                 {
                     "Order": consistent_pred_dict["coarse"]["scientific_name"],
@@ -702,10 +713,14 @@ def process_file(
                 )
                 json_dicts.append(json_dict)
         th_peak_confidences = [
-            th_peak_confidences[peak_id] for peak_id in range(len(th_peak_locs))
+            th_peak_confidences[peak_id]
+            for peak_id in range(len(th_peak_locs))
+            if peak_id not in none_peak_ids
         ]
         chunk_timestamps = [
-            chunk_timestamps[peak_id] for peak_id in range(len(th_peak_locs))
+            chunk_timestamps[peak_id]
+            for peak_id in range(len(th_peak_locs))
+            if peak_id not in none_peak_ids
         ]
         n_peaks = len(chunk_timestamps)
         chunk_df = pd.DataFrame(rows, columns=df_columns)
@@ -922,10 +937,14 @@ def process_file(
 
             # Classify species.
             rows = []
+            none_peak_ids = []
             for peak_id, th_peak_loc in enumerate(th_peak_locs):
                 consistent_pred_dict, json_dict = classify_species(
                     classifier, chunk_pcen, th_peak_loc, taxonomy
                 )
+                if row is None:
+                    none_peak_ids.append(peak_id)
+                    continue
                 rows.append(
                     {
                         "Order": consistent_pred_dict["coarse"]["scientific_name"],
@@ -947,10 +966,14 @@ def process_file(
                     )
                     json_dicts.append(json_dict)
             th_peak_confidences = [
-                th_peak_confidences[peak_id] for peak_id in range(len(th_peak_locs))
+                th_peak_confidences[peak_id]
+                for peak_id in range(len(th_peak_locs))
+                if peak_id not in none_peak_ids
             ]
             chunk_timestamps = [
-                chunk_timestamps[peak_id] for peak_id in range(len(th_peak_locs))
+                chunk_timestamps[peak_id]
+                for peak_id in range(len(th_peak_locs))
+                if peak_id not in none_peak_ids
             ]
             n_peaks = len(chunk_timestamps)
             chunk_df = pd.DataFrame(rows, columns=df_columns)
