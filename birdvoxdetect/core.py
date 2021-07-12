@@ -444,7 +444,7 @@ def process_file(
             consistent_pred_dict, json_dict = classify_species(
                 classifier, chunk_pcen, th_peak_loc, taxonomy
             )
-            if row is None:
+            if consistent_pred_dict is None:
                 none_peak_ids.append(peak_id)
                 continue
             rows.append(
@@ -689,7 +689,7 @@ def process_file(
             consistent_pred_dict, json_dict = classify_species(
                 classifier, chunk_pcen, th_peak_loc, taxonomy
             )
-            if row is None:
+            if consistent_pred_dict is None:
                 none_peak_ids.append(peak_id)
                 continue
             rows.append(
@@ -942,7 +942,7 @@ def process_file(
                 consistent_pred_dict, json_dict = classify_species(
                     classifier, chunk_pcen, th_peak_loc, taxonomy
                 )
-                if row is None:
+                if consistent_pred_dict is None:
                     none_peak_ids.append(peak_id)
                     continue
                 rows.append(
