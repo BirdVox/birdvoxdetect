@@ -80,13 +80,7 @@ setup(
     },
     install_requires=[
         "birdvoxclassify>=0.3",
-        "h5py>=2.7.0,<3.0.0",
-        "librosa==0.7.0",
-        "numba==0.48.0",
-        "numpy==1.16.4",
-        "pandas==0.25.1",
         "scikit-learn==0.21.2",
-        "tensorflow>=2.2,<2.4",
     ],
     extras_require={
         "docs": [
