@@ -2,6 +2,9 @@
 
 [![PyPI](https://img.shields.io/badge/python-3.6-blue.svg)]()
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://choosealicense.com/licenses/mit/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7414934.svg)](https://doi.org/10.5281/zenodo.7414934)
+
+
 
 BirdVoxDetect is a pre-trained deep learning system which detects flight calls from songbirds in audio recordings, and retrieves the corresponding species.
 It relies on per-channel energy normalization (PCEN) and context-adaptive convolutional neural networks (CA-CNN) for improved robustness to background noise.
