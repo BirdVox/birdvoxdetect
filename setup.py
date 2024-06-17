@@ -80,7 +80,7 @@ setup(
     },
     install_requires=[
         "birdvoxclassify>=0.3",
-        "scikit-learn==0.21.2",
+        "scikit-learn==1.5.0",
     ],
     extras_require={
         "docs": [
